@@ -2,7 +2,7 @@
 <html lang="nb">
 <head>
 <meta charset="UTF-8">
-<title>Nyregistrerte bygg & anlegg – BRREG</title>
+<title>Nyreg bygg & anlegg</title>
 <style>
   :root {
     --bg: #0f1216; --panel: #171b21; --panel-2: #1e242c;
@@ -44,17 +44,12 @@
   td { padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
   tr:hover td { background:var(--panel); }
 
-  /* Underenhet-rader får klart annet utseende */
   tr.row-underenhet td {
     background: rgba(167, 139, 250, 0.06);
     border-left: 3px solid var(--purple);
   }
-  tr.row-underenhet:hover td {
-    background: rgba(167, 139, 250, 0.12);
-  }
-  tr.row-underenhet td:first-child {
-    padding-left: 13px;
-  }
+  tr.row-underenhet:hover td { background: rgba(167, 139, 250, 0.12); }
+  tr.row-underenhet td:first-child { padding-left: 13px; }
 
   .company-name { font-weight:600; color:var(--text); margin-bottom:2px; }
   .company-meta { font-size:12px; color:var(--muted); font-family:var(--mono); }
@@ -101,7 +96,6 @@
   .formal-text { font-size:11px; color:var(--muted); margin-top:6px; font-style:italic; line-height:1.35; max-width:480px; }
   .date-header { background:var(--panel) !important; font-weight:600; color:var(--accent); font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:1px; padding:10px 16px !important; }
 
-  /* Tydelig merkelapp for underenhet */
   .badge-underenhet {
     display:inline-block;
     background: var(--purple);
@@ -138,10 +132,7 @@
     align-items: center;
   }
   .legend-item { display:flex; align-items:center; gap:6px; }
-  .legend-dot {
-    width:12px; height:12px; border-radius:2px;
-    display:inline-block;
-  }
+  .legend-dot { width:12px; height:12px; border-radius:2px; display:inline-block; }
   .legend-dot.new { background: transparent; border: 1px solid var(--muted); }
   .legend-dot.underenhet { background: rgba(167, 139, 250, 0.3); border: 1px solid var(--purple); border-left: 3px solid var(--purple); }
 </style>
@@ -150,8 +141,7 @@
 
 <header>
   <div class="brand">
-    <h1>Nyregistrerte selskaper</h1>
-    <span class="sub">Bygg, anlegg, transport & maskin</span>
+    <h1>Nyreg bygg & anlegg</h1>
   </div>
   <div class="controls">
     <div class="status">
@@ -188,9 +178,6 @@
 
 <div class="stats">
   <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Treff totalt</div></div>
-  <div class="stat"><div class="stat-value" id="newCompanies">–</div><div class="stat-label">Nye selskaper</div></div>
-  <div class="stat"><div class="stat-value" id="newBranches">–</div><div class="stat-label">Nye avdelinger</div></div>
-  <div class="stat"><div class="stat-value" id="withPhone">–</div><div class="stat-label">Med direktenr</div></div>
   <div class="stat"><div class="stat-value" id="nextUpdate">–</div><div class="stat-label">Neste oppdatering</div></div>
 </div>
 
@@ -236,31 +223,64 @@ const NACE_GROUPS = [
   ['49.410','77.320','81.300']
 ];
 
+// Inkluderende ord – gir treff (må være utøvende bygge-/anleggsaktivitet)
 const FORMAL_KEYWORDS = [
-  'bygg', 'anlegg', 'entreprenør', 'entreprenor',
-  'tømrer', 'tomrer', 'snekker',
+  'tømrer', 'tomrer', 'tømmer', 'snekker',
   'rørlegger', 'rorlegger', 'vvs', 'sanitær', 'sanitar',
   'maler', 'malerarbeid', 'malings',
-  'betong', 'mur', 'murer',
+  'betong', 'murer', 'muring',
   'elektriker', 'elektro',
   'taktekker', 'taktekking',
   'grunnarbeid', 'graving', 'gravearbeid',
   'riving', 'rivning',
   'isolering', 'isolasjon',
   'blikkenslager',
-  'gulvleg', 'flisleg', 'fliser',
+  'gulvleg', 'flisleg',
   'ventilasjon',
   'asfalt',
   'tømrermester', 'tomrermester', 'byggmester', 'byggemester',
   'maskinfører', 'maskinforer',
-  'gravemaskin', 'hjullaster', 'traktor',
-  'transport', 'lastebil', 'anleggstransport',
-  'byggeledelse', 'prosjektering', 'byggeteknikk',
-  'stein', 'steinarbeid', 'natursteinsarbeid',
-  'landskap', 'hageanlegg', 'utemilj',
-  'brønnborer', 'bronnborer', 'boring'
+  'gravemaskin', 'hjullaster',
+  'anleggstransport',
+  'steinarbeid', 'natursteinsarbeid',
+  'brønnborer', 'bronnborer',
+  'håndverk', 'handverk',
+  'entreprenør', 'entreprenor'
 ];
 const FORMAL_REGEX = new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i');
+
+// Ekskluderende ord – lukes ut selv om treff på inkluderende ord
+// (fanger opp eiendomsutviklere, konsulenter, handelsledd etc.)
+const EXCLUDE_KEYWORDS = [
+  // Eiendom/utvikling (kjøp og salg uten utførelse)
+  'utvikling av fast eiendom', 'utvikling av eiendom',
+  'kjøp og salg av eiendom', 'kjop og salg av eiendom',
+  'kjøp og salg av fast eiendom', 'kjop og salg av fast eiendom',
+  'salg av boenheter', 'salg av leiligheter',
+  'eiendomsinvestering', 'eiendomsutvikling',
+  'utleie av eiendom', 'utleie av fast eiendom',
+  'eierskap i selskaper', 'investering i selskaper',
+  'kapitalforvaltning', 'holdingsselskap', 'holding',
+  // Konsulenter/rådgivning/arkitekter (ekskluderes per ditt ønske)
+  'konsulent', 'rådgivning', 'radgivning', 'rådgiver', 'radgiver',
+  'arkitekt', 'byggeledelse', 'prosjektering', 'prosjektledelse',
+  'ingeniørtjenester', 'ingeniortjenester',
+  // Handel
+  'handel med byggevarer', 'salg av byggevarer',
+  'import og salg', 'import og eksport',
+  'engroshandel', 'detaljhandel', 'nettbutikk'
+];
+const EXCLUDE_REGEX = new RegExp('(' + EXCLUDE_KEYWORDS.join('|') + ')', 'i');
+
+// NACE-koder som vi alltid ekskluderer selv om formål har bygge-ord
+const EXCLUDE_NACE_PREFIXES = [
+  '68.',   // Eiendom
+  '70.',   // Hovedkontor/bedriftsrådgivning
+  '71.',   // Arkitekt/teknisk konsulent
+  '74.',   // Annen faglig/teknisk virksomhet
+  '46.',   // Engroshandel
+  '47.'    // Detaljhandel
+];
 
 const REFRESH_MS = 10 * 60 * 1000;
 const PAGE_SIZE = 200;
@@ -336,12 +356,27 @@ async function fetchByFormal(from, to) {
   const nacePrefixes = ['41.','42.','43.','49.410','77.320','81.300'];
   const filtered = all.filter(e => {
     const nace = e.naeringskode1?.kode || '';
+
+    // Ikke ta med hvis NACE allerede matcher (fanges av NACE-kilden)
     for (const p of nacePrefixes) {
       if (nace.startsWith(p)) return false;
     }
+
+    // HARDT NACE-filter: ekskluder eiendom, konsulent, handel uansett formål
+    for (const p of EXCLUDE_NACE_PREFIXES) {
+      if (nace.startsWith(p)) return false;
+    }
+
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
     if (!formal) return false;
-    return FORMAL_REGEX.test(formal);
+
+    // Må ha inkluderende ord
+    if (!FORMAL_REGEX.test(formal)) return false;
+
+    // Må IKKE ha ekskluderende ord
+    if (EXCLUDE_REGEX.test(formal)) return false;
+
+    return true;
   });
   filtered.forEach(e => { e._source = 'formal'; });
   return filtered;
@@ -394,7 +429,6 @@ async function fetchCompanies() {
     const merged = Array.from(byOrgnr.values());
 
     merged.sort((a,b) => {
-      // Nye selskaper først, deretter underenheter innenfor samme dato
       const sortRankA = a._source === 'avd' ? 1 : 0;
       const sortRankB = b._source === 'avd' ? 1 : 0;
       const d = (b.registreringsdatoEnhetsregisteret || '').localeCompare(a.registreringsdatoEnhetsregisteret || '');
@@ -437,13 +471,7 @@ function render() {
     return hay.includes(search);
   });
 
-  const totalNew = filtered.filter(e => e._source !== 'avd').length;
-  const totalBranches = filtered.filter(e => e._source === 'avd').length;
-
   document.getElementById('totalCount').textContent = filtered.length;
-  document.getElementById('newCompanies').textContent = totalNew;
-  document.getElementById('newBranches').textContent = totalBranches;
-  document.getElementById('withPhone').textContent = filtered.filter(e => e.telefon || e.mobil).length;
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="empty">Ingen treff i perioden. Prøv å utvide datointervallet.</td></tr>`;
@@ -555,7 +583,6 @@ function rowHtml(e) {
     ? `<div class="addr field-with-copy"><span>📍 ${escapeHtml(fullAddr)}</span>${copyButton(fullAddr, 'adresse')}</div>`
     : '';
 
-  // Tydelig merking for underenheter
   const underenhetBadge = isUnderenhet ? `<span class="badge-underenhet">🏢 AVDELING</span>` : '';
   const overordnetInfo = isUnderenhet && e.overordnetEnhet
     ? `<div class="company-meta" style="color:var(--purple); margin-top:2px">↳ Underenhet av: ${escapeHtml(e.overordnetEnhet)}</div>`
