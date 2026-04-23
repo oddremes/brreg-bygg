@@ -135,6 +135,7 @@
 <div class="stats">
   <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Treff totalt</div></div>
   <div class="stat"><div class="stat-value" id="withPhone">–</div><div class="stat-label">Med direktenr</div></div>
+  <div class="stat"><div class="stat-value" id="filteredOut">–</div><div class="stat-label">Lukt ut (feil dato)</div></div>
   <div class="stat"><div class="stat-value" id="nextUpdate">–</div><div class="stat-label">Neste oppdatering</div></div>
 </div>
 
@@ -158,7 +159,7 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Oppdateres hvert 10. minutt når fanen er åpen.
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Viser kun selskaper faktisk nyregistrert innenfor valgt periode. Oppdateres hvert 10. minutt når fanen er åpen.
 </footer>
 
 <div class="toast" id="toast">Kopiert!</div>
@@ -210,6 +211,7 @@ const REFRESH_MS = 10 * 60 * 1000;
 const PAGE_SIZE = 200;
 
 let currentData = [];
+let lastFilteredOutCount = 0;
 let personCache = new Map();
 let autoRefresh = true;
 let refreshTimer = null;
@@ -306,28 +308,44 @@ async function fetchAvdelinger(from, to) {
   return flat;
 }
 
+// HARDT datofilter: Sørger for at selskapets faktiske registreringsdato
+// er innenfor valgt periode. BRREG-API-et returnerer av og til enheter
+// med dato utenfor spurt periode når man filtrerer på NACE-kode.
+function isWithinDateRange(entity, from, to) {
+  const regDate = entity.registreringsdatoEnhetsregisteret;
+  if (!regDate) return false; // Ingen dato = lukes ut
+  return regDate >= from && regDate <= to;
+}
+
 async function fetchCompanies() {
   setStatus('loading', 'Henter fra BRREG…');
   errorBox.innerHTML = '';
   const from = fromDateEl.value;
   const to = toDateEl.value;
   try {
-    // Alle tre kilder kjøres alltid (ingen synlig valg)
     const resultArrays = await Promise.all([
       fetchByNace(from, to),
       fetchByFormal(from, to),
       fetchAvdelinger(from, to)
     ]);
     const all = resultArrays.flat();
+
+    // Tell hvor mange som lukes ut av datofilteret (for statistikk)
+    const beforeCount = all.length;
+    const withinRange = all.filter(e => isWithinDateRange(e, from, to));
+    lastFilteredOutCount = beforeCount - withinRange.length;
+
+    // Dedup på organisasjonsnummer med prioritet
     const priority = { nace: 0, formal: 1, avd: 2 };
     const byOrgnr = new Map();
-    for (const e of all) {
+    for (const e of withinRange) {
       const existing = byOrgnr.get(e.organisasjonsnummer);
       if (!existing || priority[e._source] < priority[existing._source]) {
         byOrgnr.set(e.organisasjonsnummer, e);
       }
     }
     const merged = Array.from(byOrgnr.values());
+
     merged.sort((a,b) => {
       const d = (b.registreringsdatoEnhetsregisteret || '').localeCompare(a.registreringsdatoEnhetsregisteret || '');
       if (d !== 0) return d;
@@ -370,6 +388,7 @@ function render() {
 
   document.getElementById('totalCount').textContent = filtered.length;
   document.getElementById('withPhone').textContent = filtered.filter(e => e.telefon || e.mobil).length;
+  document.getElementById('filteredOut').textContent = lastFilteredOutCount;
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="empty">Ingen treff i perioden. Prøv å utvide datointervallet.</td></tr>`;
@@ -405,7 +424,6 @@ function copyButton(value, label) {
   return `<button class="copy-icon" onclick="copyField(this, '${escaped}')" title="Kopier ${label}"><svg><use href="#icon-copy"/></svg></button>`;
 }
 
-// Bygger søkelenker. personNavn og adresseString brukes for best mulig treff.
 function buildLookupLinks(e, personNavn) {
   const orgnr = e.organisasjonsnummer;
   const firma = e.navn || '';
@@ -414,7 +432,6 @@ function buildLookupLinks(e, personNavn) {
   const poststed = addr?.poststed || '';
   const adresseSoek = [postnr, poststed].filter(Boolean).join(' ').trim();
 
-  // 1881: navn + adresse (postnr + poststed) for best treff
   let search1881 = '';
   if (personNavn) {
     search1881 = adresseSoek ? `${personNavn} ${adresseSoek}` : personNavn;
@@ -422,7 +439,6 @@ function buildLookupLinks(e, personNavn) {
     search1881 = firma;
   }
 
-  // Gule Sider: navn + poststed
   let searchGs = '';
   if (personNavn) {
     searchGs = poststed ? `${personNavn} ${poststed}` : personNavn;
@@ -430,7 +446,6 @@ function buildLookupLinks(e, personNavn) {
     searchGs = firma;
   }
 
-  // Google: mest presis – navn + firma + adresse + "telefon"
   const googleParts = [];
   if (personNavn) googleParts.push(personNavn);
   googleParts.push(firma);
@@ -479,7 +494,6 @@ function rowHtml(e) {
     ? `<div class="phone-direct field-with-copy"><a href="tel:${phone}">${formatPhone(phone)}</a>${copyButton(phone, 'telefon')}</div>${lookups}`
     : `<div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>${lookups}`;
 
-  // Adresse som vises under kontaktperson (basert på selskapets adresse)
   const fullAddr = buildFullAddress(addr);
   const addressBlock = fullAddr
     ? `<div class="addr field-with-copy"><span>📍 ${escapeHtml(fullAddr)}</span>${copyButton(fullAddr, 'adresse')}</div>`
@@ -520,12 +534,10 @@ function rowHtml(e) {
     </tr>`;
 }
 
-// Formaterer adresseobjekt til lesbar streng
 function buildFullAddress(addr) {
   if (!addr) return '';
   const parts = [];
   if (addr.adresse && addr.adresse.length > 0) {
-    // adresse er et array med gatenavn/linjer
     const gate = addr.adresse.filter(Boolean).join(' ').trim();
     if (gate) parts.push(gate);
   }
