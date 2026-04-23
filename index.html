@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0057)file:///C:/Users/OddMagneTronesRemes/Downloads/index.html -->
+<!-- saved from url=(0059)file:///C:/Users/OddMagneTronesRemes/Downloads/index_1.html -->
 <html lang="nb"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <title>Nyregistrerte bygg &amp; anlegg – BRREG</title>
@@ -8,6 +8,7 @@
     --bg: #0f1216; --panel: #171b21; --panel-2: #1e242c;
     --border: #2a313b; --text: #e6e9ed; --muted: #8a94a2;
     --accent: #f5a623; --green: #4ade80; --red: #f87171;
+    --blue: #60a5fa; --purple: #a78bfa;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --sans: -apple-system, "Segoe UI", Roboto, sans-serif;
   }
@@ -33,10 +34,13 @@
   .filter-group label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-family:var(--mono); }
   input[type="date"], input[type="text"], select { background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:4px; font-family:var(--sans); font-size:13px; }
   input[type="text"] { min-width:200px; }
-  .stats { padding:20px 32px; display:flex; gap:32px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .stats { padding:20px 32px; display:flex; gap:28px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
   .stat { display:flex; flex-direction:column; gap:4px; }
   .stat-value { font-size:24px; font-weight:600; font-family:var(--mono); color:var(--accent); }
   .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); }
+  .source-toggles { padding:12px 32px; background:var(--panel-2); border-bottom:1px solid var(--border); display:flex; gap:18px; align-items:center; flex-wrap:wrap; font-size:12px; font-family:var(--mono); color:var(--muted); }
+  .source-toggles label { display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .source-toggles input[type="checkbox"] { accent-color:var(--accent); }
   .table-wrap { padding:0 32px 40px; }
   table { width:100%; border-collapse:collapse; margin-top:16px; }
   th { text-align:left; padding:12px 16px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); font-weight:500; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:73px; }
@@ -54,10 +58,19 @@
   .lookup-links { display:flex; gap:6px; flex-wrap:wrap; }
   .lookup-links a { display:inline-block; padding:3px 8px; background:var(--panel-2); border:1px solid var(--border); border-radius:3px; color:var(--text); text-decoration:none; font-size:11px; font-family:var(--mono); transition:all 0.15s; }
   .lookup-links a:hover { background:var(--accent); color:#111; border-color:var(--accent); }
+  .lookup-links a.google { border-color:rgba(96,165,250,0.4); color:var(--blue); }
+  .lookup-links a.google:hover { background:var(--blue); color:#111; border-color:var(--blue); }
   .empty { padding:60px; text-align:center; color:var(--muted); }
   .error-msg { padding:16px 20px; margin:16px 32px; background:#3a1a1a; color:#fca5a5; border:1px solid #5a2a2a; border-radius:6px; font-family:var(--mono); font-size:12px; white-space:pre-wrap; word-break:break-all; }
   .time-ago { font-size:11px; color:var(--muted); font-family:var(--mono); }
   footer { padding:20px 32px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); font-family:var(--mono); }
+  .badge { display:inline-block; padding:2px 6px; border-radius:3px; font-size:10px; font-family:var(--mono); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-left:6px; vertical-align:middle; }
+  .badge.nace { background:rgba(245,166,35,0.15); color:var(--accent); border:1px solid rgba(245,166,35,0.3); }
+  .badge.formal { background:rgba(96,165,250,0.15); color:var(--blue); border:1px solid rgba(96,165,250,0.3); }
+  .badge.avd { background:rgba(167,139,250,0.15); color:var(--purple); border:1px solid rgba(167,139,250,0.3); }
+  .formal-text { font-size:11px; color:var(--muted); margin-top:6px; font-style:italic; line-height:1.35; max-width:480px; }
+  .formal-text mark { background:rgba(96,165,250,0.25); color:var(--blue); padding:0 2px; border-radius:2px; }
+  .date-header { background:var(--panel) !important; font-weight:600; color:var(--accent); font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:1px; padding:10px 16px !important; }
 </style>
 </head>
 <body>
@@ -65,12 +78,12 @@
 <header>
   <div class="brand">
     <h1>Nyregistrerte selskaper</h1>
-    <span class="sub">Bygg &amp; anlegg · NACE 41–43</span>
+    <span class="sub">Bygg, anlegg, transport &amp; maskin</span>
   </div>
   <div class="controls">
     <div class="status">
       <div class="dot live" id="statusDot"></div>
-      <span id="statusText">Oppdatert 15:20:34</span>
+      <span id="statusText">Oppdatert 16:00:23</span>
     </div>
     <button class="secondary" id="refreshBtn">Oppdater nå</button>
     <button id="autoBtn">Auto: PÅ</button>
@@ -94,11 +107,20 @@
   </div>
 </div>
 
+<div class="source-toggles">
+  <span>Kilder:</span>
+  <label><input type="checkbox" id="srcNace" checked=""> NACE-koder (41–43, 49.41, 77.32, 81.30)</label>
+  <label><input type="checkbox" id="srcFormal" checked=""> Formål/aktivitet (ord)</label>
+  <label><input type="checkbox" id="srcAvd" checked=""> Nye avdelinger (underenheter)</label>
+</div>
+
 <div class="stats">
-  <div class="stat"><div class="stat-value" id="totalCount">5</div><div class="stat-label">Treff totalt</div></div>
-  <div class="stat"><div class="stat-value" id="withPhone">1</div><div class="stat-label">Med direktenummer</div></div>
-  <div class="stat"><div class="stat-value" id="todayCount">5</div><div class="stat-label">Registrert i dag</div></div>
-  <div class="stat"><div class="stat-value" id="nextUpdate">6:40</div><div class="stat-label">Neste oppdatering</div></div>
+  <div class="stat"><div class="stat-value" id="totalCount">48</div><div class="stat-label">Treff totalt</div></div>
+  <div class="stat"><div class="stat-value" id="naceCount">8</div><div class="stat-label">Fra NACE</div></div>
+  <div class="stat"><div class="stat-value" id="formalCount">36</div><div class="stat-label">Fra formål</div></div>
+  <div class="stat"><div class="stat-value" id="avdCount">4</div><div class="stat-label">Avdelinger</div></div>
+  <div class="stat"><div class="stat-value" id="withPhone">4</div><div class="stat-label">Med direktenr</div></div>
+  <div class="stat"><div class="stat-value" id="nextUpdate">9:52</div><div class="stat-label">Neste oppdatering</div></div>
 </div>
 
 <div id="errorBox"></div>
@@ -107,30 +129,583 @@
   <table>
     <thead>
       <tr>
-        <th style="width:28%">Selskap</th>
-        <th style="width:16%">Org.nr</th>
-        <th style="width:22%">Kontaktperson</th>
+        <th style="width:32%">Selskap</th>
+        <th style="width:14%">Org.nr</th>
+        <th style="width:20%">Kontaktperson</th>
         <th style="width:22%">Telefon / oppslag</th>
         <th style="width:12%">Registrert</th>
       </tr>
     </thead>
-    <tbody id="tbody">
+    <tbody id="tbody"><tr><td colspan="5" class="date-header">📅 Registrert i dag (2026-04-23)</td></tr>
     <tr>
       <td>
-        <div class="company-name">KRO-MASKIN AS KONKURSBO</div>
+        <div class="company-name">A. JACOBSEN<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 4250 KOPERVIK</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Betong</mark>arbeider, gulvstøp. Utleie av arbeidskraft. Utleie til · kranføring. Utleie lastebilsjåfør.</div>
+      </td>
+      <td><span class="orgnr">937535155</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937535155">Alexander Jacobsen</div>
+         <div class="role" id="dl-role-937535155">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=A.%20JACOBSEN%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=A.%20JACOBSEN" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=A.%20JACOBSEN" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/A.%20JACOBSEN" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937535155" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">AKERSHUS INNEKLIMA KROKSVEEN-GRANÅS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 2032 MAURA</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Rens av <mark>ventilasjon</mark>sanlegg på hus og leiligheter.</div>
+      </td>
+      <td><span class="orgnr">937520948</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937520948">Kim André Kroksveen-Granås</div>
+         <div class="role" id="dl-role-937520948">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=AKERSHUS%20INNEKLIMA%20KROKSVEEN-GRAN%C3%85S%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=AKERSHUS%20INNEKLIMA%20KROKSVEEN-GRAN%C3%85S" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=AKERSHUS%20INNEKLIMA%20KROKSVEEN-GRAN%C3%85S" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/AKERSHUS%20INNEKLIMA%20KROKSVEEN-GRAN%C3%85S" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937520948" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">AKERSHUS TREFELLING BAKKE<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 2740 ROA</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Trefelling/linjerydding, beskjæring trær/busker, beplantning, · plenarbeider og <mark>gravemaskin</mark>arbeider. Utleie av utstyr, utleie av · verktøy, maskiner og tilhenger. Hagestell og vedlikehold.</div>
+      </td>
+      <td><span class="orgnr">937492855</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937492855">Henrik Bakke</div>
+         <div class="role" id="dl-role-937492855">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=AKERSHUS%20TREFELLING%20BAKKE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=AKERSHUS%20TREFELLING%20BAKKE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=AKERSHUS%20TREFELLING%20BAKKE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/AKERSHUS%20TREFELLING%20BAKKE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937492855" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">AMUNDSEN MULTISERVICE<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 7732 STEINKJER</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Enkelt <mark>rivning</mark>sarbeid, hageoppdrag (f.eks fjerning av hekk, mindre · trær), annet service arbeid.</div>
+      </td>
+      <td><span class="orgnr">937493347</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937493347">Tor Martin Amundsen</div>
+         <div class="role" id="dl-role-937493347">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=AMUNDSEN%20MULTISERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=AMUNDSEN%20MULTISERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=AMUNDSEN%20MULTISERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/AMUNDSEN%20MULTISERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937493347" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">ARNSTEIN LANGHELLE SERVICE<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 5725 VAKSDAL</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Reparasjon og vedlikehold av <mark>bygg</mark>/eiendom. Transport og · varehåndtering. Renhold og cateringtjenester.</div>
+      </td>
+      <td><span class="orgnr">937532709</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937532709">Arnstein Langhelle</div>
+         <div class="role" id="dl-role-937532709">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=ARNSTEIN%20LANGHELLE%20SERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=ARNSTEIN%20LANGHELLE%20SERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=ARNSTEIN%20LANGHELLE%20SERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/ARNSTEIN%20LANGHELLE%20SERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937532709" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">BAKKEVEIEN 7 HEISTAD AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 3790 HELLE</div>
+        <div class="nace">68.120 Utvikling og salg av byggeprosjekter</div>
+        
+        <div class="formal-text">📜 Utvikling, oppføring og salg av boenheter med tilhørende omland. · Totalentreprenør for utvikling av <mark>bygg</mark>eprosjekter for salg eller · utleie.</div>
+      </td>
+      <td><span class="orgnr">937590555</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937590555">Morten Møklegård</div>
+         <div class="role" id="dl-role-937590555">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=BAKKEVEIEN%207%20HEISTAD%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=BAKKEVEIEN%207%20HEISTAD%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=BAKKEVEIEN%207%20HEISTAD%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/BAKKEVEIEN%207%20HEISTAD%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937590555" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">BERGESTUEN VINDUSSERVICE<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 1364 FORNEBU</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Vindusvask av boliger og eiendom. Vindusvask og rengjøring av <mark>bygg</mark>. · Vindusvask og utvendig rengjøring.</div>
+      </td>
+      <td><span class="orgnr">937492626</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937492626">Casper Bergestuen</div>
+         <div class="role" id="dl-role-937492626">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=BERGESTUEN%20VINDUSSERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=BERGESTUEN%20VINDUSSERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=BERGESTUEN%20VINDUSSERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/BERGESTUEN%20VINDUSSERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937492626" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">BIRKENES FORSKALING AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 5590 ETNE</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Være <mark>betong</mark>entreprenør og yte alle typer arbeider relatert til · forskaling og betongarbeid samt virksomhet naturlig relatert til · dette. · Betongentreprenør.</div>
+      </td>
+      <td><span class="orgnr">937594429</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937594429">Ole Villiam Birkenes</div>
+         <div class="role" id="dl-role-937594429">Styreleder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=BIRKENES%20FORSKALING%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=BIRKENES%20FORSKALING%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=BIRKENES%20FORSKALING%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/BIRKENES%20FORSKALING%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937594429" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">CORCOZ MARIUS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 0476 OSLO</div>
+        <div class="nace">53.200 Andre post- og budtjenester</div>
+        
+        <div class="formal-text">📜 Matlevering fra butikker og restauranter. · <mark>Transport</mark> av gods på vei.</div>
+      </td>
+      <td><span class="orgnr">937595565</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937595565">Marius-Florin Corcoz</div>
+         <div class="role" id="dl-role-937595565">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=CORCOZ%20MARIUS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=CORCOZ%20MARIUS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=CORCOZ%20MARIUS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/CORCOZ%20MARIUS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937595565" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">CRIS TRANSPORT MOCAN<span class="badge nace">NACE</span></div>
+        <div class="company-meta">ENK · 1340 SKUI</div>
+        <div class="nace">49.410 Godstransport på vei</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937488947</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937488947">Aurelian Constantin Cristinel Mocan</div>
+         <div class="role" id="dl-role-937488947">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=CRIS%20TRANSPORT%20MOCAN%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=CRIS%20TRANSPORT%20MOCAN" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=CRIS%20TRANSPORT%20MOCAN" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/CRIS%20TRANSPORT%20MOCAN" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937488947" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">FIRING MULTISERVICE<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 3614 KONGSBERG</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Reparasjoner og vedlikehold av maskiner og utstyr til landbruk, · skogsbruk, <mark>bygg</mark> og anlegg og industri. Avvirking, skogskjøtsel i egen · skog. Tjenester tilknyttet skogbruk, skogsentreprenør, bygge og · anleggsbransjen. Tømrer, vedlikehold av bygg. Grunnarbeid, graving, · sprenging, drenering og planering. Kjøp og salg, utleie av maskiner og · utstyr i landbruk, skogsbruk , bygg og anlegg og industri.</div>
+      </td>
+      <td><span class="orgnr">937492448</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937492448">Jacob-André Firing</div>
+         <div class="role" id="dl-role-937492448">Innehaver</div>
+         <div class="company-meta" style="margin-top:4px">✉ <a href="mailto:jacfiring98@gmail.com" style="color:var(--muted)">jacfiring98@gmail.com</a></div>
+       </div></td>
+      <td><div class="phone-direct"><a href="tel:+4799128855">+4799128855</a></div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=FIRING%20MULTISERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=FIRING%20MULTISERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=FIRING%20MULTISERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/FIRING%20MULTISERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937492448" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">FROG ANLEGG<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 3525 HALLINGBY</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Graving</mark>, drenering og ADK rørlegger. Transport, sprenging, uteområde. · Hagearbeid, bygg, betong, utleie av maskiner og utstyr. Snørydding, · trefelling, skogvokter, service på maskiner og utstyr, utleie.</div>
+      </td>
+      <td><span class="orgnr">937528035</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937528035">Henrik Frog</div>
+         <div class="role" id="dl-role-937528035">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=FROG%20ANLEGG%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=FROG%20ANLEGG" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=FROG%20ANLEGG" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/FROG%20ANLEGG" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937528035" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">GEIR ØYVIND SJØMÆLING<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 7081 SJETNEMARKA</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Kompetansetilbyding innen <mark>transport</mark>, logistikk, kurs/foredrag og · helse.</div>
+      </td>
+      <td><span class="orgnr">837497132</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-837497132">Geir Øyvind Sjømæling</div>
+         <div class="role" id="dl-role-837497132">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=GEIR%20%C3%98YVIND%20SJ%C3%98M%C3%86LING%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=GEIR%20%C3%98YVIND%20SJ%C3%98M%C3%86LING" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=GEIR%20%C3%98YVIND%20SJ%C3%98M%C3%86LING" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/GEIR%20%C3%98YVIND%20SJ%C3%98M%C3%86LING" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/837497132" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">GO TRANSPORTSERVICE AS KONKURSBO<span class="badge nace">NACE</span></div>
+        <div class="company-meta">KBO · 1640 RÅDE</div>
+        <div class="nace">49.410 Godstransport på vei</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937592914</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937592914"><span class="company-meta">Ikke registrert</span></div>
+         <div class="role" id="dl-role-937592914">Kontaktperson</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=GO%20TRANSPORTSERVICE%20AS%20KONKURSBO%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=GO%20TRANSPORTSERVICE%20AS%20KONKURSBO" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=GO%20TRANSPORTSERVICE%20AS%20KONKURSBO" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/GO%20TRANSPORTSERVICE%20AS%20KONKURSBO" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937592914" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">GO TRANSPORTSERVICE AS KONKURSBO<span class="badge avd">Avdeling</span></div>
+        <div class="company-meta">AAFY · 1640 RÅDE</div>
+        <div class="nace">49.410 Godstransport på vei</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937592922</span></td>
+      <td><div class="contact-block">
+         <div class="name"><span class="company-meta">Se hovedenhet</span></div>
+         <div class="role">Avdeling av 937592914</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=GO%20TRANSPORTSERVICE%20AS%20KONKURSBO%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=GO%20TRANSPORTSERVICE%20AS%20KONKURSBO" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=GO%20TRANSPORTSERVICE%20AS%20KONKURSBO" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/GO%20TRANSPORTSERVICE%20AS%20KONKURSBO" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937592922" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">IDE TIL ROM NINA STØA JOHANNESEN<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 1738 BORGENHAUGEN</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Interiørdesign, konsulentoppdrag og <mark>snekker</mark>tjenester.</div>
+      </td>
+      <td><span class="orgnr">937492618</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937492618">Nina Johannesen</div>
+         <div class="role" id="dl-role-937492618">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=IDE%20TIL%20ROM%20NINA%20ST%C3%98A%20JOHANNESEN%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=IDE%20TIL%20ROM%20NINA%20ST%C3%98A%20JOHANNESEN" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=IDE%20TIL%20ROM%20NINA%20ST%C3%98A%20JOHANNESEN" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/IDE%20TIL%20ROM%20NINA%20ST%C3%98A%20JOHANNESEN" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937492618" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">JAN PEDERSEN<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 1366 LYSAKER</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Nettbasert nyhetstjeneste for <mark>elektro</mark>nikk produksjon og · konsulenttjenester.</div>
+      </td>
+      <td><span class="orgnr">937490518</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937490518">Jan Pedersen</div>
+         <div class="role" id="dl-role-937490518">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=JAN%20PEDERSEN%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=JAN%20PEDERSEN" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=JAN%20PEDERSEN" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/JAN%20PEDERSEN" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937490518" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">JB - NÆRING V/JOSTEIN BREKKA<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 1410 KOLBOTN</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Salgsopplæring og konsulenttjenester mot <mark>bygg</mark>evarehandel.</div>
+      </td>
+      <td><span class="orgnr">937490216</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937490216">Jostein Brekka</div>
+         <div class="role" id="dl-role-937490216">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=JB%20-%20N%C3%86RING%20V%2FJOSTEIN%20BREKKA%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=JB%20-%20N%C3%86RING%20V%2FJOSTEIN%20BREKKA" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=JB%20-%20N%C3%86RING%20V%2FJOSTEIN%20BREKKA" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/JB%20-%20N%C3%86RING%20V%2FJOSTEIN%20BREKKA" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937490216" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">JOHNSENS TAKSTSERVICE<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 3159 MELSOMVIK</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Bygg</mark>eteknisk konsulentvirksomhet.</div>
+      </td>
+      <td><span class="orgnr">837535972</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-837535972">Hans-Bjarne Johnsen</div>
+         <div class="role" id="dl-role-837535972">Innehaver</div>
+         
+       </div></td>
+      <td><div class="phone-direct"><a href="tel:+4797884649">+4797884649</a></div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=JOHNSENS%20TAKSTSERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=JOHNSENS%20TAKSTSERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=JOHNSENS%20TAKSTSERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/JOHNSENS%20TAKSTSERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/837535972" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">K. MYKLEBUST SERVICE<span class="badge avd">Avdeling</span></div>
+        <div class="company-meta">BEDR · 6711 BRYGGJA</div>
+        <div class="nace">49.410 Godstransport på vei</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937594801</span></td>
+      <td><div class="contact-block">
+         <div class="name"><span class="company-meta">Se hovedenhet</span></div>
+         <div class="role">Avdeling av 937144822</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=K.%20MYKLEBUST%20SERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=K.%20MYKLEBUST%20SERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=K.%20MYKLEBUST%20SERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/K.%20MYKLEBUST%20SERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937594801" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">KHOM SOLUTIONS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 4617 KRISTIANSAND S</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Annen spesialisert <mark>bygg</mark>e- og anleggsvirksomhet. Annen bygge- og · anleggsvirksomhet. Andre tjenester tilknyttet informasjonsteknologi.</div>
+      </td>
+      <td><span class="orgnr">937536119</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937536119">Na Khom</div>
+         <div class="role" id="dl-role-937536119">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=KHOM%20SOLUTIONS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=KHOM%20SOLUTIONS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=KHOM%20SOLUTIONS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/KHOM%20SOLUTIONS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937536119" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">KILIAN BYGG<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 7970 KOLVEREID</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Bygg</mark>ing og renovering av bygninger, pussing av vegger, maling. · Utskifting av dører og vinduer.</div>
+      </td>
+      <td><span class="orgnr">937487142</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937487142">Lukasz Marcin Kilian</div>
+         <div class="role" id="dl-role-937487142">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=KILIAN%20BYGG%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=KILIAN%20BYGG" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=KILIAN%20BYGG" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/KILIAN%20BYGG" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937487142" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">KRISTIANSEN SERVICE<span class="badge avd">Avdeling</span></div>
+        <div class="company-meta">BEDR · 5173 LODDEFJORD</div>
+        <div class="nace">77.320 Utleie og leasing av bygge- og anleggsmaskiner og -utstyr</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937596502</span></td>
+      <td><div class="contact-block">
+         <div class="name"><span class="company-meta">Se hovedenhet</span></div>
+         <div class="role">Avdeling av 937492588</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=KRISTIANSEN%20SERVICE%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=KRISTIANSEN%20SERVICE" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=KRISTIANSEN%20SERVICE" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/KRISTIANSEN%20SERVICE" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937596502" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">KRO-MASKIN AS KONKURSBO<span class="badge nace">NACE</span></div>
         <div class="company-meta">KBO · 2040 KLØFTA</div>
         <div class="nace">43.120 Grunnarbeid</div>
         
+        
       </td>
       <td><span class="orgnr">937593163</span></td>
-      <td>
-    <div class="contact-block">
-      <div class="name" id="dl-937593163"><span class="company-meta">Ikke tilgjengelig</span></div>
-      <div class="role">Daglig leder</div>
-      
-    </div></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937593163"><span class="company-meta">Ikke registrert</span></div>
+         <div class="role" id="dl-role-937593163">Kontaktperson</div>
+         
+       </div></td>
       <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
     <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=KRO-MASKIN%20AS%20KONKURSBO%20telefon" target="_blank" rel="noopener">Google</a>
       <a href="https://www.1881.no/?query=KRO-MASKIN%20AS%20KONKURSBO" target="_blank" rel="noopener">1881</a>
       <a href="https://www.proff.no/bransjes%C3%B8k?q=KRO-MASKIN%20AS%20KONKURSBO" target="_blank" rel="noopener">Proff</a>
       <a href="https://www.gulesider.no/bedrift/resultat/KRO-MASKIN%20AS%20KONKURSBO" target="_blank" rel="noopener">G.Sider</a>
@@ -140,20 +715,165 @@
     </tr>
     <tr>
       <td>
-        <div class="company-name">MUKK AS</div>
+        <div class="company-name">KRO-MASKIN AS KONKURSBO<span class="badge avd">Avdeling</span></div>
+        <div class="company-meta">AAFY · 2040 KLØFTA</div>
+        <div class="nace">43.120 Grunnarbeid</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937593171</span></td>
+      <td><div class="contact-block">
+         <div class="name"><span class="company-meta">Se hovedenhet</span></div>
+         <div class="role">Avdeling av 937593163</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=KRO-MASKIN%20AS%20KONKURSBO%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=KRO-MASKIN%20AS%20KONKURSBO" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=KRO-MASKIN%20AS%20KONKURSBO" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/KRO-MASKIN%20AS%20KONKURSBO" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937593171" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">LARSEN BYGGKONSULT<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 7035 TRONDHEIM</div>
+        <div class="nace">71.121 Byggeteknisk konsulentvirksomhet</div>
+        
+        <div class="formal-text">📜 Ingeniør- og prosjektledertjenester innen <mark>bygg</mark>eprosjekter.</div>
+      </td>
+      <td><span class="orgnr">937595271</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937595271">Fredrik Larsen</div>
+         <div class="role" id="dl-role-937595271">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=LARSEN%20BYGGKONSULT%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=LARSEN%20BYGGKONSULT" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=LARSEN%20BYGGKONSULT" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/LARSEN%20BYGGKONSULT" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937595271" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">LOHNE MUR OG BETONG<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 4643 SØGNE</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Levering av varer og tjenester innenfor <mark>mur</mark> og betong, · maskinentreprenør og utleie av anleggsmaskiner.</div>
+      </td>
+      <td><span class="orgnr">937500203</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937500203">Christoffer Lohne</div>
+         <div class="role" id="dl-role-937500203">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=LOHNE%20MUR%20OG%20BETONG%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=LOHNE%20MUR%20OG%20BETONG" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=LOHNE%20MUR%20OG%20BETONG" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/LOHNE%20MUR%20OG%20BETONG" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937500203" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">MAGNUS MYHRA<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 2330 VALLSET</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Lastebil</mark>transport.</div>
+      </td>
+      <td><span class="orgnr">937532253</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937532253">Magnus Myhra</div>
+         <div class="role" id="dl-role-937532253">Daglig leder</div>
+         <div class="company-meta" style="margin-top:4px">✉ <a href="mailto:magnus_myhra@hotmail.com" style="color:var(--muted)">magnus_myhra@hotmail.com</a></div>
+       </div></td>
+      <td><div class="phone-direct"><a href="tel:+4796013883">+4796013883</a></div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=MAGNUS%20MYHRA%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=MAGNUS%20MYHRA" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=MAGNUS%20MYHRA" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/MAGNUS%20MYHRA" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937532253" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">MAROOFKHEL CITY TRANSPORT KOLBOTN<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 1413 TÅRNÅSEN</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Transport</mark> og taxi.</div>
+      </td>
+      <td><span class="orgnr">937534671</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937534671">Mokhtyar Maroofkhel</div>
+         <div class="role" id="dl-role-937534671">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=MAROOFKHEL%20CITY%20TRANSPORT%20KOLBOTN%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=MAROOFKHEL%20CITY%20TRANSPORT%20KOLBOTN" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=MAROOFKHEL%20CITY%20TRANSPORT%20KOLBOTN" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/MAROOFKHEL%20CITY%20TRANSPORT%20KOLBOTN" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937534671" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">MORK NIELSEN ARKITEKTTJENESTER AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 9950 VARDØ</div>
+        <div class="nace">71.110 Arkitektvirksomhet</div>
+        
+        <div class="formal-text">📜 Selge varer og tjenester innen arkitektur og annet som naturlig · sammenfaller med dette samt deltakelse i andre selskaper, · investeringer og nærliggende virksomhet. · Arkitekttjenester, <mark>bygg</mark>.</div>
+      </td>
+      <td><span class="orgnr">937591330</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937591330">Marie Nielsen</div>
+         <div class="role" id="dl-role-937591330">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=MORK%20NIELSEN%20ARKITEKTTJENESTER%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=MORK%20NIELSEN%20ARKITEKTTJENESTER%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=MORK%20NIELSEN%20ARKITEKTTJENESTER%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/MORK%20NIELSEN%20ARKITEKTTJENESTER%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937591330" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">MUKK AS<span class="badge nace">NACE</span></div>
         <div class="company-meta">AS · 7670 INDERØY</div>
         <div class="nace">43.320 Snekkerarbeid</div>
         
+        
       </td>
       <td><span class="orgnr">937590857</span></td>
-      <td>
-    <div class="contact-block">
-      <div class="name" id="dl-937590857">Jan Åsmund Haugdal</div>
-      <div class="role">Daglig leder</div>
-      
-    </div></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937590857">Jan Åsmund Haugdal</div>
+         <div class="role" id="dl-role-937590857">Daglig leder</div>
+         
+       </div></td>
       <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
     <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=MUKK%20AS%20telefon" target="_blank" rel="noopener">Google</a>
       <a href="https://www.1881.no/?query=MUKK%20AS" target="_blank" rel="noopener">1881</a>
       <a href="https://www.proff.no/bransjes%C3%B8k?q=MUKK%20AS" target="_blank" rel="noopener">Proff</a>
       <a href="https://www.gulesider.no/bedrift/resultat/MUKK%20AS" target="_blank" rel="noopener">G.Sider</a>
@@ -163,20 +883,189 @@
     </tr>
     <tr>
       <td>
-        <div class="company-name">SELVASTE PERSEN AS</div>
+        <div class="company-name">NO1 ØRA AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 3474 ÅROS</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Eie, utvikle, finansiere, <mark>bygg</mark>e og drifte et industrielt prosjekt · knyttet til behandling av karbonholdige råstoffer og produksjon av · materialer og energi. Virksomheten omfatter mottak og behandling av · råstoff, produksjon og salg av produkter, samt inngåelse av nødvendige · avtaler for drift, herunder leveranse-, offtake- og driftsavtaler. · Selskapet kan kun utøve virksomhet som er direkte knyttet til dette · prosjektet. · Bygge og drifte et industrielt prosjekt knyttet til behandling av · karbonholdig råstoffer.</div>
+      </td>
+      <td><span class="orgnr">937593341</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937593341">Glenn Gunnar Wiig</div>
+         <div class="role" id="dl-role-937593341">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=NO1%20%C3%98RA%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=NO1%20%C3%98RA%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=NO1%20%C3%98RA%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/NO1%20%C3%98RA%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937593341" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">NUVIK AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 3232 SANDEFJORD</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Entreprenør</mark>virksomhet, herunder bygg- og vedlikeholdsarbeid, · isolasjon, kapsling, branntetting, oppmåling, mantling, platekledning, · prefabrikering og andre tekniske løsninger for bygg, industri og · tekniske anlegg, samt renholdstjenester, import, eksport og handel av · varer, agentur- og kommisjonsvirksomhet, og annet som naturlig står i · forbindelse med dette. · Entreprenørvirksomhet, bygg- og vedlikeholdsarbeid, herunder · isolasjon, kapsling, branntetting, mant. Oppmåling, tilpasning og · prefabrikering av isolasjons- og kapslingsløsninger. · Renholdstjenester. Agentur- og kommisjonsvirksomhet knyttet til varer · og tjenester innen bygg, vedlikehold, isolasjon. Import, salg og annen · virksomhet som naturlig faller sammen med dette.</div>
+      </td>
+      <td><span class="orgnr">837590612</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-837590612">Daniil Karabut</div>
+         <div class="role" id="dl-role-837590612">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=NUVIK%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=NUVIK%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=NUVIK%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/NUVIK%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/837590612" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">OTTESTAD MINILAGER AS<span class="badge nace">NACE</span></div>
+        <div class="company-meta">AS · 2312 OTTESTAD</div>
+        <div class="nace">77.320 Utleie og leasing av bygge- og anleggsmaskiner og -utstyr</div>
+        
+        
+      </td>
+      <td><span class="orgnr">937591195</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937591195">Ellen Fjestad</div>
+         <div class="role" id="dl-role-937591195">Styreleder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=OTTESTAD%20MINILAGER%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=OTTESTAD%20MINILAGER%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=OTTESTAD%20MINILAGER%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/OTTESTAD%20MINILAGER%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937591195" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">POLARREP MASKINSERVICE AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 9170 LONGYEARBYEN</div>
+        <div class="nace">33.120 Reparasjon og vedlikehold av maskiner</div>
+        
+        <div class="formal-text">📜 Service av industrimaskiner, hvitevarer, gulvvask/feiemaskiner, · høytrykk og småelektirsk. · Reparasjon av maskiner til landbruk/skogbruk, <mark>bygg</mark>- og anlegg og · industri ellers.</div>
+      </td>
+      <td><span class="orgnr">937590962</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937590962">Erik Alexander Finnerud</div>
+         <div class="role" id="dl-role-937590962">Styreleder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=POLARREP%20MASKINSERVICE%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=POLARREP%20MASKINSERVICE%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=POLARREP%20MASKINSERVICE%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/POLARREP%20MASKINSERVICE%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937590962" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">RUSTAD MEK<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 4516 MANDAL</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Reparasjon av maskiner til landbruk/skogbruk, <mark>bygg</mark>- og anlegg og · industri ellers. · Reparasjon og vedlikehold av biler. · Reparasjon og vedlikehold av motorsykler.</div>
+      </td>
+      <td><span class="orgnr">937590113</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937590113">Julian Olivier Rustad</div>
+         <div class="role" id="dl-role-937590113">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=RUSTAD%20MEK%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=RUSTAD%20MEK" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=RUSTAD%20MEK" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/RUSTAD%20MEK" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937590113" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">S ANDERSEN SOLUTIONS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 9512 ALTA</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Design av 3D modeller, CNC design, industridesign og produktdesign. · Feilsøking og utbedring av lavspenningsystemer (12/24V). Feilsøking og · utbedring på defekt utstyr. Utleie av arbeidskraft. Hovedsaklig mot · <mark>elektro</mark>bransjen. Bilpleie.</div>
+      </td>
+      <td><span class="orgnr">937490852</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937490852">Sigvart Andersen</div>
+         <div class="role" id="dl-role-937490852">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=S%20ANDERSEN%20SOLUTIONS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=S%20ANDERSEN%20SOLUTIONS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=S%20ANDERSEN%20SOLUTIONS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/S%20ANDERSEN%20SOLUTIONS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937490852" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">SCHMIDT TJENESTER<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 0362 OSLO</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Teknisk tjenesteyting, inkludert installasjon og oppsett av · smarthusløsninger og. Energisparende tiltak, reparasjon av <mark>elektro</mark>nikk · som mobil, nettbrett og PC, samt IT-hjelp og. Praktisk · vaktmestertjenester hos privatkunder. Support- og kundeservicehjelp, · inkludert bistand for døve og hørselshemmede (tegnspråk).</div>
+      </td>
+      <td><span class="orgnr">937491697</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937491697">Peter Schmidt</div>
+         <div class="role" id="dl-role-937491697">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=SCHMIDT%20TJENESTER%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=SCHMIDT%20TJENESTER" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=SCHMIDT%20TJENESTER" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/SCHMIDT%20TJENESTER" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937491697" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">SELVASTE PERSEN AS<span class="badge nace">NACE</span></div>
         <div class="company-meta">AS · 9536 KORSFJORDEN</div>
         <div class="nace">43.120 Grunnarbeid</div>
         
+        
       </td>
       <td><span class="orgnr">937592213</span></td>
-      <td>
-    <div class="contact-block">
-      <div class="name" id="dl-937592213">Odd Eilert Persen</div>
-      <div class="role">Daglig leder</div>
-      
-    </div></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937592213">Odd Eilert Persen</div>
+         <div class="role" id="dl-role-937592213">Daglig leder</div>
+         
+       </div></td>
       <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
     <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=SELVASTE%20PERSEN%20AS%20telefon" target="_blank" rel="noopener">Google</a>
       <a href="https://www.1881.no/?query=SELVASTE%20PERSEN%20AS" target="_blank" rel="noopener">1881</a>
       <a href="https://www.proff.no/bransjes%C3%B8k?q=SELVASTE%20PERSEN%20AS" target="_blank" rel="noopener">Proff</a>
       <a href="https://www.gulesider.no/bedrift/resultat/SELVASTE%20PERSEN%20AS" target="_blank" rel="noopener">G.Sider</a>
@@ -186,20 +1075,21 @@
     </tr>
     <tr>
       <td>
-        <div class="company-name">SNEKKER STRAND</div>
+        <div class="company-name">SNEKKER STRAND<span class="badge nace">NACE</span></div>
         <div class="company-meta">ENK · 1466 STRØMMEN</div>
         <div class="nace">43.320 Snekkerarbeid</div>
         
+        
       </td>
       <td><span class="orgnr">937490070</span></td>
-      <td>
-    <div class="contact-block">
-      <div class="name" id="dl-937490070">Daniel Nicolai Strand (Innehaver)</div>
-      <div class="role">Daglig leder</div>
-      
-    </div></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937490070">Daniel Nicolai Strand</div>
+         <div class="role" id="dl-role-937490070">Innehaver</div>
+         
+       </div></td>
       <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
     <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=SNEKKER%20STRAND%20telefon" target="_blank" rel="noopener">Google</a>
       <a href="https://www.1881.no/?query=SNEKKER%20STRAND" target="_blank" rel="noopener">1881</a>
       <a href="https://www.proff.no/bransjes%C3%B8k?q=SNEKKER%20STRAND" target="_blank" rel="noopener">Proff</a>
       <a href="https://www.gulesider.no/bedrift/resultat/SNEKKER%20STRAND" target="_blank" rel="noopener">G.Sider</a>
@@ -209,24 +1099,193 @@
     </tr>
     <tr>
       <td>
-        <div class="company-name">TOR KRISTIANSEN</div>
+        <div class="company-name">TELLESBØ MASKIN<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 6652 SURNADAL</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Utleie og leasing av <mark>bygg</mark>e- og anleggsmaskiner og -utstyr.</div>
+      </td>
+      <td><span class="orgnr">837505372</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-837505372">Robin Tellesbø</div>
+         <div class="role" id="dl-role-837505372">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=TELLESB%C3%98%20MASKIN%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=TELLESB%C3%98%20MASKIN" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=TELLESB%C3%98%20MASKIN" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/TELLESB%C3%98%20MASKIN" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/837505372" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">THOR FURENES TRANSPORT<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 4317 SANDNES</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Transport</mark> for firma A-B,- tilbakelevering av kofferter fra Sola · flyplass til kunder i Rogaland.</div>
+      </td>
+      <td><span class="orgnr">937521197</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937521197">Thor Furenes</div>
+         <div class="role" id="dl-role-937521197">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=THOR%20FURENES%20TRANSPORT%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=THOR%20FURENES%20TRANSPORT" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=THOR%20FURENES%20TRANSPORT" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/THOR%20FURENES%20TRANSPORT" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937521197" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">TOBIAS KVERNMO<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 7710 SPARBU</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Transport</mark> med traktor. Sveising.</div>
+      </td>
+      <td><span class="orgnr">937502494</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937502494">Tobias Kvernmo</div>
+         <div class="role" id="dl-role-937502494">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=TOBIAS%20KVERNMO%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=TOBIAS%20KVERNMO" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=TOBIAS%20KVERNMO" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/TOBIAS%20KVERNMO" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937502494" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">TOFT BYGG AS<span class="badge formal">Formål</span></div>
+        <div class="company-meta">AS · 3218 SANDEFJORD</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Utføre <mark>snekker</mark>arbeid, innvendig og utvendig bygningsarbeid, · gulvlegging, flislegging, tapetsering, samt andre tjenester som · naturlig hører sammen med dette. · Utføre snekkerarbeid, innvendig og utvendig bygningsarbeid, · gulvlegging, flislegging, tapetsering, samt andre tjenester som · naturlig hører sammen med dette.</div>
+      </td>
+      <td><span class="orgnr">937594941</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937594941">Darius Juodeikis</div>
+         <div class="role" id="dl-role-937594941">Daglig leder</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=TOFT%20BYGG%20AS%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=TOFT%20BYGG%20AS" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=TOFT%20BYGG%20AS" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/TOFT%20BYGG%20AS" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937594941" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">TOR KRISTIANSEN<span class="badge nace">NACE</span></div>
         <div class="company-meta">ENK · 2848 SKREIA</div>
         <div class="nace">43.320 Snekkerarbeid</div>
         
+        
       </td>
       <td><span class="orgnr">937596529</span></td>
-      <td>
-    <div class="contact-block">
-      <div class="name" id="dl-937596529">Tor Kristiansen (Innehaver)</div>
-      <div class="role">Daglig leder</div>
-      <div class="company-meta" style="margin-top:4px">✉ <a href="mailto:torsen57@msn.com" style="color:var(--muted)">torsen57@msn.com</a></div>
-    </div></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937596529">Tor Kristiansen</div>
+         <div class="role" id="dl-role-937596529">Innehaver</div>
+         <div class="company-meta" style="margin-top:4px">✉ <a href="mailto:torsen57@msn.com" style="color:var(--muted)">torsen57@msn.com</a></div>
+       </div></td>
       <td><div class="phone-direct"><a href="tel:40037366">400 37 366</a></div>
     <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=TOR%20KRISTIANSEN%20telefon" target="_blank" rel="noopener">Google</a>
       <a href="https://www.1881.no/?query=TOR%20KRISTIANSEN" target="_blank" rel="noopener">1881</a>
       <a href="https://www.proff.no/bransjes%C3%B8k?q=TOR%20KRISTIANSEN" target="_blank" rel="noopener">Proff</a>
       <a href="https://www.gulesider.no/bedrift/resultat/TOR%20KRISTIANSEN" target="_blank" rel="noopener">G.Sider</a>
       <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937596529" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">VEMUND LUNSÆTER<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 2500 TYNSET</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Utleie av <mark>traktor</mark> med sjåfør.</div>
+      </td>
+      <td><span class="orgnr">937491085</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937491085">Vemund Lunsæter</div>
+         <div class="role" id="dl-role-937491085">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=VEMUND%20LUNS%C3%86TER%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=VEMUND%20LUNS%C3%86TER" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=VEMUND%20LUNS%C3%86TER" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/VEMUND%20LUNS%C3%86TER" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937491085" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">WESTDAHL BYGG OG EIENDOM<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 3173 VEAR</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 <mark>Snekker</mark>tjenester, renovering, tilbygg, modernisering, uteområde.</div>
+      </td>
+      <td><span class="orgnr">937494572</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937494572">Stian Knut Westdahl</div>
+         <div class="role" id="dl-role-937494572">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=WESTDAHL%20BYGG%20OG%20EIENDOM%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=WESTDAHL%20BYGG%20OG%20EIENDOM" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=WESTDAHL%20BYGG%20OG%20EIENDOM" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/WESTDAHL%20BYGG%20OG%20EIENDOM" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937494572" target="_blank" rel="noopener">BRREG</a>
+    </div></td>
+      <td><span class="time-ago">2026-04-23</span></td>
+    </tr>
+    <tr>
+      <td>
+        <div class="company-name">ÅSHEIM ANLEGG<span class="badge formal">Formål</span></div>
+        <div class="company-meta">ENK · 1746 SKJEBERG</div>
+        <div class="nace"></div>
+        
+        <div class="formal-text">📜 Utleie av arbeidskraft innen <mark>bygg</mark>- og anleggsmaskiner.</div>
+      </td>
+      <td><span class="orgnr">937492324</span></td>
+      <td><div class="contact-block">
+         <div class="name" id="dl-937492324">Eivind Åsheim</div>
+         <div class="role" id="dl-role-937492324">Innehaver</div>
+         
+       </div></td>
+      <td><div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>
+    <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=%C3%85SHEIM%20ANLEGG%20telefon" target="_blank" rel="noopener">Google</a>
+      <a href="https://www.1881.no/?query=%C3%85SHEIM%20ANLEGG" target="_blank" rel="noopener">1881</a>
+      <a href="https://www.proff.no/bransjes%C3%B8k?q=%C3%85SHEIM%20ANLEGG" target="_blank" rel="noopener">Proff</a>
+      <a href="https://www.gulesider.no/bedrift/resultat/%C3%85SHEIM%20ANLEGG" target="_blank" rel="noopener">G.Sider</a>
+      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/937492324" target="_blank" rel="noopener">BRREG</a>
     </div></td>
       <td><span class="time-ago">2026-04-23</span></td>
     </tr></tbody>
@@ -234,18 +1293,53 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD) · Telefonoppslag: 1881.no / proff.no / gulesider.no · Oppdateres hvert 10. minutt når fanen er åpen.
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). NACE-kilden dekker bygg/anlegg (41–43), anleggstransport (49.41), maskinutleie (77.32) og landskaps-/steinarbeid (81.30). Formål-kilden fanger nye AS/ENK der vedtekter eller aktivitet inneholder relevante ord. Oppdateres hvert 10. minutt når fanen er åpen.
 </footer>
 
 <script>
+// ---- Konfigurasjon ----
 const NACE_GROUPS = [
+  // Bygg (41)
   ['41.200','41.109'],
+  // Anlegg (42)
   ['42.110','42.130','42.210','42.220','42.910','42.990'],
+  // Spesialisert bygg (43)
   ['43.110','43.120','43.130'],
   ['43.210','43.220','43.290'],
   ['43.310','43.320','43.330','43.341','43.342','43.390'],
-  ['43.910','43.991','43.999']
+  ['43.910','43.991','43.999'],
+  // Nye: transport, maskinutleie, landskapsarbeid
+  ['49.410','77.320','81.300']
 ];
+
+const FORMAL_KEYWORDS = [
+  // Kjernefag
+  'bygg', 'anlegg', 'entreprenør', 'entreprenor',
+  'tømrer', 'tomrer', 'snekker',
+  'rørlegger', 'rorlegger', 'vvs', 'sanitær', 'sanitar',
+  'maler', 'malerarbeid', 'malings',
+  'betong', 'mur', 'murer',
+  'elektriker', 'elektro',
+  'taktekker', 'taktekking',
+  'grunnarbeid', 'graving', 'gravearbeid',
+  'riving', 'rivning',
+  'isolering', 'isolasjon',
+  'blikkenslager',
+  'gulvleg', 'flisleg', 'fliser',
+  'ventilasjon',
+  'asfalt',
+  'tømrermester', 'tomrermester', 'byggmester', 'byggemester',
+  // Nye ord: maskin, transport, konsulent
+  'maskinfører', 'maskinforer',
+  'gravemaskin', 'hjullaster', 'traktor',
+  'transport', 'lastebil', 'anleggstransport',
+  'byggeledelse', 'prosjektering', 'byggeteknikk',
+  'stein', 'steinarbeid', 'natursteinsarbeid',
+  'landskap', 'hageanlegg', 'utemilj',
+  'brønnborer', 'bronnborer', 'boring'
+];
+const FORMAL_REGEX = new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i');
+
 const REFRESH_MS = 10 * 60 * 1000;
 const PAGE_SIZE = 200;
 
@@ -255,6 +1349,7 @@ let refreshTimer = null;
 let countdownTimer = null;
 let nextRefreshAt = 0;
 
+// ---- DOM ----
 const tbody = document.getElementById('tbody');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
@@ -265,25 +1360,88 @@ const searchBox = document.getElementById('searchBox');
 const orgFormEl = document.getElementById('orgForm');
 const refreshBtn = document.getElementById('refreshBtn');
 const autoBtn = document.getElementById('autoBtn');
+const srcNace = document.getElementById('srcNace');
+const srcFormal = document.getElementById('srcFormal');
+const srcAvd = document.getElementById('srcAvd');
 
 const today = new Date().toISOString().slice(0,10);
 fromDateEl.value = today;
 toDateEl.value = today;
 
-async function fetchGroup(codes, from, to) {
-  const params = new URLSearchParams();
-  params.set('size', PAGE_SIZE);
-  params.set('fraRegistreringsdatoEnhetsregisteret', from);
-  params.set('tilRegistreringsdatoEnhetsregisteret', to);
-  params.set('naeringskode', codes.join(','));
-  const url = `https://data.brreg.no/enhetsregisteret/api/enheter?${params.toString()}`;
+// ---- API-kall ----
+async function apiGet(url) {
   const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status} for [${codes.join(',')}]\n${body.slice(0,400)}`);
+    throw new Error(`HTTP ${res.status}\n${url}\n${body.slice(0,300)}`);
   }
-  const data = await res.json();
-  return data._embedded?.enheter || [];
+  return await res.json();
+}
+
+async function fetchByNace(from, to) {
+  const results = await Promise.all(NACE_GROUPS.map(async group => {
+    const params = new URLSearchParams();
+    params.set('size', PAGE_SIZE);
+    params.set('fraRegistreringsdatoEnhetsregisteret', from);
+    params.set('tilRegistreringsdatoEnhetsregisteret', to);
+    params.set('naeringskode', group.join(','));
+    const data = await apiGet(`https://data.brreg.no/enhetsregisteret/api/enheter?${params.toString()}`);
+    return data._embedded?.enheter || [];
+  }));
+  const flat = results.flat();
+  flat.forEach(e => { e._source = 'nace'; });
+  return flat;
+}
+
+async function fetchByFormal(from, to) {
+  const forms = ['AS', 'ENK'];
+  const all = [];
+  for (const form of forms) {
+    let page = 0;
+    while (true) {
+      const params = new URLSearchParams();
+      params.set('size', PAGE_SIZE);
+      params.set('page', page);
+      params.set('fraRegistreringsdatoEnhetsregisteret', from);
+      params.set('tilRegistreringsdatoEnhetsregisteret', to);
+      params.set('organisasjonsform', form);
+      const data = await apiGet(`https://data.brreg.no/enhetsregisteret/api/enheter?${params.toString()}`);
+      const list = data._embedded?.enheter || [];
+      all.push(...list);
+      const totalPages = data.page?.totalPages || 1;
+      page += 1;
+      if (page >= totalPages || list.length === 0) break;
+      if (page > 20) break;
+    }
+  }
+  // Ekskluder NACE-treff (fanges av NACE-kilden). Vi bruker alle NACE-prefiks vi bruker.
+  const nacePrefixes = ['41.','42.','43.','49.410','77.320','81.300'];
+  const filtered = all.filter(e => {
+    const nace = e.naeringskode1?.kode || '';
+    for (const p of nacePrefixes) {
+      if (nace.startsWith(p)) return false;
+    }
+    const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
+    if (!formal) return false;
+    return FORMAL_REGEX.test(formal);
+  });
+  filtered.forEach(e => { e._source = 'formal'; });
+  return filtered;
+}
+
+async function fetchAvdelinger(from, to) {
+  const results = await Promise.all(NACE_GROUPS.map(async group => {
+    const params = new URLSearchParams();
+    params.set('size', PAGE_SIZE);
+    params.set('fraRegistreringsdatoEnhetsregisteret', from);
+    params.set('tilRegistreringsdatoEnhetsregisteret', to);
+    params.set('naeringskode', group.join(','));
+    const data = await apiGet(`https://data.brreg.no/enhetsregisteret/api/underenheter?${params.toString()}`);
+    return data._embedded?.underenheter || [];
+  }));
+  const flat = results.flat();
+  flat.forEach(e => { e._source = 'avd'; });
+  return flat;
 }
 
 async function fetchCompanies() {
@@ -292,17 +1450,29 @@ async function fetchCompanies() {
   const from = fromDateEl.value;
   const to = toDateEl.value;
   try {
-    const results = await Promise.all(NACE_GROUPS.map(g => fetchGroup(g, from, to)));
-    const seen = new Set();
-    const merged = [];
-    for (const arr of results) {
-      for (const e of arr) {
-        if (!seen.has(e.organisasjonsnummer)) {
-          seen.add(e.organisasjonsnummer);
-          merged.push(e);
-        }
+    const promises = [];
+    if (srcNace.checked) promises.push(fetchByNace(from, to));
+    if (srcFormal.checked) promises.push(fetchByFormal(from, to));
+    if (srcAvd.checked) promises.push(fetchAvdelinger(from, to));
+    if (promises.length === 0) {
+      currentData = [];
+      render();
+      setStatus('live', 'Ingen kilder valgt');
+      scheduleNext();
+      return;
+    }
+    const resultArrays = await Promise.all(promises);
+    const all = resultArrays.flat();
+    const priority = { nace: 0, formal: 1, avd: 2 };
+    const byOrgnr = new Map();
+    for (const e of all) {
+      const existing = byOrgnr.get(e.organisasjonsnummer);
+      if (!existing || priority[e._source] < priority[existing._source]) {
+        byOrgnr.set(e.organisasjonsnummer, e);
       }
     }
+    const merged = Array.from(byOrgnr.values());
+    // Sorter nyeste dato først, deretter på navn
     merged.sort((a,b) => {
       const d = (b.registreringsdatoEnhetsregisteret || '').localeCompare(a.registreringsdatoEnhetsregisteret || '');
       if (d !== 0) return d;
@@ -325,25 +1495,70 @@ function setStatus(state, text) {
   statusText.textContent = text;
 }
 
+// ---- Render ----
 function render() {
   const search = searchBox.value.toLowerCase().trim();
   const orgForm = orgFormEl.value;
+
   const filtered = currentData.filter(e => {
     if (orgForm && e.organisasjonsform?.kode !== orgForm) return false;
     if (!search) return true;
-    const hay = [e.navn, e.organisasjonsnummer, e.forretningsadresse?.poststed, e.forretningsadresse?.kommune, e.naeringskode1?.kode, e.naeringskode1?.beskrivelse].filter(Boolean).join(' ').toLowerCase();
+    const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
+    const hay = [
+      e.navn, e.organisasjonsnummer,
+      e.forretningsadresse?.poststed, e.forretningsadresse?.kommune,
+      e.beliggenhetsadresse?.poststed, e.beliggenhetsadresse?.kommune,
+      e.naeringskode1?.kode, e.naeringskode1?.beskrivelse,
+      formal
+    ].filter(Boolean).join(' ').toLowerCase();
     return hay.includes(search);
   });
+
   document.getElementById('totalCount').textContent = filtered.length;
+  document.getElementById('naceCount').textContent = filtered.filter(e => e._source === 'nace').length;
+  document.getElementById('formalCount').textContent = filtered.filter(e => e._source === 'formal').length;
+  document.getElementById('avdCount').textContent = filtered.filter(e => e._source === 'avd').length;
   document.getElementById('withPhone').textContent = filtered.filter(e => e.telefon || e.mobil).length;
-  const todayStr = new Date().toISOString().slice(0,10);
-  document.getElementById('todayCount').textContent = filtered.filter(e => e.registreringsdatoEnhetsregisteret === todayStr).length;
+
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="empty">Ingen nyregistrerte bygg/anlegg-selskaper i perioden. Prøv å utvide datointervallet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">Ingen treff i perioden. Prøv å utvide datointervallet eller aktivere flere kilder.</td></tr>`;
     return;
   }
-  tbody.innerHTML = filtered.map(rowHtml).join('');
+
+  // Grupper med dato-overskrift (nyeste først)
+  const rowsHtml = [];
+  let currentDate = null;
+  for (const e of filtered) {
+    const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
+    if (d !== currentDate) {
+      currentDate = d;
+      rowsHtml.push(`<tr><td colspan="5" class="date-header">📅 Registrert ${formatDateHeader(d)}</td></tr>`);
+    }
+    rowsHtml.push(rowHtml(e));
+  }
+  tbody.innerHTML = rowsHtml.join('');
   enrichDagligLedere(filtered);
+}
+
+function formatDateHeader(d) {
+  if (!d || d === 'Ukjent dato') return d;
+  const today = new Date().toISOString().slice(0,10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  if (d === today) return `i dag (${d})`;
+  if (d === yesterday) return `i går (${d})`;
+  return d;
+}
+
+function badgeForSource(src) {
+  if (src === 'nace') return '<span class="badge nace">NACE</span>';
+  if (src === 'formal') return '<span class="badge formal">Formål</span>';
+  if (src === 'avd') return '<span class="badge avd">Avdeling</span>';
+  return '';
+}
+
+function highlightFormal(text) {
+  if (!text) return '';
+  return escapeHtml(text).replace(FORMAL_REGEX, '<mark>$1</mark>');
 }
 
 function rowHtml(e) {
@@ -351,35 +1566,52 @@ function rowHtml(e) {
   const name = escapeHtml(e.navn || '—');
   const orgForm = e.organisasjonsform?.kode || '';
   const nace = e.naeringskode1 ? `${e.naeringskode1.kode} ${escapeHtml(e.naeringskode1.beskrivelse || '')}` : '';
-  const addr = e.forretningsadresse;
+  const addr = e.forretningsadresse || e.beliggenhetsadresse;
   const sted = addr ? `${addr.postnummer || ''} ${escapeHtml(addr.poststed || '')}`.trim() : '';
   const phone = e.telefon || e.mobil || '';
   const email = e.epostadresse || '';
   const web = e.hjemmeside || '';
+  const badge = badgeForSource(e._source);
+
+  const formalArr = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []);
+  const formalText = formalArr.join(' · ');
+  const showFormal = e._source === 'formal' && formalText;
+
   const encName = encodeURIComponent(e.navn || '');
+  const encNameWithPhone = encodeURIComponent((e.navn || '') + ' telefon');
   const lookups = `
     <div class="lookup-links">
+      <a class="google" href="https://www.google.com/search?q=${encNameWithPhone}" target="_blank" rel="noopener">Google</a>
       <a href="https://www.1881.no/?query=${encName}" target="_blank" rel="noopener">1881</a>
       <a href="https://www.proff.no/bransjes%C3%B8k?q=${encName}" target="_blank" rel="noopener">Proff</a>
       <a href="https://www.gulesider.no/bedrift/resultat/${encName}" target="_blank" rel="noopener">G.Sider</a>
       <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
     </div>`;
+
   const phoneBlock = phone
     ? `<div class="phone-direct"><a href="tel:${phone}">${formatPhone(phone)}</a></div>${lookups}`
     : `<div class="company-meta" style="margin-bottom:6px">Ingen tlf i BRREG</div>${lookups}`;
-  const contactBlock = `
-    <div class="contact-block">
-      <div class="name" id="dl-${orgnr}"><span class="company-meta">Henter…</span></div>
-      <div class="role">Daglig leder</div>
-      ${email ? `<div class="company-meta" style="margin-top:4px">✉ <a href="mailto:${email}" style="color:var(--muted)">${email}</a></div>` : ''}
-    </div>`;
+
+  const contactBlock = e._source === 'avd'
+    ? `<div class="contact-block">
+         <div class="name"><span class="company-meta">Se hovedenhet</span></div>
+         <div class="role">Avdeling av ${escapeHtml(e.overordnetEnhet || '')}</div>
+         ${email ? `<div class="company-meta" style="margin-top:4px">✉ ${escapeHtml(email)}</div>` : ''}
+       </div>`
+    : `<div class="contact-block">
+         <div class="name" id="dl-${orgnr}"><span class="company-meta">Henter…</span></div>
+         <div class="role" id="dl-role-${orgnr}">Kontaktperson</div>
+         ${email ? `<div class="company-meta" style="margin-top:4px">✉ <a href="mailto:${email}" style="color:var(--muted)">${escapeHtml(email)}</a></div>` : ''}
+       </div>`;
+
   return `
     <tr>
       <td>
-        <div class="company-name">${name}</div>
+        <div class="company-name">${name}${badge}</div>
         <div class="company-meta">${orgForm} · ${sted}</div>
         <div class="nace">${nace}</div>
         ${web ? `<div class="company-meta">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
+        ${showFormal ? `<div class="formal-text">📜 ${highlightFormal(formalText)}</div>` : ''}
       </td>
       <td><span class="orgnr">${orgnr}</span></td>
       <td>${contactBlock}</td>
@@ -388,7 +1620,8 @@ function rowHtml(e) {
     </tr>`;
 }
 
-async function fetchDagligLeder(orgnr) {
+// Henter kontaktperson med utvidet fallback-liste
+async function fetchKontaktperson(orgnr) {
   try {
     const res = await fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${orgnr}/roller`, {
       headers: { 'Accept': 'application/json' }
@@ -396,20 +1629,24 @@ async function fetchDagligLeder(orgnr) {
     if (!res.ok) return null;
     const data = await res.json();
     const grupper = data.rollegrupper || [];
-    for (const g of grupper) {
-      for (const r of (g.roller || [])) {
-        if (r.type?.kode === 'DAGL' && r.person?.navn) {
-          const p = r.person;
-          return `${p.navn.fornavn || ''} ${p.navn.etternavn || ''}`.trim();
-        }
-      }
-    }
-    for (const kode of ['INNH','LEDE','STYR','KONT']) {
+
+    // Prioritert rekkefølge: daglig leder → innehaver → styreleder → kontaktperson → forretningsfører → styremedlem
+    const priority = [
+      { kode: 'DAGL', label: 'Daglig leder' },
+      { kode: 'INNH', label: 'Innehaver' },
+      { kode: 'LEDE', label: 'Styreleder' },
+      { kode: 'KONT', label: 'Kontaktperson' },
+      { kode: 'FFØR', label: 'Forretningsfører' },
+      { kode: 'MEDL', label: 'Styremedlem' }
+    ];
+
+    for (const { kode, label } of priority) {
       for (const g of grupper) {
         for (const r of (g.roller || [])) {
           if (r.type?.kode === kode && r.person?.navn) {
             const p = r.person;
-            return `${p.navn.fornavn || ''} ${p.navn.etternavn || ''}`.trim() + ` (${r.type.beskrivelse || kode})`;
+            const navn = `${p.navn.fornavn || ''} ${p.navn.etternavn || ''}`.trim();
+            if (navn) return { navn, rolle: label };
           }
         }
       }
@@ -420,14 +1657,21 @@ async function fetchDagligLeder(orgnr) {
 
 async function enrichDagligLedere(list) {
   for (const e of list) {
+    if (e._source === 'avd') continue;
     const el = document.getElementById(`dl-${e.organisasjonsnummer}`);
+    const roleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
     if (!el || !el.querySelector('.company-meta')) continue;
-    const name = await fetchDagligLeder(e.organisasjonsnummer);
+    const result = await fetchKontaktperson(e.organisasjonsnummer);
     const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
+    const stillRoleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
     if (!stillEl) continue;
-    if (name) stillEl.textContent = name;
-    else stillEl.innerHTML = '<span class="company-meta">Ikke tilgjengelig</span>';
-    await new Promise(r => setTimeout(r, 120));
+    if (result) {
+      stillEl.textContent = result.navn;
+      if (stillRoleEl) stillRoleEl.textContent = result.rolle;
+    } else {
+      stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
+    }
+    await new Promise(r => setTimeout(r, 100));
   }
 }
 
@@ -470,6 +1714,9 @@ searchBox.addEventListener('input', render);
 orgFormEl.addEventListener('change', render);
 fromDateEl.addEventListener('change', fetchCompanies);
 toDateEl.addEventListener('change', fetchCompanies);
+srcNace.addEventListener('change', fetchCompanies);
+srcFormal.addEventListener('change', fetchCompanies);
+srcAvd.addEventListener('change', fetchCompanies);
 
 fetchCompanies();
 </script>
