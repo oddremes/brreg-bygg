@@ -43,6 +43,19 @@
   th { text-align:left; padding:12px 16px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); font-weight:500; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:73px; }
   td { padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
   tr:hover td { background:var(--panel); }
+
+  /* Underenhet-rader får klart annet utseende */
+  tr.row-underenhet td {
+    background: rgba(167, 139, 250, 0.06);
+    border-left: 3px solid var(--purple);
+  }
+  tr.row-underenhet:hover td {
+    background: rgba(167, 139, 250, 0.12);
+  }
+  tr.row-underenhet td:first-child {
+    padding-left: 13px;
+  }
+
   .company-name { font-weight:600; color:var(--text); margin-bottom:2px; }
   .company-meta { font-size:12px; color:var(--muted); font-family:var(--mono); }
   .orgnr { font-family:var(--mono); font-size:13px; color:var(--text); background:var(--panel-2); padding:2px 6px; border-radius:3px; display:inline-block; }
@@ -88,6 +101,22 @@
   .formal-text { font-size:11px; color:var(--muted); margin-top:6px; font-style:italic; line-height:1.35; max-width:480px; }
   .date-header { background:var(--panel) !important; font-weight:600; color:var(--accent); font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:1px; padding:10px 16px !important; }
 
+  /* Tydelig merkelapp for underenhet */
+  .badge-underenhet {
+    display:inline-block;
+    background: var(--purple);
+    color: #0f1216;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
   .toast {
     position:fixed; bottom:24px; right:24px; background:var(--green); color:#111;
     padding:10px 16px; border-radius:6px; font-family:var(--mono); font-size:12px;
@@ -96,6 +125,25 @@
     z-index:100;
   }
   .toast.show { opacity:1; transform:translateY(0); }
+
+  .legend {
+    padding: 8px 32px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .legend-item { display:flex; align-items:center; gap:6px; }
+  .legend-dot {
+    width:12px; height:12px; border-radius:2px;
+    display:inline-block;
+  }
+  .legend-dot.new { background: transparent; border: 1px solid var(--muted); }
+  .legend-dot.underenhet { background: rgba(167, 139, 250, 0.3); border: 1px solid var(--purple); border-left: 3px solid var(--purple); }
 </style>
 </head>
 <body>
@@ -132,10 +180,17 @@
   </div>
 </div>
 
+<div class="legend">
+  <span><strong>Fargekode:</strong></span>
+  <div class="legend-item"><span class="legend-dot new"></span>Nytt selskap</div>
+  <div class="legend-item"><span class="legend-dot underenhet"></span>Ny avdeling (underenhet) av eksisterende selskap</div>
+</div>
+
 <div class="stats">
   <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Treff totalt</div></div>
+  <div class="stat"><div class="stat-value" id="newCompanies">–</div><div class="stat-label">Nye selskaper</div></div>
+  <div class="stat"><div class="stat-value" id="newBranches">–</div><div class="stat-label">Nye avdelinger</div></div>
   <div class="stat"><div class="stat-value" id="withPhone">–</div><div class="stat-label">Med direktenr</div></div>
-  <div class="stat"><div class="stat-value" id="filteredOut">–</div><div class="stat-label">Lukt ut (feil dato)</div></div>
   <div class="stat"><div class="stat-value" id="nextUpdate">–</div><div class="stat-label">Neste oppdatering</div></div>
 </div>
 
@@ -159,7 +214,7 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Viser kun selskaper faktisk nyregistrert innenfor valgt periode. Oppdateres hvert 10. minutt når fanen er åpen.
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Underenheter vises med lilla strek på venstre side. Oppdateres hvert 10. minutt når fanen er åpen.
 </footer>
 
 <div class="toast" id="toast">Kopiert!</div>
@@ -211,7 +266,6 @@ const REFRESH_MS = 10 * 60 * 1000;
 const PAGE_SIZE = 200;
 
 let currentData = [];
-let lastFilteredOutCount = 0;
 let personCache = new Map();
 let autoRefresh = true;
 let refreshTimer = null;
@@ -308,12 +362,9 @@ async function fetchAvdelinger(from, to) {
   return flat;
 }
 
-// HARDT datofilter: Sørger for at selskapets faktiske registreringsdato
-// er innenfor valgt periode. BRREG-API-et returnerer av og til enheter
-// med dato utenfor spurt periode når man filtrerer på NACE-kode.
 function isWithinDateRange(entity, from, to) {
   const regDate = entity.registreringsdatoEnhetsregisteret;
-  if (!regDate) return false; // Ingen dato = lukes ut
+  if (!regDate) return false;
   return regDate >= from && regDate <= to;
 }
 
@@ -330,12 +381,8 @@ async function fetchCompanies() {
     ]);
     const all = resultArrays.flat();
 
-    // Tell hvor mange som lukes ut av datofilteret (for statistikk)
-    const beforeCount = all.length;
     const withinRange = all.filter(e => isWithinDateRange(e, from, to));
-    lastFilteredOutCount = beforeCount - withinRange.length;
 
-    // Dedup på organisasjonsnummer med prioritet
     const priority = { nace: 0, formal: 1, avd: 2 };
     const byOrgnr = new Map();
     for (const e of withinRange) {
@@ -347,8 +394,12 @@ async function fetchCompanies() {
     const merged = Array.from(byOrgnr.values());
 
     merged.sort((a,b) => {
+      // Nye selskaper først, deretter underenheter innenfor samme dato
+      const sortRankA = a._source === 'avd' ? 1 : 0;
+      const sortRankB = b._source === 'avd' ? 1 : 0;
       const d = (b.registreringsdatoEnhetsregisteret || '').localeCompare(a.registreringsdatoEnhetsregisteret || '');
       if (d !== 0) return d;
+      if (sortRankA !== sortRankB) return sortRankA - sortRankB;
       return (a.navn || '').localeCompare(b.navn || '', 'nb');
     });
     currentData = merged;
@@ -386,9 +437,13 @@ function render() {
     return hay.includes(search);
   });
 
+  const totalNew = filtered.filter(e => e._source !== 'avd').length;
+  const totalBranches = filtered.filter(e => e._source === 'avd').length;
+
   document.getElementById('totalCount').textContent = filtered.length;
+  document.getElementById('newCompanies').textContent = totalNew;
+  document.getElementById('newBranches').textContent = totalBranches;
   document.getElementById('withPhone').textContent = filtered.filter(e => e.telefon || e.mobil).length;
-  document.getElementById('filteredOut').textContent = lastFilteredOutCount;
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="empty">Ingen treff i perioden. Prøv å utvide datointervallet.</td></tr>`;
@@ -480,6 +535,7 @@ function rowHtml(e) {
   const phone = e.telefon || e.mobil || '';
   const email = e.epostadresse || '';
   const web = e.hjemmeside || '';
+  const isUnderenhet = e._source === 'avd';
 
   const formalArr = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []);
   const formalText = formalArr.join(' · ');
@@ -499,11 +555,16 @@ function rowHtml(e) {
     ? `<div class="addr field-with-copy"><span>📍 ${escapeHtml(fullAddr)}</span>${copyButton(fullAddr, 'adresse')}</div>`
     : '';
 
-  const isUnderenhet = e._source === 'avd';
+  // Tydelig merking for underenheter
+  const underenhetBadge = isUnderenhet ? `<span class="badge-underenhet">🏢 AVDELING</span>` : '';
+  const overordnetInfo = isUnderenhet && e.overordnetEnhet
+    ? `<div class="company-meta" style="color:var(--purple); margin-top:2px">↳ Underenhet av: ${escapeHtml(e.overordnetEnhet)}</div>`
+    : '';
+
   const contactBlock = isUnderenhet
     ? `<div class="contact-block">
-         <div class="name"><span class="company-meta">Se hovedenhet</span></div>
-         <div class="role">Underenhet</div>
+         <div class="name"><span class="company-meta" style="color:var(--purple)">Se hovedenhet (${escapeHtml(e.overordnetEnhet || '')})</span></div>
+         <div class="role">Avdeling – eksisterende selskap</div>
          ${addressBlock}
          ${email ? `<div class="company-meta" style="margin-top:4px">✉ ${escapeHtml(email)}</div>` : ''}
        </div>`
@@ -518,11 +579,14 @@ function rowHtml(e) {
          ${email ? `<div class="company-meta" style="margin-top:4px">✉ <a href="mailto:${email}" style="color:var(--muted)">${escapeHtml(email)}</a></div>` : ''}
        </div>`;
 
+  const rowClass = isUnderenhet ? 'row-underenhet' : '';
+
   return `
-    <tr data-orgnr="${orgnr}">
+    <tr data-orgnr="${orgnr}" class="${rowClass}">
       <td>
-        <div class="company-name">${name}</div>
+        <div class="company-name">${name}${underenhetBadge}</div>
         <div class="company-meta">${orgForm} · ${sted}</div>
+        ${overordnetInfo}
         <div class="nace">${nace}</div>
         ${web ? `<div class="company-meta">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
         ${showFormal ? `<div class="formal-text">📜 ${escapeHtml(formalText)}</div>` : ''}
