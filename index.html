@@ -200,7 +200,7 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt i nettleseren. Oppdateres hvert 10. minutt når fanen er åpen.
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt i nettleseren. Oppdateres hvert 5. minutt når fanen er åpen.
 </footer>
 
 <div class="toast" id="toast">Kopiert!</div>
@@ -265,7 +265,7 @@ const EXCLUDE_KEYWORDS = [
 const EXCLUDE_REGEX = new RegExp('(' + EXCLUDE_KEYWORDS.join('|') + ')', 'i');
 const EXCLUDE_NACE_PREFIXES = ['68.','70.','71.','74.','46.','47.'];
 
-const REFRESH_MS = 10 * 60 * 1000;
+const REFRESH_MS = 5 * 60 * 1000;
 const PAGE_SIZE = 200;
 const CONTACTED_KEY = 'brreg_contacted_v1';
 
