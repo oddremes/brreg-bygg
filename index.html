@@ -10,32 +10,37 @@
   :root {
     --bg: #0f1216; --panel: #171b21; --panel-2: #1e242c;
     --border: #2a313b; --text: #e6e9ed; --muted: #8a94a2;
-    /* Logo-fargene */
-    --accent: #FFCC4D;       /* logo-gul, erstatter orange */
-    --green: #65CE79;        /* logo-grønn */
-    --red: #FE6464;          /* logo-rød, til NUF */
-    --blue: #60a5fa;         /* Foretaksregisteret */
-    --cyan: #22d3ee;         /* Enhetsregisteret */
-    --purple: #a78bfa;       /* underenhet */
-    --proff: #8b3ca8;        /* Proff.no-lilla */
-    --gsider: #FFD100;       /* Gule Sider-gul */
+    --accent: #FFCC4D;
+    --green: #65CE79;
+    --red: #FE6464;
+    --blue: #60a5fa;
+    --cyan: #22d3ee;
+    --purple: #a78bfa;
+    --proff: #8b3ca8;
+    --gsider: #FFD100;
+    --reserved: #FB923C;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); font-size:14px; line-height:1.5; }
+
+  /* Tall-elementer får mono-font for pen kolonneoppstilling */
+  .orgnr, .phone-direct, .nace, .time-ago, .stat-value, .stat-label,
+  input[type="date"], .countdown-val { font-family:var(--mono); }
+
   header {
     display:flex; align-items:center; justify-content:space-between;
-    padding:16px 32px; border-bottom:1px solid var(--border);
+    padding:14px 32px; border-bottom:1px solid var(--border);
     background:var(--panel); position:sticky; top:0; z-index:10;
   }
-  .brand { display:flex; align-items:center; gap:18px; }
-  .brand img.logo { height:44px; width:auto; display:block; }
+  .brand { display:flex; align-items:center; gap:20px; }
+  .brand img.logo { height:64px; width:auto; display:block; }
   .brand .title-block { display:flex; flex-direction:column; }
-  .brand h1 { margin:0; font-size:17px; font-weight:700; letter-spacing:0.2px; line-height:1.2; }
-  .brand .tagline { font-size:11px; color:var(--muted); font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
-  .controls { display:flex; align-items:center; gap:14px; }
-  .status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); font-family:var(--mono); }
+  .brand h1 { margin:0; font-size:19px; font-weight:700; letter-spacing:0.2px; line-height:1.2; }
+  .brand .tagline { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; margin-top:3px; font-weight:500; }
+  .controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
   .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
   .dot.live { background:var(--green); box-shadow:0 0 10px var(--green); animation:pulse 2s infinite; }
   .dot.loading { background:var(--accent); animation:pulse 1s infinite; }
@@ -52,35 +57,97 @@
   button.secondary:hover { background:var(--panel-2); border-color:var(--muted); }
   button.danger { background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4); font-size:12px; padding:6px 12px; }
   button.danger:hover { background:var(--red); color:#111; border-color:var(--red); }
-  button.sound-btn {
-    background:transparent; color:var(--muted); border:1px solid var(--border);
-    font-size:12px; padding:6px 12px;
-  }
+  button.sound-btn { background:transparent; color:var(--muted); border:1px solid var(--border); font-size:12px; padding:6px 12px; }
   button.sound-btn:hover { background:var(--panel-2); color:var(--text); }
   button.sound-btn.active { color:var(--green); border-color:var(--green); }
+
   .filters { padding:16px 32px; background:var(--panel); border-bottom:1px solid var(--border); display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
   .filter-group { display:flex; align-items:center; gap:8px; }
-  .filter-group label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-family:var(--mono); }
+  .filter-group label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
   input[type="date"], input[type="text"], select {
     background:var(--panel-2); border:1px solid var(--border); color:var(--text);
     padding:6px 10px; border-radius:4px; font-family:var(--sans); font-size:13px;
   }
   input[type="text"] { min-width:200px; }
-  .toggle { display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; color:var(--muted); cursor:pointer; user-select:none; }
+  .toggle { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); cursor:pointer; user-select:none; font-weight:500; }
   .toggle input[type="checkbox"] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
+
+  /* Reservasjonspanel */
+  .reserve-panel {
+    padding:16px 32px; background:rgba(251, 146, 60, 0.06);
+    border-bottom:1px solid var(--border);
+    border-left:4px solid var(--reserved);
+  }
+  .reserve-panel .hdr {
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px;
+  }
+  .reserve-panel h3 {
+    margin:0; font-size:13px; font-weight:700; color:var(--reserved);
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .reserve-panel .reserve-count {
+    font-size:12px; color:var(--muted); font-weight:500;
+  }
+  .reserve-form {
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  }
+  .reserve-form input[type="text"] {
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    padding:6px 10px; border-radius:4px; font-size:13px; min-width:220px;
+  }
+  .reserve-form button {
+    background:var(--reserved); color:#111; font-weight:600;
+  }
+  .reserve-form button:hover { background:#ffaf66; }
+  .reserve-form button.export {
+    background:transparent; color:var(--reserved); border:1px solid var(--reserved);
+  }
+  .reserve-form button.export:hover { background:var(--reserved); color:#111; }
+  .reserve-list {
+    margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .reserve-chip {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(251, 146, 60, 0.15); border:1px solid rgba(251, 146, 60, 0.4);
+    border-radius:4px; padding:4px 10px; font-size:12px; color:var(--reserved);
+    font-weight:500;
+  }
+  .reserve-chip .term { color:var(--text); font-weight:600; }
+  .reserve-chip .by { color:var(--muted); font-weight:400; }
+  .reserve-chip .remove-btn {
+    background:transparent; border:none; color:var(--red); cursor:pointer;
+    font-size:14px; padding:0 2px; margin-left:4px; font-weight:700;
+  }
+  .reserve-chip .remove-btn:hover { color:#ffaaaa; }
+
+  .legend {
+    padding:8px 32px; background:var(--panel-2); border-bottom:1px solid var(--border);
+    font-size:11px; color:var(--muted);
+    display:flex; gap:20px; align-items:center; flex-wrap:wrap; font-weight:500;
+  }
+  .legend-item { display:flex; align-items:center; gap:6px; }
+  .legend-dot { width:12px; height:12px; border-radius:2px; display:inline-block; }
+  .legend-dot.new { background: transparent; border: 1px solid var(--muted); }
+  .legend-dot.underenhet { background: rgba(167, 139, 250, 0.3); border: 1px solid var(--purple); border-left: 3px solid var(--purple); }
+  .legend-dot.contacted { background: rgba(101, 206, 121, 0.15); border: 1px solid var(--green); border-left: 3px solid var(--green); }
+  .legend-dot.foretak { background: rgba(96, 165, 250, 0.2); border-left: 3px solid var(--blue); }
+  .legend-dot.enhets { background: rgba(34, 211, 238, 0.2); border-left: 3px solid var(--cyan); }
+  .legend-dot.reserved { background: rgba(251, 146, 60, 0.25); border-left: 3px solid var(--reserved); border: 1px solid var(--reserved); }
+
   .stats { padding:20px 32px; display:flex; gap:28px; border-bottom:1px solid var(--border); flex-wrap:wrap; align-items:center; }
   .stat { display:flex; flex-direction:column; gap:4px; }
-  .stat-value { font-size:24px; font-weight:700; font-family:var(--mono); color:var(--accent); }
-  .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); }
+  .stat-value { font-size:24px; font-weight:700; color:var(--accent); }
+  .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
   .stat.contacted .stat-value { color:var(--green); }
   .stats-spacer { flex:1; }
+
   .table-wrap { padding:0 32px 40px; }
   table { width:100%; border-collapse:collapse; margin-top:16px; }
   th {
     text-align:left; padding:12px 16px; font-size:11px; color:var(--muted);
-    text-transform:uppercase; letter-spacing:1px; font-family:var(--mono);
-    font-weight:500; border-bottom:1px solid var(--border); background:var(--panel);
-    position:sticky; top:77px;
+    text-transform:uppercase; letter-spacing:1px; font-weight:600;
+    border-bottom:1px solid var(--border); background:var(--panel);
+    position:sticky; top:96px;
   }
   td { padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
   tr:hover td { background:var(--panel); }
@@ -90,26 +157,42 @@
   tr.row-contacted td { opacity: 0.45; background: rgba(101, 206, 121, 0.05) !important; border-left: 3px solid var(--green); }
   tr.row-contacted td:first-child { padding-left: 13px; }
   tr.row-contacted:hover td { opacity: 0.75; }
-  tr.new-row td {
-    animation: highlightNew 3s ease-out;
+
+  /* Reservert rad: prominent oransje ramme */
+  tr.row-reserved td {
+    background: rgba(251, 146, 60, 0.12) !important;
+    border-top: 2px solid var(--reserved);
+    border-bottom: 2px solid var(--reserved);
   }
+  tr.row-reserved td:first-child {
+    border-left: 4px solid var(--reserved);
+    padding-left: 12px;
+  }
+  tr.row-reserved td:last-child {
+    border-right: 2px solid var(--reserved);
+  }
+  tr.row-reserved:hover td { background: rgba(251, 146, 60, 0.18) !important; }
+
+  tr.new-row td { animation: highlightNew 3s ease-out; }
   @keyframes highlightNew {
     0% { background: rgba(255, 204, 77, 0.3); }
     100% { background: transparent; }
   }
+
   .company-name { font-weight:600; color:var(--text); margin-bottom:2px; }
-  .company-meta { font-size:12px; color:var(--muted); font-family:var(--mono); }
-  .orgform-tag { display:inline; font-weight:600; }
+  .company-meta { font-size:12px; color:var(--muted); }
+  .orgform-tag { display:inline; font-weight:600; font-family:var(--mono); }
   .orgform-tag.nuf { color:var(--red); font-weight:700; font-size:11px; letter-spacing:0.5px; }
-  .orgnr { font-family:var(--mono); font-size:13px; color:var(--text); background:var(--panel-2); padding:2px 6px; border-radius:3px; display:inline-block; }
-  .nace { font-family:var(--mono); font-size:11px; color:var(--accent); margin-top:3px; }
+  .orgnr { font-size:13px; color:var(--text); background:var(--panel-2); padding:2px 6px; border-radius:3px; display:inline-block; }
+  .nace { font-size:11px; color:var(--accent); margin-top:3px; }
   .contact-block .name { font-weight:500; }
-  .contact-block .role { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-family:var(--mono); }
+  .contact-block .role { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
   .contact-block .role.no-dagl { color:var(--red); }
-  .contact-block .addr { font-size:12px; color:var(--muted); font-family:var(--mono); margin-top:4px; }
-  .phone-direct { font-family:var(--mono); color:var(--green); font-weight:700; margin-bottom:6px; font-size:14px; }
+  .contact-block .addr { font-size:12px; color:var(--muted); margin-top:4px; }
+  .phone-direct { color:var(--green); font-weight:700; margin-bottom:6px; font-size:14px; }
   .phone-direct a { color:inherit; text-decoration:none; }
   .phone-direct a:hover { text-decoration:underline; }
+
   .copy-icon {
     display:inline-flex; align-items:center; justify-content:center;
     width:18px; height:18px; padding:0; margin-left:6px;
@@ -121,6 +204,7 @@
   .copy-icon.copied { background:var(--green) !important; color:#111 !important; border-color:var(--green) !important; }
   .copy-icon svg { width:10px; height:10px; fill:currentColor; }
   .field-with-copy { display:inline-flex; align-items:center; }
+
   .contacted-toggle {
     display:inline-flex; align-items:center; justify-content:center;
     width:26px; height:26px; padding:0;
@@ -132,11 +216,12 @@
   .contacted-toggle.checked { background:var(--green); color:#111; border-color:var(--green); }
   .contacted-toggle.checked:hover { background:transparent; color:var(--green); }
   .contacted-cell { width:32px; padding:14px 8px !important; vertical-align:top; }
+
   .lookup-links { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:4px; }
   .lookup-links a {
     display:inline-block; padding:3px 8px; background:var(--panel-2);
     border:1px solid var(--border); border-radius:3px; color:var(--text);
-    text-decoration:none; font-size:11px; font-family:var(--mono); transition:all 0.15s; font-weight:500;
+    text-decoration:none; font-size:11px; transition:all 0.15s; font-weight:500;
   }
   .lookup-links a:hover { background:var(--accent); color:#111; border-color:var(--accent); }
   .lookup-links a.google { border-color:rgba(96,165,250,0.5); color:var(--blue); }
@@ -148,19 +233,21 @@
   .lookup-links a.proff { border-color:rgba(139,60,168,0.6); color:#c580e0; }
   .lookup-links a.proff:hover { background:var(--proff); color:#fff; border-color:var(--proff); }
   .lookup-links a.pending { opacity:0.5; cursor:wait; }
+
   .empty { padding:60px; text-align:center; color:var(--muted); }
-  .error-msg { padding:16px 20px; margin:16px 32px; background:#3a1a1a; color:#fca5a5; border:1px solid #5a2a2a; border-radius:6px; font-family:var(--mono); font-size:12px; white-space:pre-wrap; word-break:break-all; }
-  .time-ago { font-size:11px; color:var(--muted); font-family:var(--mono); }
-  footer { padding:20px 32px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); font-family:var(--mono); }
+  .error-msg { padding:16px 20px; margin:16px 32px; background:#3a1a1a; color:#fca5a5; border:1px solid #5a2a2a; border-radius:6px; font-size:12px; white-space:pre-wrap; word-break:break-all; }
+  .time-ago { font-size:11px; color:var(--muted); }
+  footer { padding:20px 32px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); }
+
   .formal-text { font-size:11px; color:var(--muted); margin-top:6px; font-style:italic; line-height:1.35; max-width:480px; }
   .date-header {
     background:#101418 !important; font-weight:700; color:var(--accent);
-    font-family:var(--mono); font-size:13px; text-transform:uppercase;
+    font-size:13px; text-transform:uppercase;
     letter-spacing:1.5px; padding:14px 16px !important;
     border-top:2px solid var(--accent); border-bottom:1px solid var(--border);
   }
   .register-header {
-    font-family:var(--mono); font-size:12px; font-weight:700;
+    font-size:12px; font-weight:700;
     text-transform:uppercase; letter-spacing:1.2px;
     padding:10px 16px 10px 24px !important;
     border-left:4px solid var(--blue);
@@ -172,31 +259,50 @@
     color:var(--cyan);
   }
   .register-header.foretak { color:var(--blue); }
+
   .badge-underenhet {
     display:inline-block; background:var(--purple); color:#0f1216;
-    padding:2px 8px; border-radius:3px; font-size:10px; font-family:var(--mono);
+    padding:2px 8px; border-radius:3px; font-size:10px;
     font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
     margin-left:8px; vertical-align:middle;
   }
+  .badge-reserved {
+    display:inline-block; background:var(--reserved); color:#111;
+    padding:3px 10px; border-radius:3px; font-size:11px;
+    font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+    margin-left:8px; vertical-align:middle;
+  }
+
   .toast {
     position:fixed; bottom:24px; right:24px; background:var(--green); color:#111;
-    padding:10px 16px; border-radius:6px; font-family:var(--mono); font-size:12px;
+    padding:10px 16px; border-radius:6px; font-size:12px;
     font-weight:600; box-shadow:0 4px 20px rgba(0,0,0,0.4);
     opacity:0; transform:translateY(10px); transition:all 0.2s; pointer-events:none; z-index:100;
   }
   .toast.show { opacity:1; transform:translateY(0); }
-  .legend {
-    padding:8px 32px; background:var(--panel-2); border-bottom:1px solid var(--border);
-    font-family:var(--mono); font-size:11px; color:var(--muted);
-    display:flex; gap:20px; align-items:center; flex-wrap:wrap;
+
+  /* Modal for import */
+  .modal-backdrop {
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.7); z-index:200;
+    display:none; align-items:center; justify-content:center;
   }
-  .legend-item { display:flex; align-items:center; gap:6px; }
-  .legend-dot { width:12px; height:12px; border-radius:2px; display:inline-block; }
-  .legend-dot.new { background: transparent; border: 1px solid var(--muted); }
-  .legend-dot.underenhet { background: rgba(167, 139, 250, 0.3); border: 1px solid var(--purple); border-left: 3px solid var(--purple); }
-  .legend-dot.contacted { background: rgba(101, 206, 121, 0.15); border: 1px solid var(--green); border-left: 3px solid var(--green); }
-  .legend-dot.foretak { background: rgba(96, 165, 250, 0.2); border-left: 3px solid var(--blue); }
-  .legend-dot.enhets { background: rgba(34, 211, 238, 0.2); border-left: 3px solid var(--cyan); }
+  .modal-backdrop.show { display:flex; }
+  .modal {
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:24px; max-width:600px; width:90%; max-height:80vh; overflow:auto;
+  }
+  .modal h3 { margin:0 0 12px 0; font-size:16px; }
+  .modal p { color:var(--muted); font-size:13px; margin:0 0 12px 0; }
+  .modal textarea {
+    width:100%; min-height:200px;
+    background:var(--bg); border:1px solid var(--border); color:var(--text);
+    padding:10px; border-radius:4px; font-family:var(--mono); font-size:12px;
+    resize:vertical;
+  }
+  .modal .modal-actions {
+    display:flex; gap:10px; justify-content:flex-end; margin-top:16px;
+  }
 </style>
 </head>
 <body>
@@ -230,20 +336,36 @@
   </label>
 </div>
 
+<div class="reserve-panel">
+  <div class="hdr">
+    <h3>🔒 Reserver selskap</h3>
+    <span class="reserve-count" id="reserveCount">0 aktive reservasjoner</span>
+  </div>
+  <div class="reserve-form">
+    <input type="text" id="reserveTerm" placeholder="Firmanavn eller personnavn…">
+    <input type="text" id="reserveBy" placeholder="Reservert av (ditt navn)" style="min-width:180px">
+    <button id="reserveAddBtn">Legg til</button>
+    <button class="export" id="reserveExportBtn">📤 Eksporter</button>
+    <button class="export" id="reserveImportBtn">📥 Importer</button>
+  </div>
+  <div class="reserve-list" id="reserveList"></div>
+</div>
+
 <div class="legend">
   <span><strong>Fargekode:</strong></span>
   <div class="legend-item"><span class="legend-dot new"></span>Nytt selskap</div>
-  <div class="legend-item"><span class="legend-dot underenhet"></span>Ny avdeling</div>
+  <div class="legend-item"><span class="legend-dot underenhet"></span>Underenhet</div>
   <div class="legend-item"><span class="legend-dot contacted"></span>Kontaktet</div>
   <div class="legend-item"><span class="legend-dot foretak"></span>Foretaksregisteret</div>
   <div class="legend-item"><span class="legend-dot enhets"></span>Kun Enhetsregisteret</div>
+  <div class="legend-item"><span class="legend-dot reserved"></span>Reservert</div>
 </div>
 
 <div class="stats">
   <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Treff totalt</div></div>
   <div class="stat"><div class="stat-value" id="pendingCount">–</div><div class="stat-label">Gjenstår</div></div>
   <div class="stat contacted"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
-  <div class="stat"><div class="stat-value" id="nextUpdate">–</div><div class="stat-label">Neste oppdatering</div></div>
+  <div class="stat"><div class="stat-value countdown-val" id="nextUpdate">–</div><div class="stat-label">Neste oppdatering</div></div>
   <div class="stats-spacer"></div>
   <button class="danger" id="resetContactedBtn">Nullstill kontaktede</button>
 </div>
@@ -269,10 +391,22 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00 (ikke helger/helligdager).
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet- og reservert-data lagres lokalt i nettleseren. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00 (ikke helger/helligdager).
 </footer>
 
 <div class="toast" id="toast">Kopiert!</div>
+
+<div class="modal-backdrop" id="importModal">
+  <div class="modal">
+    <h3>📥 Importer reservasjoner</h3>
+    <p>Lim inn teksten du mottok fra en kollega. Eksisterende reservasjoner beholdes – nye legges til uten duplikater.</p>
+    <textarea id="importText" placeholder='Lim inn her…'></textarea>
+    <div class="modal-actions">
+      <button class="secondary" id="importCancelBtn">Avbryt</button>
+      <button id="importConfirmBtn">Importer</button>
+    </div>
+  </div>
+</div>
 
 <svg style="display:none">
   <symbol id="icon-copy" viewBox="0 0 16 16">
@@ -292,8 +426,8 @@ const NACE_GROUPS = [
 ];
 
 const FORMAL_KEYWORDS = [
-  'tomrer','tomrer','tommer','snekker',
-  'rorlegger','rorlegger','vvs','sanitar','sanitar',
+  'tømrer','tomrer','tømmer','snekker',
+  'rørlegger','rorlegger','vvs','sanitær','sanitar',
   'maler','malerarbeid','malings',
   'betong','murer','muring',
   'elektriker','elektro',
@@ -304,29 +438,29 @@ const FORMAL_KEYWORDS = [
   'blikkenslager',
   'gulvleg','flisleg',
   'ventilasjon','asfalt',
-  'tomrermester','tomrermester','byggmester','byggemester',
-  'maskinforer','maskinforer',
+  'tømrermester','tomrermester','byggmester','byggemester',
+  'maskinfører','maskinforer',
   'gravemaskin','hjullaster',
   'anleggstransport',
   'steinarbeid','natursteinsarbeid',
-  'bronnborer','bronnborer',
-  'handverk','handverk',
-  'entreprenor','entreprenor'
+  'brønnborer','bronnborer',
+  'håndverk','handverk',
+  'entreprenør','entreprenor'
 ];
 const FORMAL_REGEX = new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i');
 
 const EXCLUDE_KEYWORDS = [
   'utvikling av fast eiendom','utvikling av eiendom',
-  'kjop og salg av eiendom','kjop og salg av eiendom',
-  'kjop og salg av fast eiendom','kjop og salg av fast eiendom',
+  'kjøp og salg av eiendom','kjop og salg av eiendom',
+  'kjøp og salg av fast eiendom','kjop og salg av fast eiendom',
   'salg av boenheter','salg av leiligheter',
   'eiendomsinvestering','eiendomsutvikling',
   'utleie av eiendom','utleie av fast eiendom',
   'eierskap i selskaper','investering i selskaper',
   'kapitalforvaltning','holdingsselskap','holding',
-  'konsulent','radgivning','radgivning','radgiver','radgiver',
+  'konsulent','rådgivning','radgivning','rådgiver','radgiver',
   'arkitekt','byggeledelse','prosjektering','prosjektledelse',
-  'ingeniortjenester','ingeniortjenester',
+  'ingeniørtjenester','ingeniortjenester',
   'handel med byggevarer','salg av byggevarer',
   'import og salg','import og eksport',
   'engroshandel','detaljhandel','nettbutikk'
@@ -339,7 +473,9 @@ const PAGE_SIZE = 200;
 const CONTACTED_KEY = 'brreg_contacted_v1';
 const SOUND_KEY = 'brreg_sound_enabled_v1';
 const SEEN_KEY = 'brreg_seen_orgnr_v1';
+const RESERVE_KEY = 'brreg_reservations_v1';
 
+// ===== Helligdager/arbeidstid =====
 function paaskesondag(year) {
   const a = year % 19, b = Math.floor(year / 100), c = year % 100;
   const d = Math.floor(b / 4), e = b % 4;
@@ -353,9 +489,7 @@ function paaskesondag(year) {
   return new Date(year, month - 1, day);
 }
 function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate() + n); return d; }
-function dateKey(d) {
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
+function dateKey(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function erHelligdag(date) {
   const year = date.getFullYear();
   const key = dateKey(date);
@@ -392,7 +526,7 @@ function nesteArbeidstidStart(now) {
   return fallback;
 }
 function formatWaitUntil(d) {
-  const dager = ['son','man','tir','ons','tor','fre','lor'];
+  const dager = ['søn','man','tir','ons','tor','fre','lør'];
   const now = new Date();
   const today = new Date(now); today.setHours(0,0,0,0);
   const target = new Date(d); target.setHours(0,0,0,0);
@@ -403,11 +537,13 @@ function formatWaitUntil(d) {
   return `${dager[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} ${tid}`;
 }
 
+// ===== State =====
 let currentData = [];
 let personCache = new Map();
 let contactedSet = loadContacted();
 let seenOrgnrSet = loadSeen();
 let soundEnabled = loadSoundPref();
+let reservations = loadReservations(); // array of { term, by, createdAt }
 let autoRefresh = true;
 let refreshTimer = null;
 let countdownTimer = null;
@@ -417,6 +553,7 @@ let audioContext = null;
 let newOrgnrsSincelast = new Set();
 let isFirstLoad = true;
 
+// DOM
 const tbody = document.getElementById('tbody');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
@@ -430,11 +567,23 @@ const toastEl = document.getElementById('toast');
 const hideContactedEl = document.getElementById('hideContacted');
 const resetContactedBtn = document.getElementById('resetContactedBtn');
 const soundBtn = document.getElementById('soundBtn');
+const reserveTermEl = document.getElementById('reserveTerm');
+const reserveByEl = document.getElementById('reserveBy');
+const reserveAddBtn = document.getElementById('reserveAddBtn');
+const reserveListEl = document.getElementById('reserveList');
+const reserveCountEl = document.getElementById('reserveCount');
+const reserveExportBtn = document.getElementById('reserveExportBtn');
+const reserveImportBtn = document.getElementById('reserveImportBtn');
+const importModal = document.getElementById('importModal');
+const importText = document.getElementById('importText');
+const importCancelBtn = document.getElementById('importCancelBtn');
+const importConfirmBtn = document.getElementById('importConfirmBtn');
 
 const today = new Date().toISOString().slice(0,10);
 fromDateEl.value = today;
 toDateEl.value = today;
 
+// ===== Lagring =====
 function loadContacted() {
   try {
     const raw = localStorage.getItem(CONTACTED_KEY);
@@ -452,9 +601,7 @@ function loadSeen() {
     const raw = localStorage.getItem(SEEN_KEY);
     if (!raw) return new Set();
     const obj = JSON.parse(raw);
-    if (obj.date === today && Array.isArray(obj.orgnrs)) {
-      return new Set(obj.orgnrs);
-    }
+    if (obj.date === today && Array.isArray(obj.orgnrs)) return new Set(obj.orgnrs);
     return new Set();
   } catch (e) { return new Set(); }
 }
@@ -468,18 +615,136 @@ function loadSoundPref() {
 function saveSoundPref() {
   try { localStorage.setItem(SOUND_KEY, soundEnabled ? 'true' : 'false'); } catch (e) {}
 }
-function updateSoundBtn() {
-  soundBtn.textContent = soundEnabled ? '🔔 Lyd: PÅ' : '🔔 Lyd: AV';
-  soundBtn.classList.toggle('active', soundEnabled);
+function loadReservations() {
+  try {
+    const raw = localStorage.getItem(RESERVE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+function saveReservations() {
+  try { localStorage.setItem(RESERVE_KEY, JSON.stringify(reservations)); }
+  catch (e) { console.error(e); }
 }
 
-// Diskret "pling"-lyd via Web Audio API (ingen ekstern fil nødvendig)
+// ===== Reservasjonslogikk =====
+function matchReservation(e, cachedPersonNavn) {
+  if (reservations.length === 0) return null;
+  const firma = (e.navn || '').toLowerCase();
+  const personNavn = (cachedPersonNavn || '').toLowerCase();
+  const haystack = firma + ' ' + personNavn;
+  for (const r of reservations) {
+    const term = (r.term || '').toLowerCase().trim();
+    if (!term) continue;
+    if (haystack.includes(term)) return r;
+  }
+  return null;
+}
+
+function renderReserveList() {
+  reserveCountEl.textContent = `${reservations.length} aktive reservasjoner`;
+  if (reservations.length === 0) {
+    reserveListEl.innerHTML = '<span style="font-size:12px; color:var(--muted); font-style:italic">Ingen reservasjoner enda</span>';
+    return;
+  }
+  reserveListEl.innerHTML = reservations.map((r, i) => `
+    <div class="reserve-chip">
+      <span class="term">${escapeHtml(r.term)}</span>
+      <span class="by">av ${escapeHtml(r.by || 'ukjent')}</span>
+      <button class="remove-btn" onclick="removeReservation(${i})" title="Fjern reservasjon">✕</button>
+    </div>
+  `).join('');
+}
+
+window.removeReservation = function(index) {
+  if (index < 0 || index >= reservations.length) return;
+  const r = reservations[index];
+  if (confirm(`Fjerne reservasjon på "${r.term}" (av ${r.by})?`)) {
+    reservations.splice(index, 1);
+    saveReservations();
+    renderReserveList();
+    render();
+  }
+};
+
+function addReservation() {
+  const term = reserveTermEl.value.trim();
+  const by = reserveByEl.value.trim();
+  if (!term) { showToast('Skriv inn firmanavn eller personnavn'); reserveTermEl.focus(); return; }
+  if (!by) { showToast('Skriv inn ditt navn'); reserveByEl.focus(); return; }
+  // Sjekk duplikat
+  const exists = reservations.some(r => r.term.toLowerCase() === term.toLowerCase() && r.by.toLowerCase() === by.toLowerCase());
+  if (exists) { showToast('Denne reservasjonen finnes allerede'); return; }
+  reservations.push({ term, by, createdAt: new Date().toISOString() });
+  saveReservations();
+  reserveTermEl.value = '';
+  // Beholder "by" for enkel gjentagelse
+  renderReserveList();
+  render();
+  showToast(`Reservert: ${term}`);
+}
+
+reserveAddBtn.addEventListener('click', addReservation);
+reserveTermEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') addReservation(); });
+reserveByEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') addReservation(); });
+
+// Eksport til tekststreng
+reserveExportBtn.addEventListener('click', async () => {
+  if (reservations.length === 0) { showToast('Ingen reservasjoner å eksportere'); return; }
+  const header = '# BRREG-reservasjoner — ' + new Date().toLocaleString('nb-NO');
+  const lines = reservations.map(r => `${r.term} | ${r.by}`);
+  const text = [header, ...lines].join('\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast(`Kopiert ${reservations.length} reservasjoner til utklippstavle`);
+  } catch (err) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Kopiert');
+  }
+});
+
+// Import via modal
+reserveImportBtn.addEventListener('click', () => {
+  importText.value = '';
+  importModal.classList.add('show');
+  setTimeout(() => importText.focus(), 100);
+});
+importCancelBtn.addEventListener('click', () => importModal.classList.remove('show'));
+importModal.addEventListener('click', (e) => { if (e.target === importModal) importModal.classList.remove('show'); });
+importConfirmBtn.addEventListener('click', () => {
+  const raw = importText.value;
+  if (!raw.trim()) { showToast('Ingen tekst å importere'); return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  let added = 0, skipped = 0;
+  for (const line of lines) {
+    const parts = line.split('|').map(p => p.trim());
+    if (parts.length < 2) continue;
+    const term = parts[0], by = parts[1];
+    if (!term || !by) continue;
+    const exists = reservations.some(r => r.term.toLowerCase() === term.toLowerCase() && r.by.toLowerCase() === by.toLowerCase());
+    if (exists) { skipped++; continue; }
+    reservations.push({ term, by, createdAt: new Date().toISOString() });
+    added++;
+  }
+  saveReservations();
+  renderReserveList();
+  render();
+  importModal.classList.remove('show');
+  showToast(`${added} nye importert${skipped > 0 ? ', ' + skipped + ' hoppet over' : ''}`);
+});
+
+// ===== Lyd =====
 function playPling() {
   if (!soundEnabled) return;
   try {
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const ctx = audioContext;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -493,18 +758,19 @@ function playPling() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.45);
-  } catch (e) { console.error('Lyd-feil:', e); }
+  } catch (e) { console.error(e); }
 }
 
+function updateSoundBtn() {
+  soundBtn.textContent = soundEnabled ? '🔔 Lyd: PÅ' : '🔔 Lyd: AV';
+  soundBtn.classList.toggle('active', soundEnabled);
+}
 soundBtn.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   saveSoundPref();
   updateSoundBtn();
   if (soundEnabled) {
-    // Initialiserer audio-context og spiller en testlyd
-    if (!audioContext) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
     if (audioContext.state === 'suspended') audioContext.resume();
     playPling();
     showToast('Lyd aktivert');
@@ -514,16 +780,16 @@ soundBtn.addEventListener('click', () => {
 });
 updateSoundBtn();
 
+// ===== Kontaktet =====
 window.toggleContacted = function(orgnr) {
   if (contactedSet.has(orgnr)) contactedSet.delete(orgnr);
   else contactedSet.add(orgnr);
   saveContacted();
   render();
 };
-
 resetContactedBtn.addEventListener('click', () => {
-  if (contactedSet.size === 0) { showToast('Ingen kontaktede a nullstille'); return; }
-  if (confirm(`Nullstille markeringen pa ${contactedSet.size} selskap? Dette kan ikke angres.`)) {
+  if (contactedSet.size === 0) { showToast('Ingen kontaktede å nullstille'); return; }
+  if (confirm(`Nullstille markeringen på ${contactedSet.size} selskap? Dette kan ikke angres.`)) {
     contactedSet.clear();
     saveContacted();
     render();
@@ -531,6 +797,7 @@ resetContactedBtn.addEventListener('click', () => {
   }
 });
 
+// ===== API =====
 async function apiGet(url) {
   const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
   if (!res.ok) {
@@ -619,9 +886,7 @@ async function fetchCompanies() {
   const to = toDateEl.value;
   try {
     const resultArrays = await Promise.all([
-      fetchByNace(from, to),
-      fetchByFormal(from, to),
-      fetchAvdelinger(from, to)
+      fetchByNace(from, to), fetchByFormal(from, to), fetchAvdelinger(from, to)
     ]);
     const all = resultArrays.flat();
     const withinRange = all.filter(e => isWithinDateRange(e, from, to));
@@ -629,12 +894,9 @@ async function fetchCompanies() {
     const byOrgnr = new Map();
     for (const e of withinRange) {
       const existing = byOrgnr.get(e.organisasjonsnummer);
-      if (!existing || priority[e._source] < priority[existing._source]) {
-        byOrgnr.set(e.organisasjonsnummer, e);
-      }
+      if (!existing || priority[e._source] < priority[existing._source]) byOrgnr.set(e.organisasjonsnummer, e);
     }
     const merged = Array.from(byOrgnr.values());
-
     merged.sort((a, b) => {
       const dateA = a.registreringsdatoEnhetsregisteret || '';
       const dateB = b.registreringsdatoEnhetsregisteret || '';
@@ -647,23 +909,15 @@ async function fetchCompanies() {
       return orgB - orgA;
     });
 
-    // Sjekk for nye firmaer (kun på påfølgende loads, ikke første gang)
     newOrgnrsSincelast.clear();
     if (!isFirstLoad) {
-      for (const e of merged) {
-        if (!seenOrgnrSet.has(e.organisasjonsnummer)) {
-          newOrgnrsSincelast.add(e.organisasjonsnummer);
-        }
-      }
+      for (const e of merged) if (!seenOrgnrSet.has(e.organisasjonsnummer)) newOrgnrsSincelast.add(e.organisasjonsnummer);
       if (newOrgnrsSincelast.size > 0) {
         playPling();
         showToast(`${newOrgnrsSincelast.size} nye selskap!`);
       }
     }
-    // Oppdater seen-settet
-    for (const e of merged) {
-      seenOrgnrSet.add(e.organisasjonsnummer);
-    }
+    for (const e of merged) seenOrgnrSet.add(e.organisasjonsnummer);
     saveSeen();
     isFirstLoad = false;
 
@@ -705,10 +959,7 @@ function render() {
   const totalInView = applyFilters(currentData);
   const contactedInView = totalInView.filter(e => contactedSet.has(e.organisasjonsnummer)).length;
   const pendingInView = totalInView.length - contactedInView;
-
-  const visible = hideContacted
-    ? totalInView.filter(e => !contactedSet.has(e.organisasjonsnummer))
-    : totalInView;
+  const visible = hideContacted ? totalInView.filter(e => !contactedSet.has(e.organisasjonsnummer)) : totalInView;
 
   document.getElementById('totalCount').textContent = totalInView.length;
   document.getElementById('contactedCount').textContent = contactedInView;
@@ -716,33 +967,29 @@ function render() {
 
   if (visible.length === 0) {
     const msg = hideContacted && contactedInView > 0
-      ? `Alle ${contactedInView} treff er kontaktet. Fjern haken pa "Skjul kontaktede" for a se dem.`
-      : 'Ingen treff i perioden. Prov a utvide datointervallet.';
+      ? `Alle ${contactedInView} treff er kontaktet. Fjern haken på "Skjul kontaktede" for å se dem.`
+      : 'Ingen treff i perioden. Prøv å utvide datointervallet.';
     tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
     return;
   }
 
-  // Grupperer først på dato, deretter på register innenfor hver dato
+  // Grupper på dato, så register
   const byDate = new Map();
   for (const e of visible) {
     const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
     if (!byDate.has(d)) byDate.set(d, { foretak: [], enhets: [] });
     const bucket = byDate.get(d);
-    if (e.registrertIForetaksregisteret) bucket.foretak.push(e);
-    else bucket.enhets.push(e);
+    if (e.registrertIForetaksregisteret) bucket.foretak.push(e); else bucket.enhets.push(e);
   }
 
   const rowsHtml = [];
-  // Iterer i samme rekkefølge som visible (som allerede er sortert)
   const seenDates = new Set();
   for (const e of visible) {
     const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
     if (seenDates.has(d)) continue;
     seenDates.add(d);
-
     const group = byDate.get(d);
     rowsHtml.push(`<tr><td colspan="6" class="date-header">📅 Registrert ${formatDateHeader(d)}</td></tr>`);
-
     if (group.foretak.length > 0) {
       rowsHtml.push(`<tr><td colspan="6" class="register-header foretak">📘 Foretaksregisteret (${group.foretak.length})</td></tr>`);
       for (const item of group.foretak) rowsHtml.push(rowHtml(item));
@@ -761,7 +1008,7 @@ function formatDateHeader(d) {
   const today = new Date().toISOString().slice(0,10);
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
   if (d === today) return `i dag (${d})`;
-  if (d === yesterday) return `i gar (${d})`;
+  if (d === yesterday) return `i går (${d})`;
   return d;
 }
 
@@ -776,13 +1023,11 @@ function buildLookupLinks(e, personNavn) {
   const firma = e.navn || '';
   const addr = e.forretningsadresse || e.beliggenhetsadresse;
   const gate = (addr && addr.adresse && addr.adresse.length > 0)
-    ? addr.adresse.filter(Boolean).join(' ').trim()
-    : '';
+    ? addr.adresse.filter(Boolean).join(' ').trim() : '';
   const postnr = addr?.postnummer || '';
   const poststed = addr?.poststed || '';
   const postLinje = [postnr, poststed].filter(Boolean).join(' ').trim();
 
-  // Nytt søkeformat: "Navn, Gateadresse, Postnr Poststed"
   let personSearchQuery = '';
   if (personNavn) {
     const parts = [personNavn];
@@ -792,16 +1037,11 @@ function buildLookupLinks(e, personNavn) {
   } else {
     personSearchQuery = firma;
   }
-
-  // Google bruker samme format + ordet "telefon"
-  const googleQuery = personNavn
-    ? personSearchQuery + ' telefon'
-    : firma + ' telefon';
-
+  const googleQuery = personNavn ? personSearchQuery + ' telefon' : firma + ' telefon';
   const pendingAttr = personNavn ? '' : 'pending';
   const personTooltip = personNavn
-    ? `title="Soker etter: ${escapeHtml(personSearchQuery)}"`
-    : `title="Kontaktperson ikke hentet enda - soker pa firmanavn"`;
+    ? `title="Søker etter: ${escapeHtml(personSearchQuery)}"`
+    : `title="Kontaktperson ikke hentet enda - søker på firmanavn"`;
 
   return `
     <div class="lookup-links" data-orgnr="${orgnr}">
@@ -829,14 +1069,15 @@ function rowHtml(e) {
   const isUnderenhet = e._source === 'avd';
   const isContacted = contactedSet.has(orgnr);
   const isNew = newOrgnrsSincelast.has(orgnr);
+  const cachedPerson = personCache.get(orgnr);
+
+  const reserved = matchReservation(e, cachedPerson?.navn);
 
   const formalArr = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []);
   const formalText = formalArr.join(' · ');
   const showFormal = formalText && formalText.length > 0;
 
-  const cachedPerson = personCache.get(orgnr);
   const lookups = buildLookupLinks(e, cachedPerson?.navn);
-
   const orgnrCell = `<span class="field-with-copy"><span class="orgnr">${orgnr}</span>${copyButton(orgnr, 'org.nr')}</span>`;
 
   const phoneBlock = phone
@@ -848,31 +1089,28 @@ function rowHtml(e) {
     ? `<div class="addr field-with-copy"><span>📍 ${escapeHtml(fullAddr)}</span>${copyButton(fullAddr, 'adresse')}</div>`
     : '';
 
-  const underenhetBadge = isUnderenhet ? `<span class="badge-underenhet">🏢 AVDELING</span>` : '';
+  const underenhetBadge = isUnderenhet ? `<span class="badge-underenhet">🏢 UNDERENHET</span>` : '';
+  const reservedBadge = reserved ? `<span class="badge-reserved">🔒 RESERVERT AV ${escapeHtml(reserved.by.toUpperCase())}</span>` : '';
   const overordnetInfo = isUnderenhet && e.overordnetEnhet
     ? `<div class="company-meta" style="color:var(--purple); margin-top:2px">↳ Underenhet av: ${escapeHtml(e.overordnetEnhet)}</div>`
     : '';
 
-  // Organisasjonsform - rød tekst hvis NUF
   const orgFormHtml = isNuf
     ? `<span class="orgform-tag nuf">NUF ⚠</span>`
     : `<span class="orgform-tag">${orgForm}</span>`;
 
-  // Rolle-tekst - rød hvis IKKE daglig leder
   const roleClass = (cachedPerson && cachedPerson.rolle && cachedPerson.rolle !== 'Daglig leder') ? 'role no-dagl' : 'role';
 
   const contactBlock = isUnderenhet
     ? `<div class="contact-block">
          <div class="name"><span class="company-meta" style="color:var(--purple)">Se hovedenhet (${escapeHtml(e.overordnetEnhet || '')})</span></div>
-         <div class="role">Avdeling - eksisterende selskap</div>
+         <div class="role">Underenhet - eksisterende selskap</div>
          ${addressBlock}
          ${email ? `<div class="company-meta" style="margin-top:4px">✉ ${escapeHtml(email)}</div>` : ''}
        </div>`
     : `<div class="contact-block">
          <div class="name field-with-copy" id="dl-${orgnr}">
-           ${cachedPerson
-             ? `<span>${escapeHtml(cachedPerson.navn)}</span>${copyButton(cachedPerson.navn, 'navn')}`
-             : '<span class="company-meta">Henter…</span>'}
+           ${cachedPerson ? `<span>${escapeHtml(cachedPerson.navn)}</span>${copyButton(cachedPerson.navn, 'navn')}` : '<span class="company-meta">Henter…</span>'}
          </div>
          <div class="${roleClass}" id="dl-role-${orgnr}">${cachedPerson ? escapeHtml(cachedPerson.rolle) : 'Kontaktperson'}</div>
          ${addressBlock}
@@ -882,6 +1120,7 @@ function rowHtml(e) {
   const rowClass = [
     isUnderenhet ? 'row-underenhet' : '',
     isContacted ? 'row-contacted' : '',
+    reserved ? 'row-reserved' : '',
     isNew ? 'new-row' : ''
   ].filter(Boolean).join(' ');
 
@@ -891,7 +1130,7 @@ function rowHtml(e) {
     <tr data-orgnr="${orgnr}" class="${rowClass}">
       <td class="contacted-cell">${contactedBtn}</td>
       <td>
-        <div class="company-name">${name}${underenhetBadge}</div>
+        <div class="company-name">${name}${underenhetBadge}${reservedBadge}</div>
         <div class="company-meta">${orgFormHtml} · ${sted}</div>
         ${overordnetInfo}
         <div class="nace">${nace}</div>
@@ -951,7 +1190,7 @@ async function fetchKontaktperson(orgnr) {
       { kode: 'INNH', label: 'Innehaver' },
       { kode: 'LEDE', label: 'Styreleder' },
       { kode: 'KONT', label: 'Kontaktperson' },
-      { kode: 'FFØR', label: 'Forretningsforer' },
+      { kode: 'FFØR', label: 'Forretningsfører' },
       { kode: 'MEDL', label: 'Styremedlem' }
     ];
     for (const { kode, label } of priority) {
@@ -965,7 +1204,7 @@ async function fetchKontaktperson(orgnr) {
         }
       }
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) { }
   return null;
 }
 
@@ -984,24 +1223,47 @@ async function enrichDagligLedere(list) {
   for (const e of list) {
     if (e._source === 'avd') continue;
     const cached = personCache.get(e.organisasjonsnummer);
-    if (cached) { updateRowLinks(e, cached.navn); continue; }
+    if (cached) {
+      updateRowLinks(e, cached.navn);
+      // Etter at personnavn er kjent, sjekk om selskapet matcher en reservasjon
+      // som bare er på personnavn - isåfall, re-render raden
+      const newReserved = matchReservation(e, cached.navn);
+      if (newReserved) {
+        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
+        if (row && !row.classList.contains('row-reserved')) {
+          // Re-render full rad for å vise reservert-badge og styling
+          row.outerHTML = rowHtml(e);
+        }
+      }
+      continue;
+    }
     const el = document.getElementById(`dl-${e.organisasjonsnummer}`);
     if (!el) continue;
     const result = await fetchKontaktperson(e.organisasjonsnummer);
-    const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
-    const stillRoleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
-    if (!stillEl) continue;
     if (result) {
       personCache.set(e.organisasjonsnummer, result);
-      stillEl.innerHTML = `<span>${escapeHtml(result.navn)}</span>${copyButton(result.navn, 'navn')}`;
+      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
+      const stillRoleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
+      if (stillEl) {
+        stillEl.innerHTML = `<span>${escapeHtml(result.navn)}</span>${copyButton(result.navn, 'navn')}`;
+      }
       if (stillRoleEl) {
         stillRoleEl.textContent = result.rolle;
         if (result.rolle !== 'Daglig leder') stillRoleEl.classList.add('no-dagl');
         else stillRoleEl.classList.remove('no-dagl');
       }
       updateRowLinks(e, result.navn);
+      // Sjekk reservasjon nå som vi har personnavn
+      const newReserved = matchReservation(e, result.navn);
+      if (newReserved) {
+        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
+        if (row && !row.classList.contains('row-reserved')) {
+          row.outerHTML = rowHtml(e);
+        }
+      }
     } else {
-      stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
+      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
+      if (stillEl) stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
     }
     await new Promise(r => setTimeout(r, 100));
   }
@@ -1072,6 +1334,7 @@ fromDateEl.addEventListener('change', fetchCompanies);
 toDateEl.addEventListener('change', fetchCompanies);
 hideContactedEl.addEventListener('change', render);
 
+renderReserveList();
 fetchCompanies();
 </script>
 
