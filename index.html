@@ -22,6 +22,7 @@
   .dot.live { background:var(--green); box-shadow:0 0 10px var(--green); animation:pulse 2s infinite; }
   .dot.loading { background:var(--accent); animation:pulse 1s infinite; }
   .dot.error { background:var(--red); }
+  .dot.paused { background:var(--blue); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   button { background:var(--accent); color:#111; border:none; padding:8px 16px; font-family:var(--sans); font-size:13px; font-weight:600; border-radius:4px; cursor:pointer; transition:background 0.15s; }
   button:hover { background:#ffb93d; }
@@ -157,6 +158,14 @@
       <option value="NUF">NUF</option>
     </select>
   </div>
+  <div class="filter-group">
+    <label>Register</label>
+    <select id="registerFilter">
+      <option value="">Alle</option>
+      <option value="foretak">Kun Foretaksregisteret</option>
+      <option value="enhets">Kun Enhetsregisteret</option>
+    </select>
+  </div>
   <label class="toggle">
     <input type="checkbox" id="hideContacted">
     <span>Skjul kontaktede</span>
@@ -200,7 +209,7 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt i nettleseren. Oppdateres hvert 5. minutt når fanen er åpen.
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt i nettleseren. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00 (ikke helger/helligdager).
 </footer>
 
 <div class="toast" id="toast">Kopiert!</div>
@@ -269,6 +278,118 @@ const REFRESH_MS = 5 * 60 * 1000;
 const PAGE_SIZE = 200;
 const CONTACTED_KEY = 'brreg_contacted_v1';
 
+// ===== ARBEIDSTID-LOGIKK =====
+// Beregner påskesøndag (Gauss' algoritme) – fungerer for alle år 1900-2099
+function paaskesondag(year) {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const L = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * L) / 451);
+  const month = Math.floor((h + L - 7 * m + 114) / 31);
+  const day = ((h + L - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function dateKey(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function erHelligdag(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const key = dateKey(date);
+
+  // Faste helligdager
+  const fasteHelligdager = [
+    `${year}-01-01`, // 1. nyttårsdag
+    `${year}-05-01`, // 1. mai
+    `${year}-05-17`, // grunnlovsdag
+    `${year}-12-25`, // 1. juledag
+    `${year}-12-26`  // 2. juledag
+  ];
+  if (fasteHelligdager.includes(key)) return true;
+
+  // Bevegelige helligdager basert på påskesøndag
+  const paaske = paaskesondag(year);
+  const bevegelige = [
+    addDays(paaske, -3),  // skjærtorsdag
+    addDays(paaske, -2),  // langfredag
+    addDays(paaske, 0),   // påskedag
+    addDays(paaske, 1),   // 2. påskedag
+    addDays(paaske, 39),  // Kristi himmelfart
+    addDays(paaske, 49),  // pinsedag
+    addDays(paaske, 50)   // 2. pinsedag
+  ];
+  for (const d of bevegelige) {
+    if (dateKey(d) === key) return true;
+  }
+  return false;
+}
+
+// Sjekker om vi er i arbeidstid akkurat nå (lokal tid)
+function erArbeidstid(now) {
+  now = now || new Date();
+  const dag = now.getDay(); // 0=søn, 1=man...6=lør
+  if (dag === 0 || dag === 6) return false;           // helg
+  if (erHelligdag(now)) return false;                  // helligdag
+  const time = now.getHours();
+  return time >= 8 && time < 16;                       // 08:00-16:00
+}
+
+// Finn neste tidspunkt hvor auto-oppdatering skal starte igjen
+function nesteArbeidstidStart(now) {
+  now = now || new Date();
+  // Test opptil 10 dager frem (bl.a. langhelger/juleferie)
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    d.setHours(8, 0, 0, 0);
+    // Hvis samme dag og klokken er før 8: returner kl 8 i dag hvis arbeidsdag
+    if (i === 0 && now.getHours() < 8) {
+      if (d.getDay() !== 0 && d.getDay() !== 6 && !erHelligdag(d)) return d;
+      continue;
+    }
+    // Ellers: dag i fremtiden
+    if (i > 0 && d.getDay() !== 0 && d.getDay() !== 6 && !erHelligdag(d)) return d;
+  }
+  // Fallback
+  const fallback = new Date(now);
+  fallback.setDate(fallback.getDate() + 1);
+  fallback.setHours(8, 0, 0, 0);
+  return fallback;
+}
+
+function formatWaitUntil(d) {
+  const dager = ['søn','man','tir','ons','tor','fre','lør'];
+  const now = new Date();
+  const today = new Date(now); today.setHours(0,0,0,0);
+  const target = new Date(d); target.setHours(0,0,0,0);
+  const diff = Math.round((target - today) / (24*60*60*1000));
+  const tid = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  if (diff === 0) return `i dag ${tid}`;
+  if (diff === 1) return `i morgen ${tid}`;
+  return `${dager[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} ${tid}`;
+}
+
+// ===== SLUTT ARBEIDSTID-LOGIKK =====
+
 let currentData = [];
 let personCache = new Map();
 let contactedSet = loadContacted();
@@ -276,6 +397,7 @@ let autoRefresh = true;
 let refreshTimer = null;
 let countdownTimer = null;
 let nextRefreshAt = 0;
+let isPaused = false; // satt når vi er utenfor arbeidstid
 
 const tbody = document.getElementById('tbody');
 const statusDot = document.getElementById('statusDot');
@@ -285,6 +407,7 @@ const fromDateEl = document.getElementById('fromDate');
 const toDateEl = document.getElementById('toDate');
 const searchBox = document.getElementById('searchBox');
 const orgFormEl = document.getElementById('orgForm');
+const registerFilterEl = document.getElementById('registerFilter');
 const refreshBtn = document.getElementById('refreshBtn');
 const autoBtn = document.getElementById('autoBtn');
 const toastEl = document.getElementById('toast');
@@ -429,7 +552,6 @@ async function fetchCompanies() {
     }
     const merged = Array.from(byOrgnr.values());
 
-    // Sortering: nyeste dato først, så hovedenheter før avdelinger, så høyeste org.nr først
     merged.sort((a, b) => {
       const dateA = a.registreringsdatoEnhetsregisteret || '';
       const dateB = b.registreringsdatoEnhetsregisteret || '';
@@ -459,11 +581,14 @@ function setStatus(state, text) {
   statusText.textContent = text;
 }
 
-function applySearchAndOrgForm(list) {
+function applyFilters(list) {
   const search = searchBox.value.toLowerCase().trim();
   const orgForm = orgFormEl.value;
+  const regFilter = registerFilterEl.value;
   return list.filter(e => {
     if (orgForm && e.organisasjonsform?.kode !== orgForm) return false;
+    if (regFilter === 'foretak' && !e.registrertIForetaksregisteret) return false;
+    if (regFilter === 'enhets' && e.registrertIForetaksregisteret) return false;
     if (!search) return true;
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
     const hay = [
@@ -479,7 +604,7 @@ function applySearchAndOrgForm(list) {
 
 function render() {
   const hideContacted = hideContactedEl.checked;
-  const totalInView = applySearchAndOrgForm(currentData);
+  const totalInView = applyFilters(currentData);
   const contactedInView = totalInView.filter(e => contactedSet.has(e.organisasjonsnummer)).length;
   const pendingInView = totalInView.length - contactedInView;
 
@@ -494,7 +619,7 @@ function render() {
   if (visible.length === 0) {
     const msg = hideContacted && contactedInView > 0
       ? `Alle ${contactedInView} treff er kontaktet. Fjern haken på "Skjul kontaktede" for å se dem.`
-      : 'Ingen treff i perioden. Prøv å utvide datointervallet.';
+      : 'Ingen treff i perioden. Prøv å utvide datointervallet eller endre filter.';
     tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
     return;
   }
@@ -751,16 +876,47 @@ function formatPhone(p) {
   return p;
 }
 
+// ===== SCHEDULE MED ARBEIDSTID =====
 function scheduleNext() {
   if (refreshTimer) clearTimeout(refreshTimer);
   if (countdownTimer) clearInterval(countdownTimer);
-  if (!autoRefresh) { document.getElementById('nextUpdate').textContent = 'AV'; return; }
-  nextRefreshAt = Date.now() + REFRESH_MS;
-  refreshTimer = setTimeout(fetchCompanies, REFRESH_MS);
-  countdownTimer = setInterval(updateCountdown, 1000);
-  updateCountdown();
+  if (!autoRefresh) {
+    document.getElementById('nextUpdate').textContent = 'AV';
+    isPaused = false;
+    return;
+  }
+  const now = new Date();
+  if (erArbeidstid(now)) {
+    // Vanlig intervall
+    isPaused = false;
+    nextRefreshAt = Date.now() + REFRESH_MS;
+    refreshTimer = setTimeout(() => {
+      // Når timeren går av: sjekk om vi fortsatt er i arbeidstid
+      if (erArbeidstid(new Date())) {
+        fetchCompanies();
+      } else {
+        // Vi har gått ut av arbeidstid - reschedule til neste arbeidsdag
+        scheduleNext();
+      }
+    }, REFRESH_MS);
+    countdownTimer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+  } else {
+    // Utenfor arbeidstid - sett i pause
+    isPaused = true;
+    const nesteStart = nesteArbeidstidStart(now);
+    const msTilStart = nesteStart - now;
+    setStatus('paused', `💤 Pauset til ${formatWaitUntil(nesteStart)}`);
+    document.getElementById('nextUpdate').textContent = 'PAUSE';
+    refreshTimer = setTimeout(() => {
+      // Start opp igjen når arbeidstiden begynner
+      fetchCompanies();
+    }, msTilStart);
+  }
 }
+
 function updateCountdown() {
+  if (isPaused) return;
   const ms = nextRefreshAt - Date.now();
   if (ms <= 0) { document.getElementById('nextUpdate').textContent = '0:00'; return; }
   const s = Math.floor(ms / 1000);
@@ -774,10 +930,16 @@ autoBtn.addEventListener('click', () => {
   autoRefresh = !autoRefresh;
   autoBtn.textContent = 'Auto: ' + (autoRefresh ? 'PÅ' : 'AV');
   if (autoRefresh) scheduleNext();
-  else { clearTimeout(refreshTimer); clearInterval(countdownTimer); document.getElementById('nextUpdate').textContent = 'AV'; }
+  else {
+    clearTimeout(refreshTimer);
+    clearInterval(countdownTimer);
+    document.getElementById('nextUpdate').textContent = 'AV';
+    isPaused = false;
+  }
 });
 searchBox.addEventListener('input', render);
 orgFormEl.addEventListener('change', render);
+registerFilterEl.addEventListener('change', render);
 fromDateEl.addEventListener('change', fetchCompanies);
 toDateEl.addEventListener('change', fetchCompanies);
 hideContactedEl.addEventListener('change', render);
