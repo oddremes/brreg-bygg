@@ -18,7 +18,7 @@
     --purple: #a78bfa;
     --proff: #8b3ca8;
     --gsider: #FFD100;
-    --reserved: #FB923C;
+    --reserved: #FE6464;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
   }
@@ -74,7 +74,7 @@
 
   /* Reservasjonspanel */
   .reserve-panel {
-    padding:16px 32px; background:rgba(251, 146, 60, 0.06);
+    padding:16px 32px; background:rgba(254, 100, 100, 0.06);
     border-bottom:1px solid var(--border);
     border-left:4px solid var(--reserved);
   }
@@ -98,7 +98,7 @@
   .reserve-form button {
     background:var(--reserved); color:#111; font-weight:600;
   }
-  .reserve-form button:hover { background:#ffaf66; }
+  .reserve-form button:hover { background:#ff8585; }
   .reserve-form button.export {
     background:transparent; color:var(--reserved); border:1px solid var(--reserved);
   }
@@ -108,7 +108,7 @@
   }
   .reserve-chip {
     display:inline-flex; align-items:center; gap:8px;
-    background:rgba(251, 146, 60, 0.15); border:1px solid rgba(251, 146, 60, 0.4);
+    background:rgba(254, 100, 100, 0.15); border:1px solid rgba(254, 100, 100, 0.4);
     border-radius:4px; padding:4px 10px; font-size:12px; color:var(--reserved);
     font-weight:500;
   }
@@ -132,7 +132,7 @@
   .legend-dot.contacted { background: rgba(101, 206, 121, 0.15); border: 1px solid var(--green); border-left: 3px solid var(--green); }
   .legend-dot.foretak { background: rgba(96, 165, 250, 0.2); border-left: 3px solid var(--blue); }
   .legend-dot.enhets { background: rgba(34, 211, 238, 0.2); border-left: 3px solid var(--cyan); }
-  .legend-dot.reserved { background: rgba(251, 146, 60, 0.25); border-left: 3px solid var(--reserved); border: 1px solid var(--reserved); }
+  .legend-dot.reserved { background: rgba(254, 100, 100, 0.25); border-left: 3px solid var(--reserved); border: 1px solid var(--reserved); }
 
   .stats { padding:20px 32px; display:flex; gap:28px; border-bottom:1px solid var(--border); flex-wrap:wrap; align-items:center; }
   .stat { display:flex; flex-direction:column; gap:4px; }
@@ -160,7 +160,7 @@
 
   /* Reservert rad: prominent oransje ramme */
   tr.row-reserved td {
-    background: rgba(251, 146, 60, 0.12) !important;
+    background: rgba(254, 100, 100, 0.12) !important;
     border-top: 2px solid var(--reserved);
     border-bottom: 2px solid var(--reserved);
   }
@@ -171,7 +171,7 @@
   tr.row-reserved td:last-child {
     border-right: 2px solid var(--reserved);
   }
-  tr.row-reserved:hover td { background: rgba(251, 146, 60, 0.18) !important; }
+  tr.row-reserved:hover td { background: rgba(254, 100, 100, 0.18) !important; }
 
   tr.new-row td { animation: highlightNew 3s ease-out; }
   @keyframes highlightNew {
