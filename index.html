@@ -3,20 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <title>Nyreg bygg & anlegg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0f1216; --panel: #171b21; --panel-2: #1e242c;
     --border: #2a313b; --text: #e6e9ed; --muted: #8a94a2;
-    --accent: #f5a623; --green: #4ade80; --red: #f87171;
-    --blue: #60a5fa; --purple: #a78bfa;
+    /* Logo-fargene */
+    --accent: #FFCC4D;       /* logo-gul, erstatter orange */
+    --green: #65CE79;        /* logo-grønn */
+    --red: #FE6464;          /* logo-rød, til NUF */
+    --blue: #60a5fa;         /* Foretaksregisteret */
+    --cyan: #22d3ee;         /* Enhetsregisteret */
+    --purple: #a78bfa;       /* underenhet */
+    --proff: #8b3ca8;        /* Proff.no-lilla */
+    --gsider: #FFD100;       /* Gule Sider-gul */
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    --sans: -apple-system, "Segoe UI", Roboto, sans-serif;
+    --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); font-size:14px; line-height:1.5; }
-  header { display:flex; align-items:center; justify-content:space-between; padding:20px 32px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:10; }
-  .brand h1 { margin:0; font-size:18px; font-weight:600; letter-spacing:0.3px; }
-  .controls { display:flex; align-items:center; gap:16px; }
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 32px; border-bottom:1px solid var(--border);
+    background:var(--panel); position:sticky; top:0; z-index:10;
+  }
+  .brand { display:flex; align-items:center; gap:18px; }
+  .brand img.logo { height:44px; width:auto; display:block; }
+  .brand .title-block { display:flex; flex-direction:column; }
+  .brand h1 { margin:0; font-size:17px; font-weight:700; letter-spacing:0.2px; line-height:1.2; }
+  .brand .tagline { font-size:11px; color:var(--muted); font-family:var(--mono); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+  .controls { display:flex; align-items:center; gap:14px; }
   .status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); font-family:var(--mono); }
   .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
   .dot.live { background:var(--green); box-shadow:0 0 10px var(--green); animation:pulse 2s infinite; }
@@ -24,50 +42,78 @@
   .dot.error { background:var(--red); }
   .dot.paused { background:var(--blue); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  button { background:var(--accent); color:#111; border:none; padding:8px 16px; font-family:var(--sans); font-size:13px; font-weight:600; border-radius:4px; cursor:pointer; transition:background 0.15s; }
-  button:hover { background:#ffb93d; }
+  button {
+    background:var(--accent); color:#111; border:none; padding:8px 16px;
+    font-family:var(--sans); font-size:13px; font-weight:600;
+    border-radius:4px; cursor:pointer; transition:background 0.15s;
+  }
+  button:hover { background:#ffdc7a; }
   button.secondary { background:transparent; color:var(--text); border:1px solid var(--border); }
   button.secondary:hover { background:var(--panel-2); border-color:var(--muted); }
-  button.danger { background:transparent; color:var(--red); border:1px solid rgba(248,113,113,0.4); font-size:12px; padding:6px 12px; }
+  button.danger { background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4); font-size:12px; padding:6px 12px; }
   button.danger:hover { background:var(--red); color:#111; border-color:var(--red); }
+  button.sound-btn {
+    background:transparent; color:var(--muted); border:1px solid var(--border);
+    font-size:12px; padding:6px 12px;
+  }
+  button.sound-btn:hover { background:var(--panel-2); color:var(--text); }
+  button.sound-btn.active { color:var(--green); border-color:var(--green); }
   .filters { padding:16px 32px; background:var(--panel); border-bottom:1px solid var(--border); display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
   .filter-group { display:flex; align-items:center; gap:8px; }
   .filter-group label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-family:var(--mono); }
-  input[type="date"], input[type="text"], select { background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:4px; font-family:var(--sans); font-size:13px; }
+  input[type="date"], input[type="text"], select {
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    padding:6px 10px; border-radius:4px; font-family:var(--sans); font-size:13px;
+  }
   input[type="text"] { min-width:200px; }
   .toggle { display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; color:var(--muted); cursor:pointer; user-select:none; }
   .toggle input[type="checkbox"] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
   .stats { padding:20px 32px; display:flex; gap:28px; border-bottom:1px solid var(--border); flex-wrap:wrap; align-items:center; }
   .stat { display:flex; flex-direction:column; gap:4px; }
-  .stat-value { font-size:24px; font-weight:600; font-family:var(--mono); color:var(--accent); }
+  .stat-value { font-size:24px; font-weight:700; font-family:var(--mono); color:var(--accent); }
   .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); }
   .stat.contacted .stat-value { color:var(--green); }
   .stats-spacer { flex:1; }
   .table-wrap { padding:0 32px 40px; }
   table { width:100%; border-collapse:collapse; margin-top:16px; }
-  th { text-align:left; padding:12px 16px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); font-weight:500; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:73px; }
+  th {
+    text-align:left; padding:12px 16px; font-size:11px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:1px; font-family:var(--mono);
+    font-weight:500; border-bottom:1px solid var(--border); background:var(--panel);
+    position:sticky; top:77px;
+  }
   td { padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
   tr:hover td { background:var(--panel); }
   tr.row-underenhet td { background: rgba(167, 139, 250, 0.06); border-left: 3px solid var(--purple); }
   tr.row-underenhet:hover td { background: rgba(167, 139, 250, 0.12); }
   tr.row-underenhet td:first-child { padding-left: 13px; }
-  tr.row-contacted td { opacity: 0.45; background: rgba(74, 222, 128, 0.04) !important; border-left: 3px solid var(--green); }
+  tr.row-contacted td { opacity: 0.45; background: rgba(101, 206, 121, 0.05) !important; border-left: 3px solid var(--green); }
   tr.row-contacted td:first-child { padding-left: 13px; }
   tr.row-contacted:hover td { opacity: 0.75; }
+  tr.new-row td {
+    animation: highlightNew 3s ease-out;
+  }
+  @keyframes highlightNew {
+    0% { background: rgba(255, 204, 77, 0.3); }
+    100% { background: transparent; }
+  }
   .company-name { font-weight:600; color:var(--text); margin-bottom:2px; }
   .company-meta { font-size:12px; color:var(--muted); font-family:var(--mono); }
+  .orgform-tag { display:inline; font-weight:600; }
+  .orgform-tag.nuf { color:var(--red); font-weight:700; font-size:11px; letter-spacing:0.5px; }
   .orgnr { font-family:var(--mono); font-size:13px; color:var(--text); background:var(--panel-2); padding:2px 6px; border-radius:3px; display:inline-block; }
   .nace { font-family:var(--mono); font-size:11px; color:var(--accent); margin-top:3px; }
   .contact-block .name { font-weight:500; }
   .contact-block .role { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-family:var(--mono); }
+  .contact-block .role.no-dagl { color:var(--red); }
   .contact-block .addr { font-size:12px; color:var(--muted); font-family:var(--mono); margin-top:4px; }
-  .phone-direct { font-family:var(--mono); color:var(--green); font-weight:600; margin-bottom:6px; }
+  .phone-direct { font-family:var(--mono); color:var(--green); font-weight:700; margin-bottom:6px; font-size:14px; }
   .phone-direct a { color:inherit; text-decoration:none; }
   .phone-direct a:hover { text-decoration:underline; }
   .copy-icon {
     display:inline-flex; align-items:center; justify-content:center;
     width:18px; height:18px; padding:0; margin-left:6px;
-    background:transparent; border:1px solid rgba(245,166,35,0.4);
+    background:transparent; border:1px solid rgba(255,204,77,0.5);
     border-radius:3px; color:var(--accent); cursor:pointer;
     transition:all 0.15s; vertical-align:middle; font-size:10px; line-height:1;
   }
@@ -82,7 +128,7 @@
     border-radius:4px; color:var(--muted); cursor:pointer;
     transition:all 0.15s; font-size:14px; line-height:1; font-weight:700;
   }
-  .contacted-toggle:hover { background:rgba(74,222,128,0.15); border-color:var(--green); color:var(--green); }
+  .contacted-toggle:hover { background:rgba(101,206,121,0.15); border-color:var(--green); color:var(--green); }
   .contacted-toggle.checked { background:var(--green); color:#111; border-color:var(--green); }
   .contacted-toggle.checked:hover { background:transparent; color:var(--green); }
   .contacted-cell { width:32px; padding:14px 8px !important; vertical-align:top; }
@@ -90,20 +136,42 @@
   .lookup-links a {
     display:inline-block; padding:3px 8px; background:var(--panel-2);
     border:1px solid var(--border); border-radius:3px; color:var(--text);
-    text-decoration:none; font-size:11px; font-family:var(--mono); transition:all 0.15s;
+    text-decoration:none; font-size:11px; font-family:var(--mono); transition:all 0.15s; font-weight:500;
   }
   .lookup-links a:hover { background:var(--accent); color:#111; border-color:var(--accent); }
-  .lookup-links a.google { border-color:rgba(96,165,250,0.4); color:var(--blue); }
+  .lookup-links a.google { border-color:rgba(96,165,250,0.5); color:var(--blue); }
   .lookup-links a.google:hover { background:var(--blue); color:#111; border-color:var(--blue); }
-  .lookup-links a.person-search { border-color:rgba(74,222,128,0.4); color:var(--green); }
+  .lookup-links a.person-search { border-color:rgba(101,206,121,0.5); color:var(--green); }
   .lookup-links a.person-search:hover { background:var(--green); color:#111; border-color:var(--green); }
+  .lookup-links a.gsider { border-color:rgba(255,209,0,0.6); color:var(--gsider); }
+  .lookup-links a.gsider:hover { background:var(--gsider); color:#111; border-color:var(--gsider); }
+  .lookup-links a.proff { border-color:rgba(139,60,168,0.6); color:#c580e0; }
+  .lookup-links a.proff:hover { background:var(--proff); color:#fff; border-color:var(--proff); }
   .lookup-links a.pending { opacity:0.5; cursor:wait; }
   .empty { padding:60px; text-align:center; color:var(--muted); }
   .error-msg { padding:16px 20px; margin:16px 32px; background:#3a1a1a; color:#fca5a5; border:1px solid #5a2a2a; border-radius:6px; font-family:var(--mono); font-size:12px; white-space:pre-wrap; word-break:break-all; }
   .time-ago { font-size:11px; color:var(--muted); font-family:var(--mono); }
   footer { padding:20px 32px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); font-family:var(--mono); }
   .formal-text { font-size:11px; color:var(--muted); margin-top:6px; font-style:italic; line-height:1.35; max-width:480px; }
-  .date-header { background:var(--panel) !important; font-weight:600; color:var(--accent); font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:1px; padding:10px 16px !important; }
+  .date-header {
+    background:#101418 !important; font-weight:700; color:var(--accent);
+    font-family:var(--mono); font-size:13px; text-transform:uppercase;
+    letter-spacing:1.5px; padding:14px 16px !important;
+    border-top:2px solid var(--accent); border-bottom:1px solid var(--border);
+  }
+  .register-header {
+    font-family:var(--mono); font-size:12px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1.2px;
+    padding:10px 16px 10px 24px !important;
+    border-left:4px solid var(--blue);
+    background:rgba(96, 165, 250, 0.08) !important;
+  }
+  .register-header.enhets {
+    border-left-color:var(--cyan);
+    background:rgba(34, 211, 238, 0.08) !important;
+    color:var(--cyan);
+  }
+  .register-header.foretak { color:var(--blue); }
   .badge-underenhet {
     display:inline-block; background:var(--purple); color:#0f1216;
     padding:2px 8px; border-radius:3px; font-size:10px; font-family:var(--mono);
@@ -126,18 +194,27 @@
   .legend-dot { width:12px; height:12px; border-radius:2px; display:inline-block; }
   .legend-dot.new { background: transparent; border: 1px solid var(--muted); }
   .legend-dot.underenhet { background: rgba(167, 139, 250, 0.3); border: 1px solid var(--purple); border-left: 3px solid var(--purple); }
-  .legend-dot.contacted { background: rgba(74, 222, 128, 0.15); border: 1px solid var(--green); border-left: 3px solid var(--green); }
+  .legend-dot.contacted { background: rgba(101, 206, 121, 0.15); border: 1px solid var(--green); border-left: 3px solid var(--green); }
+  .legend-dot.foretak { background: rgba(96, 165, 250, 0.2); border-left: 3px solid var(--blue); }
+  .legend-dot.enhets { background: rgba(34, 211, 238, 0.2); border-left: 3px solid var(--cyan); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand"><h1>Nyreg bygg & anlegg</h1></div>
+  <div class="brand">
+    <img class="logo" src="data:image/png;base64,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+t2r3Yv6vrp163LGGWdw5pln0rFjR5o3b06NGjUIhUJomkZBQQE5OTls2rSJNWvW8Nlnn7F8+XLvGZTn2hVZd+zYkRkzZlC3bl0cxyFQKC+OGjWKM844wzs41HWd3bt3M27cOGzbPoxo1Xzo2bMns2bN8saLWRjUNmbMGC644ALvGg3D4Oeff+bJJ5+sEGkbPvsdvzjSRpEa7P379+fdd98lNTU1rnWtSMs0TV577TVGjRrlvU9K6Q1yx3Fo2bIlI0aMYPDgwZx66qnexCkJO3bsYP78+UyePJk5c+Z4EyuRta0my8iRI6lfvz4PP/zwYRZecnIyt956K7///e/p2LFjifr8zz//zLx585g8eTJLliwp0jcA1157LWPHjuX0008v8T7y8/OZN28ejz/+uJcwKXYhUdd98cUXk5GRwXPPPVdk0VOLYnp6OiNGjOCKK67gtNNOIzU1tdQ+zM7OZsWKFUydOpWpU6eyb98+j0irM5+MevZSSnr27Mno0aO59NJLSU9PL/Wz3bt393KV/Pjjj0yZMoUJEyawffv2Ml27ki06duzInDlzaNSokTd2FC644AIuuOCCIp/bs2cP//73vxPeS5cuXfjggw88so4dO/3796d///5FPrdhwwbGjx9fIXnJ99nyUS6yHjZsGP/73/88so7Ve9UAVBbGk08+yXXXXVfE+lSyQ926dXn88cf5+uuvGTduHN27dycQCHjWYqKXlJJGjRpxzTXX8Mknn7BkyRL69u3rbevjEa26rkAgwEMPPcSECRNITk72vqtbt24sX76cxx57jE6dOnkWbfHvVlZcRkYGN9xwA4sXL+att96icePGWJZFixYtmDt3Lq+99ppH1onuw3EckpKSGDhwIIsXL+af//znYd4X6mcoFOLZZ5/13hNL6nfffTdr1qzhqaee4pxzzvGeS0l96LoutWrV4sILL+Tll19mzZo13HXXXd6iV12unIrg2rRpw5QpU1i2bBnXX3896enp3jWrHVe8l3omruvSpk0b/v73v/P1119zxx13eLp2omtX392+fXtmz55N48aNDyNrNXZVP0UiEWzb9nZz8do77bTT+OSTT6hfv37cYLPY9sLhcML2qo2wVcUUKQ1fEjnaygjV7+WiaZpH1qNHj+add97BNM24k0ORiWEY/OUvf+Huu+/2CEj9v7IYV6xYwT333EOtWrW8iaoIXR3SxHupttRnevXqxdy5c3n++ecJhUK4ruu9L55E47quR7YtW7akS5cuzJ07l06dOhGJRLx7iHcdsbq5+v6rrrqKRYsWMXToUBYuXEjfvn2xLMuz9BLdh0pp6zgOjuPwwAMP8O9//9sL846FIqkHHniAd999l2AwSHJyMh999BFPPPEEDRo0KNKHmqaV2IfKSlcE2KRJE8aPH8+8efNo0aKFt3BUpQSiCG7kyJF88cUXjBgxwutHNZZUvyhtvfhLPRMlDVmWRXp6Ok899RQfffSRJ/8Uv3b13RkZGcycOZOmTZt68le88Z7ouRdv75RTTmH27Nmkp6fHJf+ytld9hC1BFPr+5ue71ZwP20dppwhHgrB1XceyLO68804mTpxYRPctTtaKJG+88UbGjRtX5FBIWdZ33303H3/8MRkZGZ7FrAZxWbeIigCUZOC6Lrfccgvz58+nSZMmcUkvVjcvKCigW7duLFu2jBkzZlC7dm1PxyzuYRFPZoklF8dxaNOmDe+99x4ZGRmeFKS+vySPBqW/q0RK9957LxdffPFhkz/2uocNG8acOXP44IMPGDBgAJFIpNQ+LOm71eFpJBLh3HPPZdGiRbRp06bKUhPEHuaOGzeO//znP9SuXdt7RoqAi8tp8XYFxQ+rTdP0Fu9LL72UBQsW0KxZsyL9F0vWc+fO9Z6RUcEDe3Uv7dq1Y9asWSWSdbUYUOUlCtVllu36isrRsqwLH4JTjXscJXEUFBTw4IMP8uSTT3qHacVJQU3ucDjMsGHDmDhxYhGtUlnWf//733niiSc8qzKeJRw7YdVPy7ISem8owrMsi7POOov58+d7292StseO49CoUSOaNGlymFWmtt+xrmSJvFiUjKB+r9qJPXxUbSTy4Iit+vPII494JBpPlnIch969e9O3b19s28Y0zcP6MHYHoNqP3ZUUb1sIQSAQwLIsWrZsyYwZM6hXr15cl8CKkvUzzzzD/fff7z3H4oSpxkTsQlJ8V6DOG2Kfg1q8LcvilFNOYebMmdSpU8f7Dtu2ady4MR9//DGtW7f2UggnQiJJTn2Xbdu0atWKWbNm0axZs4SWekntVeZwt9zLjIimw6agQCtMnO8T6FGxsYVG2IoUVsap+hJfamI/88wz3HbbbR4BxiNrXdfZv38/V1xxBQsXLixyAKcm7KhRo/jHP/6BZVklSha6rpc4AZQlX/zzKry4Xbt2TJ8+nT59+hCJRBISjpIkiu8WYnXwrKwscnNzSUtL8yLgEslGxRcdRTw5OTnk5OQQCARo2LChdw/FP6Os9a5du3LWWWexePFi757iLRBq4UnUh6p9RXDKHzi2H4tfg2maRCIR2rZty4QJExgyZEilvEfUs//b3/7GbbfdhmVZnvdEcetfPfM9e/awevVqNmzYwKZNmzAMgzZt2tCpUyc6d+5MKBQqcp/Fn3+nTp148803ufTSSxFCeAeMjRs39t5X2jUXR7169by+6tatG4sWLfIOdkuz1GPbU+8taSxVPWEX/szOt0BIn6+PgnLtCoGOi6qtU9WWNURD18ePH59woikyMAyDzZs3M2jQIL7++uvDyNp1XTp27Mizzz7rTbJEASm6rpOfn8/ChQtZtmwZW7ZswbZtUlNTOfXUU+nbty9t27aNO2HVhFDBEI899hi33XZbieQfzzLVNI2tW7dyzz33MH/+fHJzc6lRowaXXXYZjz32mBdgkch6V2R94MAB7r//fqZPn052djaBQIBu3brx6KOPcvrppyc88NI0jUsvvZTFixcnXGwSfbd6Hps2beKNN95gwYIF7Ny5E8dxSEtL47TTTuOyyy7jsssu82SY4oSjiG/w4MFcccUVvP/++3EXjrKQdSQSYeDAgTz44INxvyu2Dz7++GMmTpzI4sWLycrKittm27ZtufLKKxk7dizp6emedav6ST3/iy++mPvuu49HHnmE9PR0Hn/8cfLz89E0jRtvvJEuXboctmCpf//3v/9l2bJl3sGzepZqt1izZk3+8pe/eO6hd999N61bt07Y3qRJk1i5cmWR9nbt2pVQqqpywi4sx8K+QwU+dx41+zo6QCOO7S2iVbVwqgl07bXXkpKSUsSnNB45rFu3jssuu4yNGzcWIetYAhs/fjxJSUlxt4+K4IQQvPzyy4wfP54ff/wx7rUlJSUxbNgwHn744cO0yuJyx6233sqbb77J8uXLCQaDpRKOmjz79++nX79+bNiwwftdfn4+EydOZPv27XzwwQeltuM4jqc1x7axYMEC+vXrx8qVK8nIyDhskqsdTLdu3TxCKyvU83j11Vf505/+FNcTYdWqVbz66qucc845vPTSS3To0CGhXi6l5C9/+QsffvhhEZfM8lxP7dq1efHFF70FLnYBUt+7ceNG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" alt="Komplett HMS">
+    <div class="title-block">
+      <h1>Nyreg bygg & anlegg</h1>
+      <span class="tagline">Prospekteringsverktøy</span>
+    </div>
+  </div>
   <div class="controls">
     <div class="status">
       <div class="dot" id="statusDot"></div>
       <span id="statusText">Starter…</span>
     </div>
+    <button class="sound-btn" id="soundBtn" title="Aktiver/deaktiver lydvarsling">🔔 Lyd: AV</button>
     <button class="secondary" id="refreshBtn">Oppdater nå</button>
     <button id="autoBtn">Auto: PÅ</button>
   </div>
@@ -147,25 +224,6 @@
   <div class="filter-group"><label>Fra dato</label><input type="date" id="fromDate"></div>
   <div class="filter-group"><label>Til dato</label><input type="date" id="toDate"></div>
   <div class="filter-group"><label>Søk</label><input type="text" id="searchBox" placeholder="Filtrer navn, sted, NACE…"></div>
-  <div class="filter-group">
-    <label>Org.form</label>
-    <select id="orgForm">
-      <option value="">Alle</option>
-      <option value="AS">AS</option>
-      <option value="ENK">ENK</option>
-      <option value="ANS">ANS</option>
-      <option value="DA">DA</option>
-      <option value="NUF">NUF</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>Register</label>
-    <select id="registerFilter">
-      <option value="">Alle</option>
-      <option value="foretak">Kun Foretaksregisteret</option>
-      <option value="enhets">Kun Enhetsregisteret</option>
-    </select>
-  </div>
   <label class="toggle">
     <input type="checkbox" id="hideContacted">
     <span>Skjul kontaktede</span>
@@ -177,6 +235,8 @@
   <div class="legend-item"><span class="legend-dot new"></span>Nytt selskap</div>
   <div class="legend-item"><span class="legend-dot underenhet"></span>Ny avdeling</div>
   <div class="legend-item"><span class="legend-dot contacted"></span>Kontaktet</div>
+  <div class="legend-item"><span class="legend-dot foretak"></span>Foretaksregisteret</div>
+  <div class="legend-item"><span class="legend-dot enhets"></span>Kun Enhetsregisteret</div>
 </div>
 
 <div class="stats">
@@ -209,7 +269,7 @@
 </div>
 
 <footer>
-  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt i nettleseren. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00 (ikke helger/helligdager).
+  Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Kontaktet-markering lagres lokalt. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00 (ikke helger/helligdager).
 </footer>
 
 <div class="toast" id="toast">Kopiert!</div>
@@ -232,8 +292,8 @@ const NACE_GROUPS = [
 ];
 
 const FORMAL_KEYWORDS = [
-  'tømrer','tomrer','tømmer','snekker',
-  'rørlegger','rorlegger','vvs','sanitær','sanitar',
+  'tomrer','tomrer','tommer','snekker',
+  'rorlegger','rorlegger','vvs','sanitar','sanitar',
   'maler','malerarbeid','malings',
   'betong','murer','muring',
   'elektriker','elektro',
@@ -244,29 +304,29 @@ const FORMAL_KEYWORDS = [
   'blikkenslager',
   'gulvleg','flisleg',
   'ventilasjon','asfalt',
-  'tømrermester','tomrermester','byggmester','byggemester',
-  'maskinfører','maskinforer',
+  'tomrermester','tomrermester','byggmester','byggemester',
+  'maskinforer','maskinforer',
   'gravemaskin','hjullaster',
   'anleggstransport',
   'steinarbeid','natursteinsarbeid',
-  'brønnborer','bronnborer',
-  'håndverk','handverk',
-  'entreprenør','entreprenor'
+  'bronnborer','bronnborer',
+  'handverk','handverk',
+  'entreprenor','entreprenor'
 ];
 const FORMAL_REGEX = new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i');
 
 const EXCLUDE_KEYWORDS = [
   'utvikling av fast eiendom','utvikling av eiendom',
-  'kjøp og salg av eiendom','kjop og salg av eiendom',
-  'kjøp og salg av fast eiendom','kjop og salg av fast eiendom',
+  'kjop og salg av eiendom','kjop og salg av eiendom',
+  'kjop og salg av fast eiendom','kjop og salg av fast eiendom',
   'salg av boenheter','salg av leiligheter',
   'eiendomsinvestering','eiendomsutvikling',
   'utleie av eiendom','utleie av fast eiendom',
   'eierskap i selskaper','investering i selskaper',
   'kapitalforvaltning','holdingsselskap','holding',
-  'konsulent','rådgivning','radgivning','rådgiver','radgiver',
+  'konsulent','radgivning','radgivning','radgiver','radgiver',
   'arkitekt','byggeledelse','prosjektering','prosjektledelse',
-  'ingeniørtjenester','ingeniortjenester',
+  'ingeniortjenester','ingeniortjenester',
   'handel med byggevarer','salg av byggevarer',
   'import og salg','import og eksport',
   'engroshandel','detaljhandel','nettbutikk'
@@ -277,107 +337,62 @@ const EXCLUDE_NACE_PREFIXES = ['68.','70.','71.','74.','46.','47.'];
 const REFRESH_MS = 5 * 60 * 1000;
 const PAGE_SIZE = 200;
 const CONTACTED_KEY = 'brreg_contacted_v1';
+const SOUND_KEY = 'brreg_sound_enabled_v1';
+const SEEN_KEY = 'brreg_seen_orgnr_v1';
 
-// ===== ARBEIDSTID-LOGIKK =====
-// Beregner påskesøndag (Gauss' algoritme) – fungerer for alle år 1900-2099
 function paaskesondag(year) {
-  const a = year % 19;
-  const b = Math.floor(year / 100);
-  const c = year % 100;
-  const d = Math.floor(b / 4);
-  const e = b % 4;
-  const f = Math.floor((b + 8) / 25);
-  const g = Math.floor((b - f + 1) / 3);
+  const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+  const d = Math.floor(b / 4), e = b % 4;
+  const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
   const h = (19 * a + b - d - g + 15) % 30;
-  const i = Math.floor(c / 4);
-  const k = c % 4;
+  const i = Math.floor(c / 4), k = c % 4;
   const L = (32 + 2 * e + 2 * i - h - k) % 7;
   const m = Math.floor((a + 11 * h + 22 * L) / 451);
   const month = Math.floor((h + L - 7 * m + 114) / 31);
   const day = ((h + L - 7 * m + 114) % 31) + 1;
   return new Date(year, month - 1, day);
 }
-
-function addDays(date, n) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + n);
-  return d;
-}
-
+function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate() + n); return d; }
 function dateKey(d) {
-  return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-
 function erHelligdag(date) {
   const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
   const key = dateKey(date);
-
-  // Faste helligdager
-  const fasteHelligdager = [
-    `${year}-01-01`, // 1. nyttårsdag
-    `${year}-05-01`, // 1. mai
-    `${year}-05-17`, // grunnlovsdag
-    `${year}-12-25`, // 1. juledag
-    `${year}-12-26`  // 2. juledag
-  ];
-  if (fasteHelligdager.includes(key)) return true;
-
-  // Bevegelige helligdager basert på påskesøndag
+  const faste = [`${year}-01-01`,`${year}-05-01`,`${year}-05-17`,`${year}-12-25`,`${year}-12-26`];
+  if (faste.includes(key)) return true;
   const paaske = paaskesondag(year);
-  const bevegelige = [
-    addDays(paaske, -3),  // skjærtorsdag
-    addDays(paaske, -2),  // langfredag
-    addDays(paaske, 0),   // påskedag
-    addDays(paaske, 1),   // 2. påskedag
-    addDays(paaske, 39),  // Kristi himmelfart
-    addDays(paaske, 49),  // pinsedag
-    addDays(paaske, 50)   // 2. pinsedag
-  ];
-  for (const d of bevegelige) {
-    if (dateKey(d) === key) return true;
-  }
+  const bevegelige = [addDays(paaske,-3),addDays(paaske,-2),addDays(paaske,0),addDays(paaske,1),addDays(paaske,39),addDays(paaske,49),addDays(paaske,50)];
+  for (const d of bevegelige) { if (dateKey(d) === key) return true; }
   return false;
 }
-
-// Sjekker om vi er i arbeidstid akkurat nå (lokal tid)
 function erArbeidstid(now) {
   now = now || new Date();
-  const dag = now.getDay(); // 0=søn, 1=man...6=lør
-  if (dag === 0 || dag === 6) return false;           // helg
-  if (erHelligdag(now)) return false;                  // helligdag
+  const dag = now.getDay();
+  if (dag === 0 || dag === 6) return false;
+  if (erHelligdag(now)) return false;
   const time = now.getHours();
-  return time >= 8 && time < 16;                       // 08:00-16:00
+  return time >= 8 && time < 16;
 }
-
-// Finn neste tidspunkt hvor auto-oppdatering skal starte igjen
 function nesteArbeidstidStart(now) {
   now = now || new Date();
-  // Test opptil 10 dager frem (bl.a. langhelger/juleferie)
   for (let i = 0; i < 10; i++) {
     const d = new Date(now);
     d.setDate(d.getDate() + i);
     d.setHours(8, 0, 0, 0);
-    // Hvis samme dag og klokken er før 8: returner kl 8 i dag hvis arbeidsdag
     if (i === 0 && now.getHours() < 8) {
       if (d.getDay() !== 0 && d.getDay() !== 6 && !erHelligdag(d)) return d;
       continue;
     }
-    // Ellers: dag i fremtiden
     if (i > 0 && d.getDay() !== 0 && d.getDay() !== 6 && !erHelligdag(d)) return d;
   }
-  // Fallback
   const fallback = new Date(now);
   fallback.setDate(fallback.getDate() + 1);
   fallback.setHours(8, 0, 0, 0);
   return fallback;
 }
-
 function formatWaitUntil(d) {
-  const dager = ['søn','man','tir','ons','tor','fre','lør'];
+  const dager = ['son','man','tir','ons','tor','fre','lor'];
   const now = new Date();
   const today = new Date(now); today.setHours(0,0,0,0);
   const target = new Date(d); target.setHours(0,0,0,0);
@@ -388,16 +403,19 @@ function formatWaitUntil(d) {
   return `${dager[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')} ${tid}`;
 }
 
-// ===== SLUTT ARBEIDSTID-LOGIKK =====
-
 let currentData = [];
 let personCache = new Map();
 let contactedSet = loadContacted();
+let seenOrgnrSet = loadSeen();
+let soundEnabled = loadSoundPref();
 let autoRefresh = true;
 let refreshTimer = null;
 let countdownTimer = null;
 let nextRefreshAt = 0;
-let isPaused = false; // satt når vi er utenfor arbeidstid
+let isPaused = false;
+let audioContext = null;
+let newOrgnrsSincelast = new Set();
+let isFirstLoad = true;
 
 const tbody = document.getElementById('tbody');
 const statusDot = document.getElementById('statusDot');
@@ -406,13 +424,12 @@ const errorBox = document.getElementById('errorBox');
 const fromDateEl = document.getElementById('fromDate');
 const toDateEl = document.getElementById('toDate');
 const searchBox = document.getElementById('searchBox');
-const orgFormEl = document.getElementById('orgForm');
-const registerFilterEl = document.getElementById('registerFilter');
 const refreshBtn = document.getElementById('refreshBtn');
 const autoBtn = document.getElementById('autoBtn');
 const toastEl = document.getElementById('toast');
 const hideContactedEl = document.getElementById('hideContacted');
 const resetContactedBtn = document.getElementById('resetContactedBtn');
+const soundBtn = document.getElementById('soundBtn');
 
 const today = new Date().toISOString().slice(0,10);
 fromDateEl.value = today;
@@ -428,8 +445,74 @@ function loadContacted() {
 }
 function saveContacted() {
   try { localStorage.setItem(CONTACTED_KEY, JSON.stringify([...contactedSet])); }
-  catch (e) { console.error('Kunne ikke lagre kontaktede:', e); }
+  catch (e) { console.error(e); }
 }
+function loadSeen() {
+  try {
+    const raw = localStorage.getItem(SEEN_KEY);
+    if (!raw) return new Set();
+    const obj = JSON.parse(raw);
+    if (obj.date === today && Array.isArray(obj.orgnrs)) {
+      return new Set(obj.orgnrs);
+    }
+    return new Set();
+  } catch (e) { return new Set(); }
+}
+function saveSeen() {
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify({ date: today, orgnrs: [...seenOrgnrSet] })); }
+  catch (e) { console.error(e); }
+}
+function loadSoundPref() {
+  try { return localStorage.getItem(SOUND_KEY) === 'true'; } catch (e) { return false; }
+}
+function saveSoundPref() {
+  try { localStorage.setItem(SOUND_KEY, soundEnabled ? 'true' : 'false'); } catch (e) {}
+}
+function updateSoundBtn() {
+  soundBtn.textContent = soundEnabled ? '🔔 Lyd: PÅ' : '🔔 Lyd: AV';
+  soundBtn.classList.toggle('active', soundEnabled);
+}
+
+// Diskret "pling"-lyd via Web Audio API (ingen ekstern fil nødvendig)
+function playPling() {
+  if (!soundEnabled) return;
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = audioContext;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.45);
+  } catch (e) { console.error('Lyd-feil:', e); }
+}
+
+soundBtn.addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  saveSoundPref();
+  updateSoundBtn();
+  if (soundEnabled) {
+    // Initialiserer audio-context og spiller en testlyd
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') audioContext.resume();
+    playPling();
+    showToast('Lyd aktivert');
+  } else {
+    showToast('Lyd deaktivert');
+  }
+});
+updateSoundBtn();
 
 window.toggleContacted = function(orgnr) {
   if (contactedSet.has(orgnr)) contactedSet.delete(orgnr);
@@ -439,8 +522,8 @@ window.toggleContacted = function(orgnr) {
 };
 
 resetContactedBtn.addEventListener('click', () => {
-  if (contactedSet.size === 0) { showToast('Ingen kontaktede å nullstille'); return; }
-  if (confirm(`Nullstille markeringen på ${contactedSet.size} selskap? Dette kan ikke angres.`)) {
+  if (contactedSet.size === 0) { showToast('Ingen kontaktede a nullstille'); return; }
+  if (confirm(`Nullstille markeringen pa ${contactedSet.size} selskap? Dette kan ikke angres.`)) {
     contactedSet.clear();
     saveContacted();
     render();
@@ -564,6 +647,26 @@ async function fetchCompanies() {
       return orgB - orgA;
     });
 
+    // Sjekk for nye firmaer (kun på påfølgende loads, ikke første gang)
+    newOrgnrsSincelast.clear();
+    if (!isFirstLoad) {
+      for (const e of merged) {
+        if (!seenOrgnrSet.has(e.organisasjonsnummer)) {
+          newOrgnrsSincelast.add(e.organisasjonsnummer);
+        }
+      }
+      if (newOrgnrsSincelast.size > 0) {
+        playPling();
+        showToast(`${newOrgnrsSincelast.size} nye selskap!`);
+      }
+    }
+    // Oppdater seen-settet
+    for (const e of merged) {
+      seenOrgnrSet.add(e.organisasjonsnummer);
+    }
+    saveSeen();
+    isFirstLoad = false;
+
     currentData = merged;
     render();
     setStatus('live', `Oppdatert ${new Date().toLocaleTimeString('nb-NO')}`);
@@ -583,12 +686,7 @@ function setStatus(state, text) {
 
 function applyFilters(list) {
   const search = searchBox.value.toLowerCase().trim();
-  const orgForm = orgFormEl.value;
-  const regFilter = registerFilterEl.value;
   return list.filter(e => {
-    if (orgForm && e.organisasjonsform?.kode !== orgForm) return false;
-    if (regFilter === 'foretak' && !e.registrertIForetaksregisteret) return false;
-    if (regFilter === 'enhets' && e.registrertIForetaksregisteret) return false;
     if (!search) return true;
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
     const hay = [
@@ -618,21 +716,41 @@ function render() {
 
   if (visible.length === 0) {
     const msg = hideContacted && contactedInView > 0
-      ? `Alle ${contactedInView} treff er kontaktet. Fjern haken på "Skjul kontaktede" for å se dem.`
-      : 'Ingen treff i perioden. Prøv å utvide datointervallet eller endre filter.';
+      ? `Alle ${contactedInView} treff er kontaktet. Fjern haken pa "Skjul kontaktede" for a se dem.`
+      : 'Ingen treff i perioden. Prov a utvide datointervallet.';
     tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
     return;
   }
 
-  const rowsHtml = [];
-  let currentDate = null;
+  // Grupperer først på dato, deretter på register innenfor hver dato
+  const byDate = new Map();
   for (const e of visible) {
     const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
-    if (d !== currentDate) {
-      currentDate = d;
-      rowsHtml.push(`<tr><td colspan="6" class="date-header">📅 Registrert ${formatDateHeader(d)}</td></tr>`);
+    if (!byDate.has(d)) byDate.set(d, { foretak: [], enhets: [] });
+    const bucket = byDate.get(d);
+    if (e.registrertIForetaksregisteret) bucket.foretak.push(e);
+    else bucket.enhets.push(e);
+  }
+
+  const rowsHtml = [];
+  // Iterer i samme rekkefølge som visible (som allerede er sortert)
+  const seenDates = new Set();
+  for (const e of visible) {
+    const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
+    if (seenDates.has(d)) continue;
+    seenDates.add(d);
+
+    const group = byDate.get(d);
+    rowsHtml.push(`<tr><td colspan="6" class="date-header">📅 Registrert ${formatDateHeader(d)}</td></tr>`);
+
+    if (group.foretak.length > 0) {
+      rowsHtml.push(`<tr><td colspan="6" class="register-header foretak">📘 Foretaksregisteret (${group.foretak.length})</td></tr>`);
+      for (const item of group.foretak) rowsHtml.push(rowHtml(item));
     }
-    rowsHtml.push(rowHtml(e));
+    if (group.enhets.length > 0) {
+      rowsHtml.push(`<tr><td colspan="6" class="register-header enhets">📗 Kun Enhetsregisteret (${group.enhets.length})</td></tr>`);
+      for (const item of group.enhets) rowsHtml.push(rowHtml(item));
+    }
   }
   tbody.innerHTML = rowsHtml.join('');
   enrichDagligLedere(visible);
@@ -643,7 +761,7 @@ function formatDateHeader(d) {
   const today = new Date().toISOString().slice(0,10);
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
   if (d === today) return `i dag (${d})`;
-  if (d === yesterday) return `i går (${d})`;
+  if (d === yesterday) return `i gar (${d})`;
   return d;
 }
 
@@ -657,31 +775,40 @@ function buildLookupLinks(e, personNavn) {
   const orgnr = e.organisasjonsnummer;
   const firma = e.navn || '';
   const addr = e.forretningsadresse || e.beliggenhetsadresse;
+  const gate = (addr && addr.adresse && addr.adresse.length > 0)
+    ? addr.adresse.filter(Boolean).join(' ').trim()
+    : '';
   const postnr = addr?.postnummer || '';
   const poststed = addr?.poststed || '';
-  const adresseSoek = [postnr, poststed].filter(Boolean).join(' ').trim();
+  const postLinje = [postnr, poststed].filter(Boolean).join(' ').trim();
 
-  let search1881 = personNavn ? (adresseSoek ? `${personNavn} ${adresseSoek}` : personNavn) : firma;
-  let searchGs = personNavn ? (poststed ? `${personNavn} ${poststed}` : personNavn) : firma;
+  // Nytt søkeformat: "Navn, Gateadresse, Postnr Poststed"
+  let personSearchQuery = '';
+  if (personNavn) {
+    const parts = [personNavn];
+    if (gate) parts.push(gate);
+    if (postLinje) parts.push(postLinje);
+    personSearchQuery = parts.join(', ');
+  } else {
+    personSearchQuery = firma;
+  }
 
-  const googleParts = [];
-  if (personNavn) googleParts.push(personNavn);
-  googleParts.push(firma);
-  if (adresseSoek) googleParts.push(adresseSoek);
-  googleParts.push('telefon');
-  const googleQuery = googleParts.join(' ');
+  // Google bruker samme format + ordet "telefon"
+  const googleQuery = personNavn
+    ? personSearchQuery + ' telefon'
+    : firma + ' telefon';
 
   const pendingAttr = personNavn ? '' : 'pending';
   const personTooltip = personNavn
-    ? `title="Søker etter: ${escapeHtml(search1881)}"`
-    : `title="Kontaktperson ikke hentet enda – søker på firmanavn inntil videre"`;
+    ? `title="Soker etter: ${escapeHtml(personSearchQuery)}"`
+    : `title="Kontaktperson ikke hentet enda - soker pa firmanavn"`;
 
   return `
     <div class="lookup-links" data-orgnr="${orgnr}">
       <a class="google ${pendingAttr}" href="https://www.google.com/search?q=${encodeURIComponent(googleQuery)}" target="_blank" rel="noopener" ${personTooltip}>Google</a>
-      <a class="person-search ${pendingAttr}" href="https://www.1881.no/?query=${encodeURIComponent(search1881)}" target="_blank" rel="noopener" ${personTooltip}>1881</a>
-      <a class="person-search ${pendingAttr}" href="https://www.gulesider.no/person/resultat/${encodeURIComponent(searchGs)}" target="_blank" rel="noopener" ${personTooltip}>G.Sider</a>
-      <a href="https://www.proff.no/bransjes%C3%B8k?q=${encodeURIComponent(firma)}" target="_blank" rel="noopener">Proff</a>
+      <a class="person-search ${pendingAttr}" href="https://www.1881.no/?query=${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" ${personTooltip}>1881</a>
+      <a class="gsider ${pendingAttr}" href="https://www.gulesider.no/person/resultat/${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" ${personTooltip}>G.Sider</a>
+      <a class="proff" href="https://www.proff.no/bransjes%C3%B8k?q=${encodeURIComponent(firma)}" target="_blank" rel="noopener">Proff</a>
       <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
     </div>`;
 }
@@ -690,6 +817,7 @@ function rowHtml(e) {
   const orgnr = e.organisasjonsnummer;
   const name = escapeHtml(e.navn || '—');
   const orgForm = e.organisasjonsform?.kode || '';
+  const isNuf = orgForm === 'NUF';
   const nace = e.naeringskode1 ? `${e.naeringskode1.kode} ${escapeHtml(e.naeringskode1.beskrivelse || '')}` : '';
   const addr = e.forretningsadresse || e.beliggenhetsadresse;
   const postnr = addr?.postnummer || '';
@@ -700,6 +828,7 @@ function rowHtml(e) {
   const web = e.hjemmeside || '';
   const isUnderenhet = e._source === 'avd';
   const isContacted = contactedSet.has(orgnr);
+  const isNew = newOrgnrsSincelast.has(orgnr);
 
   const formalArr = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []);
   const formalText = formalArr.join(' · ');
@@ -724,10 +853,18 @@ function rowHtml(e) {
     ? `<div class="company-meta" style="color:var(--purple); margin-top:2px">↳ Underenhet av: ${escapeHtml(e.overordnetEnhet)}</div>`
     : '';
 
+  // Organisasjonsform - rød tekst hvis NUF
+  const orgFormHtml = isNuf
+    ? `<span class="orgform-tag nuf">NUF ⚠</span>`
+    : `<span class="orgform-tag">${orgForm}</span>`;
+
+  // Rolle-tekst - rød hvis IKKE daglig leder
+  const roleClass = (cachedPerson && cachedPerson.rolle && cachedPerson.rolle !== 'Daglig leder') ? 'role no-dagl' : 'role';
+
   const contactBlock = isUnderenhet
     ? `<div class="contact-block">
          <div class="name"><span class="company-meta" style="color:var(--purple)">Se hovedenhet (${escapeHtml(e.overordnetEnhet || '')})</span></div>
-         <div class="role">Avdeling – eksisterende selskap</div>
+         <div class="role">Avdeling - eksisterende selskap</div>
          ${addressBlock}
          ${email ? `<div class="company-meta" style="margin-top:4px">✉ ${escapeHtml(email)}</div>` : ''}
        </div>`
@@ -737,14 +874,15 @@ function rowHtml(e) {
              ? `<span>${escapeHtml(cachedPerson.navn)}</span>${copyButton(cachedPerson.navn, 'navn')}`
              : '<span class="company-meta">Henter…</span>'}
          </div>
-         <div class="role" id="dl-role-${orgnr}">${cachedPerson ? escapeHtml(cachedPerson.rolle) : 'Kontaktperson'}</div>
+         <div class="${roleClass}" id="dl-role-${orgnr}">${cachedPerson ? escapeHtml(cachedPerson.rolle) : 'Kontaktperson'}</div>
          ${addressBlock}
          ${email ? `<div class="company-meta" style="margin-top:4px">✉ <a href="mailto:${email}" style="color:var(--muted)">${escapeHtml(email)}</a></div>` : ''}
        </div>`;
 
   const rowClass = [
     isUnderenhet ? 'row-underenhet' : '',
-    isContacted ? 'row-contacted' : ''
+    isContacted ? 'row-contacted' : '',
+    isNew ? 'new-row' : ''
   ].filter(Boolean).join(' ');
 
   const contactedBtn = `<button class="contacted-toggle ${isContacted ? 'checked' : ''}" onclick="toggleContacted('${orgnr}')" title="${isContacted ? 'Fjern kontaktet-markering' : 'Marker som kontaktet'}">${isContacted ? '✓' : ''}</button>`;
@@ -754,7 +892,7 @@ function rowHtml(e) {
       <td class="contacted-cell">${contactedBtn}</td>
       <td>
         <div class="company-name">${name}${underenhetBadge}</div>
-        <div class="company-meta">${orgForm} · ${sted}</div>
+        <div class="company-meta">${orgFormHtml} · ${sted}</div>
         ${overordnetInfo}
         <div class="nace">${nace}</div>
         ${web ? `<div class="company-meta">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
@@ -780,9 +918,8 @@ function buildFullAddress(addr) {
 }
 
 window.copyField = async function(btn, value) {
-  try {
-    await navigator.clipboard.writeText(value);
-  } catch (err) {
+  try { await navigator.clipboard.writeText(value); }
+  catch (err) {
     const ta = document.createElement('textarea');
     ta.value = value;
     document.body.appendChild(ta);
@@ -814,7 +951,7 @@ async function fetchKontaktperson(orgnr) {
       { kode: 'INNH', label: 'Innehaver' },
       { kode: 'LEDE', label: 'Styreleder' },
       { kode: 'KONT', label: 'Kontaktperson' },
-      { kode: 'FFØR', label: 'Forretningsfører' },
+      { kode: 'FFØR', label: 'Forretningsforer' },
       { kode: 'MEDL', label: 'Styremedlem' }
     ];
     for (const { kode, label } of priority) {
@@ -857,7 +994,11 @@ async function enrichDagligLedere(list) {
     if (result) {
       personCache.set(e.organisasjonsnummer, result);
       stillEl.innerHTML = `<span>${escapeHtml(result.navn)}</span>${copyButton(result.navn, 'navn')}`;
-      if (stillRoleEl) stillRoleEl.textContent = result.rolle;
+      if (stillRoleEl) {
+        stillRoleEl.textContent = result.rolle;
+        if (result.rolle !== 'Daglig leder') stillRoleEl.classList.add('no-dagl');
+        else stillRoleEl.classList.remove('no-dagl');
+      }
       updateRowLinks(e, result.navn);
     } else {
       stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
@@ -876,7 +1017,6 @@ function formatPhone(p) {
   return p;
 }
 
-// ===== SCHEDULE MED ARBEIDSTID =====
 function scheduleNext() {
   if (refreshTimer) clearTimeout(refreshTimer);
   if (countdownTimer) clearInterval(countdownTimer);
@@ -887,31 +1027,21 @@ function scheduleNext() {
   }
   const now = new Date();
   if (erArbeidstid(now)) {
-    // Vanlig intervall
     isPaused = false;
     nextRefreshAt = Date.now() + REFRESH_MS;
     refreshTimer = setTimeout(() => {
-      // Når timeren går av: sjekk om vi fortsatt er i arbeidstid
-      if (erArbeidstid(new Date())) {
-        fetchCompanies();
-      } else {
-        // Vi har gått ut av arbeidstid - reschedule til neste arbeidsdag
-        scheduleNext();
-      }
+      if (erArbeidstid(new Date())) fetchCompanies();
+      else scheduleNext();
     }, REFRESH_MS);
     countdownTimer = setInterval(updateCountdown, 1000);
     updateCountdown();
   } else {
-    // Utenfor arbeidstid - sett i pause
     isPaused = true;
     const nesteStart = nesteArbeidstidStart(now);
     const msTilStart = nesteStart - now;
     setStatus('paused', `💤 Pauset til ${formatWaitUntil(nesteStart)}`);
     document.getElementById('nextUpdate').textContent = 'PAUSE';
-    refreshTimer = setTimeout(() => {
-      // Start opp igjen når arbeidstiden begynner
-      fetchCompanies();
-    }, msTilStart);
+    refreshTimer = setTimeout(() => { fetchCompanies(); }, msTilStart);
   }
 }
 
@@ -938,8 +1068,6 @@ autoBtn.addEventListener('click', () => {
   }
 });
 searchBox.addEventListener('input', render);
-orgFormEl.addEventListener('change', render);
-registerFilterEl.addEventListener('change', render);
 fromDateEl.addEventListener('change', fetchCompanies);
 toDateEl.addEventListener('change', fetchCompanies);
 hideContactedEl.addEventListener('change', render);
