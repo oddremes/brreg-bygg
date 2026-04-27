@@ -125,40 +125,50 @@
     left:calc(var(--sidebar-w) - 18px);
   }
 
-  /* Behandlede-seksjon */
-  .behandlede-section {
-    margin-top:30px;
-    border-top:1px solid var(--border);
-    padding-top:20px;
+  /* Klikkbare statistikk-bokser */
+  .stat.clickable {
+    cursor:pointer; transition:all 0.15s; position:relative;
   }
-  .behandlede-toggle {
-    display:flex; align-items:center; gap:10px; cursor:pointer;
-    user-select:none; padding:12px 16px;
-    background:var(--panel-2); border:1px solid var(--border);
-    border-radius:8px; transition:all 0.15s;
-    width:100%; text-align:left; color:var(--text);
-    font-family:var(--sans); font-size:13px; font-weight:600;
+  .stat.clickable:hover {
+    background:var(--panel-3); border-color:var(--accent);
+    transform:translateY(-1px);
   }
-  .behandlede-toggle:hover { background:var(--panel-3); border-color:var(--muted-soft); }
-  .behandlede-toggle .arrow {
-    transition:transform 0.2s; font-size:12px; color:var(--muted);
+  .stat.clickable:hover::after {
+    content:"Klikk for å se";
+    position:absolute; bottom:-22px; left:50%; transform:translateX(-50%);
+    background:var(--panel); color:var(--muted); padding:3px 8px;
+    border-radius:4px; font-size:10px; white-space:nowrap;
+    border:1px solid var(--border); z-index:10;
+    text-transform:none; letter-spacing:normal; font-weight:500;
   }
-  .behandlede-toggle.open .arrow { transform:rotate(90deg); }
-  .behandlede-toggle .count-badge {
-    margin-left:auto; display:flex; gap:8px; align-items:center;
+
+  /* Modal for behandlede-listen */
+  .behandlede-modal {
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    max-width:1100px; width:100%; max-height:85vh; overflow:hidden;
+    display:flex; flex-direction:column;
   }
-  .behandlede-toggle .count-pill {
-    padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;
+  .behandlede-modal-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 24px; border-bottom:1px solid var(--border);
+    background:var(--panel);
   }
-  .count-pill.kontaktet { background:rgba(255,204,77,0.2); color:var(--accent); border:1px solid rgba(255,204,77,0.4); }
-  .count-pill.solgt { background:rgba(101,206,121,0.2); color:var(--green); border:1px solid rgba(101,206,121,0.4); }
-  .behandlede-content {
-    display:none; margin-top:16px;
+  .behandlede-modal-header h3 {
+    margin:0; font-size:16px; font-weight:700; display:flex; align-items:center; gap:10px;
   }
-  .behandlede-content.open { display:block; }
-  .behandlede-empty {
-    text-align:center; padding:40px; color:var(--muted-soft); font-style:italic;
+  .behandlede-modal-header .close-btn {
+    background:transparent; color:var(--muted); border:none;
+    font-size:22px; cursor:pointer; padding:4px 10px; line-height:1;
+    border-radius:6px;
   }
+  .behandlede-modal-header .close-btn:hover {
+    background:var(--panel-2); color:var(--text);
+  }
+  .behandlede-modal-body {
+    overflow-y:auto; padding:0;
+  }
+  .behandlede-modal-body table { margin:0; }
+  .behandlede-modal-body th { top:0; }
 
   .sidebar {
     background:var(--panel); border-right:1px solid var(--border);
@@ -540,8 +550,8 @@
       <div class="stat-grid">
         <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Totalt</div></div>
         <div class="stat gjenstaar"><div class="stat-value" id="pendingCount">–</div><div class="stat-label">Gjenstår</div></div>
-        <div class="stat contacted"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
-        <div class="stat solgt"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Solgt</div></div>
+        <div class="stat contacted clickable" data-filter="kontaktet" title="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
+        <div class="stat solgt clickable" data-filter="solgt" title="Klikk for å se solgte"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Solgt</div></div>
       </div>
       <button class="danger" id="resetContactedBtn" style="width:100%; margin-top:12px;">Nullstill markeringer</button>
     </div>
@@ -586,34 +596,6 @@
       </tbody>
     </table>
 
-    <div class="behandlede-section">
-      <button class="behandlede-toggle" id="behandledeToggle">
-        <span class="arrow">▶</span>
-        <span>Behandlede selskaper</span>
-        <span class="count-badge">
-          <span class="count-pill kontaktet" id="behandledeKontaktetCount">0 kontaktet</span>
-          <span class="count-pill solgt" id="behandledeSolgtCount">0 solgt</span>
-        </span>
-      </button>
-      <div class="behandlede-content" id="behandledeContent">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:80px">Status</th>
-              <th style="width:32%">Selskap</th>
-              <th style="width:14%">Org.nr</th>
-              <th style="width:20%">Kontaktperson</th>
-              <th style="width:24%">Telefon / oppslag</th>
-              <th style="width:10%">Registrert</th>
-            </tr>
-          </thead>
-          <tbody id="behandledeTbody">
-            <tr><td colspan="6" class="behandlede-empty">Ingen behandlede selskaper enda</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <div class="main-footer">
       Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Markeringer lagres lokalt i nettleseren. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00.
     </div>
@@ -642,6 +624,32 @@
     <div class="modal-actions">
       <button class="secondary" id="solgtCancelBtn">Avbryt</button>
       <button id="solgtConfirmBtn">Bekreft salg</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="behandledeModal">
+  <div class="behandlede-modal">
+    <div class="behandlede-modal-header">
+      <h3 id="behandledeModalTitle">Behandlede selskaper</h3>
+      <button class="close-btn" id="behandledeCloseBtn" title="Lukk">✕</button>
+    </div>
+    <div class="behandlede-modal-body">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:80px">Status</th>
+            <th style="width:32%">Selskap</th>
+            <th style="width:14%">Org.nr</th>
+            <th style="width:20%">Kontaktperson</th>
+            <th style="width:24%">Telefon / oppslag</th>
+            <th style="width:10%">Registrert</th>
+          </tr>
+        </thead>
+        <tbody id="behandledeTbody">
+          <tr><td colspan="6" class="empty">Ingen behandlede enda</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -829,11 +837,12 @@ const pointsValue = document.getElementById('pointsValue');
 const resultsHeader = document.getElementById('resultsHeader');
 const sidebarToggle = document.getElementById('sidebarToggle');
 const layoutEl = document.getElementById('layout');
-const behandledeToggle = document.getElementById('behandledeToggle');
-const behandledeContent = document.getElementById('behandledeContent');
+const behandledeModal = document.getElementById('behandledeModal');
+const behandledeModalTitle = document.getElementById('behandledeModalTitle');
+const behandledeCloseBtn = document.getElementById('behandledeCloseBtn');
 const behandledeTbody = document.getElementById('behandledeTbody');
-const behandledeKontaktetCount = document.getElementById('behandledeKontaktetCount');
-const behandledeSolgtCount = document.getElementById('behandledeSolgtCount');
+
+let behandledeFilter = null; // 'kontaktet' | 'solgt' | null (alle)
 
 const today = new Date().toISOString().slice(0,10);
 fromDateEl.value = today;
@@ -948,22 +957,81 @@ sidebarToggle.addEventListener('click', () => {
   sidebarToggle.textContent = isCollapsed ? '☰' : '◀';
 });
 
-// ===== Behandlede-seksjon toggle =====
-const BEHANDLEDE_OPEN_KEY = 'brreg_behandlede_open_v1';
-function loadBehandledeState() {
-  try { return localStorage.getItem(BEHANDLEDE_OPEN_KEY) === 'true'; } catch (e) { return false; }
+// ===== Behandlede modal =====
+function openBehandledeModal(filter) {
+  behandledeFilter = filter; // 'kontaktet' | 'solgt' | null
+  if (filter === 'kontaktet') {
+    behandledeModalTitle.innerHTML = '🟡 Kontaktede selskaper';
+  } else if (filter === 'solgt') {
+    behandledeModalTitle.innerHTML = '💰 Solgte selskaper';
+  } else {
+    behandledeModalTitle.innerHTML = '📋 Behandlede selskaper';
+  }
+  renderBehandledeModal();
+  behandledeModal.classList.add('show');
 }
-function saveBehandledeState(open) {
-  try { localStorage.setItem(BEHANDLEDE_OPEN_KEY, open ? 'true' : 'false'); } catch (e) {}
+function closeBehandledeModal() {
+  behandledeModal.classList.remove('show');
+  behandledeFilter = null;
 }
-if (loadBehandledeState()) {
-  behandledeToggle.classList.add('open');
-  behandledeContent.classList.add('open');
+
+function renderBehandledeModal() {
+  const list = applyFilters(currentData).filter(e => {
+    const s = statusMap.get(e.organisasjonsnummer);
+    if (!s) return false;
+    if (behandledeFilter === 'kontaktet') return s.status === 'kontaktet';
+    if (behandledeFilter === 'solgt') return s.status === 'solgt';
+    return s.status === 'kontaktet' || s.status === 'solgt';
+  });
+
+  // Sortering: solgte først, så kontaktede, så på dato/orgnr
+  list.sort((a, b) => {
+    const sA = statusMap.get(a.organisasjonsnummer)?.status || '';
+    const sB = statusMap.get(b.organisasjonsnummer)?.status || '';
+    const rA = sA === 'solgt' ? 0 : 1;
+    const rB = sB === 'solgt' ? 0 : 1;
+    if (rA !== rB) return rA - rB;
+    const dateA = a.registreringsdatoEnhetsregisteret || '';
+    const dateB = b.registreringsdatoEnhetsregisteret || '';
+    if (dateA !== dateB) return dateB.localeCompare(dateA);
+    const orgA = parseInt(a.organisasjonsnummer, 10) || 0;
+    const orgB = parseInt(b.organisasjonsnummer, 10) || 0;
+    return orgB - orgA;
+  });
+
+  if (list.length === 0) {
+    const msg = behandledeFilter === 'kontaktet' ? 'Ingen kontaktede enda'
+      : behandledeFilter === 'solgt' ? 'Ingen solgte enda'
+      : 'Ingen behandlede enda';
+    behandledeTbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
+    return;
+  }
+
+  behandledeTbody.innerHTML = list.map(e => rowHtml(e)).join('');
+  // Hent personnavn også for behandlede-rader
+  enrichDagligLedere(list);
 }
-behandledeToggle.addEventListener('click', () => {
-  const isOpen = behandledeToggle.classList.toggle('open');
-  behandledeContent.classList.toggle('open', isOpen);
-  saveBehandledeState(isOpen);
+
+// Klikk på statistikk-bokser for å åpne modal
+document.querySelectorAll('.stat.clickable').forEach(stat => {
+  stat.addEventListener('click', () => {
+    const filter = stat.getAttribute('data-filter');
+    openBehandledeModal(filter);
+  });
+});
+
+behandledeCloseBtn.addEventListener('click', closeBehandledeModal);
+behandledeModal.addEventListener('click', (e) => {
+  if (e.target === behandledeModal) closeBehandledeModal();
+});
+
+// ESC for å lukke modaler
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (behandledeModal.classList.contains('show')) closeBehandledeModal();
+    if (importModal.classList.contains('show')) importModal.classList.remove('show');
+    if (solgtModal.classList.contains('show')) { solgtModal.classList.remove('show'); pendingSolgtOrgnr = null; }
+  }
 });
 
 resetContactedBtn.addEventListener('click', () => {
@@ -1282,31 +1350,15 @@ function render() {
 
   // Splitt i ubehandlede og behandlede
   const ubehandlede = [];
-  const behandlede = [];
   let contactedInView = 0;
   let solgtInView = 0;
   for (const e of totalInView) {
     const s = statusMap.get(e.organisasjonsnummer);
-    if (s?.status === 'kontaktet') { contactedInView++; behandlede.push(e); }
-    else if (s?.status === 'solgt') { solgtInView++; behandlede.push(e); }
-    else { ubehandlede.push(e); }
+    if (s?.status === 'kontaktet') contactedInView++;
+    else if (s?.status === 'solgt') solgtInView++;
+    else ubehandlede.push(e);
   }
   const pendingInView = ubehandlede.length;
-
-  // Sortering for behandlede: solgte først, så kontaktede, så på orgnr
-  behandlede.sort((a, b) => {
-    const sA = statusMap.get(a.organisasjonsnummer)?.status || '';
-    const sB = statusMap.get(b.organisasjonsnummer)?.status || '';
-    const rA = sA === 'solgt' ? 0 : 1;
-    const rB = sB === 'solgt' ? 0 : 1;
-    if (rA !== rB) return rA - rB;
-    const dateA = a.registreringsdatoEnhetsregisteret || '';
-    const dateB = b.registreringsdatoEnhetsregisteret || '';
-    if (dateA !== dateB) return dateB.localeCompare(dateA);
-    const orgA = parseInt(a.organisasjonsnummer, 10) || 0;
-    const orgB = parseInt(b.organisasjonsnummer, 10) || 0;
-    return orgB - orgA;
-  });
 
   document.getElementById('totalCount').textContent = totalInView.length;
   document.getElementById('contactedCount').textContent = contactedInView;
@@ -1314,28 +1366,22 @@ function render() {
   document.getElementById('solgtCount').textContent = solgtInView;
   resultsHeader.textContent = `${pendingInView} ${pendingInView === 1 ? 'selskap' : 'selskaper'} å kontakte`;
 
-  // Oppdater count-pills i behandlede-seksjonen
-  behandledeKontaktetCount.textContent = `${contactedInView} kontaktet`;
-  behandledeSolgtCount.textContent = `${solgtInView} solgt`;
-
   // Render hovedtabellen (kun ubehandlede)
   if (ubehandlede.length === 0) {
     const msg = (contactedInView + solgtInView) > 0
-      ? `Alle ${(contactedInView+solgtInView)} treff er behandlet. Se i seksjonen under.`
+      ? `Alle ${(contactedInView+solgtInView)} treff er behandlet. Klikk på "Kontaktet" eller "Solgt" i sidelinjen for å se dem.`
       : 'Ingen treff i perioden. Prøv å utvide datointervallet.';
     tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
   } else {
     tbody.innerHTML = renderRowsGrouped(ubehandlede);
   }
 
-  // Render behandlede-tabellen
-  if (behandlede.length === 0) {
-    behandledeTbody.innerHTML = `<tr><td colspan="6" class="behandlede-empty">Ingen behandlede selskaper enda</td></tr>`;
-  } else {
-    behandledeTbody.innerHTML = behandlede.map(e => rowHtml(e)).join('');
+  // Hvis behandlede-modal er åpen, oppdater den også
+  if (behandledeModal.classList.contains('show')) {
+    renderBehandledeModal();
   }
 
-  enrichDagligLedere([...ubehandlede, ...behandlede]);
+  enrichDagligLedere(totalInView);
 }
 
 function renderRowsGrouped(list) {
