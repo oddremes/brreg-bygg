@@ -170,6 +170,32 @@
   .behandlede-modal-body table { margin:0; }
   .behandlede-modal-body th { top:0; }
 
+  /* Periodevelger og summary i behandlede-modal */
+  .behandlede-controls {
+    padding:14px 24px; border-bottom:1px solid var(--border);
+    background:var(--panel-2); display:flex; align-items:center;
+    gap:16px; flex-wrap:wrap;
+  }
+  .behandlede-controls .period-group {
+    display:flex; align-items:center; gap:8px;
+  }
+  .behandlede-controls label {
+    font-size:11px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.8px; font-weight:600;
+  }
+  .behandlede-controls select {
+    background:var(--panel); border:1px solid var(--border); color:var(--text);
+    padding:6px 12px; border-radius:5px; font-family:var(--sans); font-size:13px;
+    cursor:pointer;
+  }
+  .behandlede-summary {
+    margin-left:auto; font-size:13px; color:var(--text);
+    background:var(--panel); padding:6px 14px;
+    border-radius:5px; border:1px solid var(--border);
+  }
+  .behandlede-summary .num { font-weight:700; color:var(--accent); font-family:var(--mono); }
+  .behandlede-summary .num.green { color:var(--green); }
+
   .sidebar {
     background:var(--panel); border-right:1px solid var(--border);
     padding:24px; overflow-y:auto;
@@ -553,7 +579,8 @@
         <div class="stat contacted clickable" data-filter="kontaktet" title="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
         <div class="stat solgt clickable" data-filter="solgt" title="Klikk for å se solgte"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Solgt</div></div>
       </div>
-      <button class="danger" id="resetContactedBtn" style="width:100%; margin-top:12px;">Nullstill markeringer</button>
+      <button class="secondary" id="backupExportBtn" style="width:100%; margin-top:12px; font-size:12px;">📤 Eksporter backup</button>
+      <button class="secondary" id="backupImportBtn" style="width:100%; margin-top:6px; font-size:12px;">📥 Importer backup</button>
     </div>
 
     <div class="sidebar-section">
@@ -628,11 +655,37 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="backupImportModal">
+  <div class="modal">
+    <h3>📥 Importer backup av markeringer</h3>
+    <p>Lim inn backup-teksten du tidligere har eksportert. Eksisterende markeringer beholdes – nye legges til. Ved konflikt vinner den importerte (overskriver eksisterende).</p>
+    <textarea id="backupImportText" placeholder="Lim inn backup-tekst her…"></textarea>
+    <div class="modal-actions">
+      <button class="secondary" id="backupImportCancelBtn">Avbryt</button>
+      <button id="backupImportConfirmBtn">Importer</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="behandledeModal">
   <div class="behandlede-modal">
     <div class="behandlede-modal-header">
       <h3 id="behandledeModalTitle">Behandlede selskaper</h3>
       <button class="close-btn" id="behandledeCloseBtn" title="Lukk">✕</button>
+    </div>
+    <div class="behandlede-controls">
+      <div class="period-group">
+        <label>Periode</label>
+        <select id="behandledePeriod">
+          <option value="today">I dag</option>
+          <option value="week">Denne uken</option>
+          <option value="month" selected>Denne måneden</option>
+          <option value="prevMonth">Forrige måned</option>
+          <option value="year">I år</option>
+          <option value="all">Alt</option>
+        </select>
+      </div>
+      <div class="behandlede-summary" id="behandledeSummary">–</div>
     </div>
     <div class="behandlede-modal-body">
       <table>
@@ -816,7 +869,6 @@ const searchBox = document.getElementById('searchBox');
 const refreshBtn = document.getElementById('refreshBtn');
 const autoBtn = document.getElementById('autoBtn');
 const toastEl = document.getElementById('toast');
-const resetContactedBtn = document.getElementById('resetContactedBtn');
 const soundBtn = document.getElementById('soundBtn');
 const reserveTermEl = document.getElementById('reserveTerm');
 const reserveByEl = document.getElementById('reserveBy');
@@ -841,8 +893,17 @@ const behandledeModal = document.getElementById('behandledeModal');
 const behandledeModalTitle = document.getElementById('behandledeModalTitle');
 const behandledeCloseBtn = document.getElementById('behandledeCloseBtn');
 const behandledeTbody = document.getElementById('behandledeTbody');
+const behandledePeriod = document.getElementById('behandledePeriod');
+const behandledeSummary = document.getElementById('behandledeSummary');
+const backupExportBtn = document.getElementById('backupExportBtn');
+const backupImportBtn = document.getElementById('backupImportBtn');
+const backupImportModal = document.getElementById('backupImportModal');
+const backupImportText = document.getElementById('backupImportText');
+const backupImportCancelBtn = document.getElementById('backupImportCancelBtn');
+const backupImportConfirmBtn = document.getElementById('backupImportConfirmBtn');
 
 let behandledeFilter = null; // 'kontaktet' | 'solgt' | null (alle)
+let behandledePeriodValue = loadBehandledePeriod();
 
 const today = new Date().toISOString().slice(0,10);
 fromDateEl.value = today;
@@ -897,24 +958,47 @@ function saveReservations() {
 window.cycleStatus = function(orgnr) {
   const current = statusMap.get(orgnr);
   if (!current) {
-    // Ny → Kontaktet
+    // Ny → Kontaktet (ingen bekreftelse - rask å markere)
     statusMap.set(orgnr, { status: 'kontaktet', dato: today });
     saveStatus();
     render();
     updatePointsBox();
   } else if (current.status === 'kontaktet') {
-    // Kontaktet → SOLGT (åpne modal for poeng)
-    pendingSolgtOrgnr = orgnr;
-    solgtPoeng.value = '1';
-    solgtModal.classList.add('show');
-    setTimeout(() => solgtPoeng.focus(), 100);
-    solgtPoeng.select();
+    // Kontaktet → kan gå til Solgt eller tilbake til Ny
+    // Spør først hva brukeren vil
+    const valg = window.prompt(
+      'Hva vil du gjøre med denne kontaktede oppføringen?\n\n' +
+      '1 = Marker som SOLGT (åpner poeng-vindu)\n' +
+      '2 = Fjern kontaktet-markeringen (mister historikk)\n' +
+      'Avbryt = ikke endre',
+      '1'
+    );
+    if (valg === '1') {
+      // Åpne solgt-modal
+      pendingSolgtOrgnr = orgnr;
+      solgtPoeng.value = '1';
+      solgtModal.classList.add('show');
+      setTimeout(() => solgtPoeng.focus(), 100);
+      solgtPoeng.select();
+    } else if (valg === '2') {
+      if (confirm('⚠️ Er du sikker?\n\nDu mister historikken at du har kontaktet dette selskapet.\nDette kan IKKE angres.')) {
+        statusMap.delete(orgnr);
+        saveStatus();
+        render();
+        updatePointsBox();
+        showToast('Markering fjernet');
+      }
+    }
+    // Avbryt: gjør ingenting
   } else if (current.status === 'solgt') {
-    // Solgt → Ny (fjerner)
-    statusMap.delete(orgnr);
-    saveStatus();
-    render();
-    updatePointsBox();
+    // Solgt → bekreftelse før fjerning
+    if (confirm(`⚠️ Vil du fjerne salgsmarkeringen?\n\nDette sletter ${current.poeng} poeng fra denne registreringen.\nKontakthistorikken fjernes også.`)) {
+      statusMap.delete(orgnr);
+      saveStatus();
+      render();
+      updatePointsBox();
+      showToast('Salg fjernet');
+    }
   }
 };
 
@@ -967,49 +1051,179 @@ function openBehandledeModal(filter) {
   } else {
     behandledeModalTitle.innerHTML = '📋 Behandlede selskaper';
   }
+  // Sett periodevelger til lagret verdi
+  behandledePeriod.value = behandledePeriodValue;
   renderBehandledeModal();
   behandledeModal.classList.add('show');
 }
+
+// Endring av periodevelger
+behandledePeriod.addEventListener('change', (e) => {
+  behandledePeriodValue = e.target.value;
+  saveBehandledePeriod(behandledePeriodValue);
+  renderBehandledeModal();
+});
 function closeBehandledeModal() {
   behandledeModal.classList.remove('show');
   behandledeFilter = null;
 }
 
 function renderBehandledeModal() {
-  const list = applyFilters(currentData).filter(e => {
-    const s = statusMap.get(e.organisasjonsnummer);
-    if (!s) return false;
-    if (behandledeFilter === 'kontaktet') return s.status === 'kontaktet';
-    if (behandledeFilter === 'solgt') return s.status === 'solgt';
-    return s.status === 'kontaktet' || s.status === 'solgt';
+  // Filtrer kun status-data direkte (uavhengig av søk i sidelinjen)
+  const orgnrs = [...statusMap.entries()]
+    .filter(([orgnr, s]) => {
+      if (behandledeFilter === 'kontaktet') return s.status === 'kontaktet';
+      if (behandledeFilter === 'solgt') return s.status === 'solgt';
+      return s.status === 'kontaktet' || s.status === 'solgt';
+    })
+    .filter(([orgnr, s]) => isInPeriod(s.dato, behandledePeriodValue))
+    .map(([orgnr, s]) => orgnr);
+
+  // Bygg liste: bruk currentData hvis tilgjengelig, ellers vis bare det vi har
+  const orgnrSet = new Set(orgnrs);
+  let list = currentData.filter(e => orgnrSet.has(e.organisasjonsnummer));
+
+  // Hvis et orgnr fra status ikke finnes i currentData (gammelt salg utenfor dagens periode),
+  // vis det med begrenset info
+  for (const orgnr of orgnrs) {
+    if (!list.some(e => e.organisasjonsnummer === orgnr)) {
+      // Lager dummy-objekt med minimal info
+      list.push({
+        organisasjonsnummer: orgnr,
+        navn: '(Selskap ikke i nåværende henting)',
+        organisasjonsform: { kode: '' },
+        registreringsdatoEnhetsregisteret: statusMap.get(orgnr).dato || '',
+        _source: 'backup',
+        _isBackup: true
+      });
+    }
+  }
+
+  // Sortering: solgte først, så kontaktede, så på dato (nyeste salg først)
+  list.sort((a, b) => {
+    const sA = statusMap.get(a.organisasjonsnummer);
+    const sB = statusMap.get(b.organisasjonsnummer);
+    const rA = sA?.status === 'solgt' ? 0 : 1;
+    const rB = sB?.status === 'solgt' ? 0 : 1;
+    if (rA !== rB) return rA - rB;
+    // Innenfor samme status: sorter på status-dato (nyeste først)
+    const dA = sA?.dato || '';
+    const dB = sB?.dato || '';
+    return dB.localeCompare(dA);
   });
 
-  // Sortering: solgte først, så kontaktede, så på dato/orgnr
-  list.sort((a, b) => {
-    const sA = statusMap.get(a.organisasjonsnummer)?.status || '';
-    const sB = statusMap.get(b.organisasjonsnummer)?.status || '';
-    const rA = sA === 'solgt' ? 0 : 1;
-    const rB = sB === 'solgt' ? 0 : 1;
-    if (rA !== rB) return rA - rB;
-    const dateA = a.registreringsdatoEnhetsregisteret || '';
-    const dateB = b.registreringsdatoEnhetsregisteret || '';
-    if (dateA !== dateB) return dateB.localeCompare(dateA);
-    const orgA = parseInt(a.organisasjonsnummer, 10) || 0;
-    const orgB = parseInt(b.organisasjonsnummer, 10) || 0;
-    return orgB - orgA;
-  });
+  // Beregn summary
+  let totalKontaktet = 0;
+  let totalSolgt = 0;
+  let totalPoeng = 0;
+  for (const orgnr of orgnrs) {
+    const s = statusMap.get(orgnr);
+    if (s.status === 'kontaktet') totalKontaktet++;
+    else if (s.status === 'solgt') {
+      totalSolgt++;
+      totalPoeng += (s.poeng || 0);
+    }
+  }
+
+  // Oppdater summary-tekst
+  if (behandledeFilter === 'solgt') {
+    behandledeSummary.innerHTML = `<span class="num green">${totalSolgt}</span> salg, <span class="num green">${totalPoeng}p</span> totalt`;
+  } else if (behandledeFilter === 'kontaktet') {
+    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktede`;
+  } else {
+    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> solgt (${totalPoeng}p)`;
+  }
 
   if (list.length === 0) {
-    const msg = behandledeFilter === 'kontaktet' ? 'Ingen kontaktede enda'
-      : behandledeFilter === 'solgt' ? 'Ingen solgte enda'
-      : 'Ingen behandlede enda';
+    const periodLabel = periodLabelFor(behandledePeriodValue);
+    const msg = behandledeFilter === 'kontaktet' ? `Ingen kontaktede ${periodLabel}`
+      : behandledeFilter === 'solgt' ? `Ingen solgte ${periodLabel}`
+      : `Ingen behandlede ${periodLabel}`;
     behandledeTbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
     return;
   }
 
-  behandledeTbody.innerHTML = list.map(e => rowHtml(e)).join('');
-  // Hent personnavn også for behandlede-rader
-  enrichDagligLedere(list);
+  behandledeTbody.innerHTML = list.map(e => {
+    if (e._isBackup) return rowHtmlBackup(e);
+    return rowHtml(e);
+  }).join('');
+
+  // Hent personnavn også for behandlede-rader (kun for de som er i currentData)
+  enrichDagligLedere(list.filter(e => !e._isBackup));
+}
+
+// Forenklet rad for selskaper som ikke er i nåværende BRREG-henting
+function rowHtmlBackup(e) {
+  const orgnr = e.organisasjonsnummer;
+  const status = statusMap.get(orgnr);
+  let statusBtnHtml;
+  if (status.status === 'kontaktet') {
+    statusBtnHtml = `<button class="status-btn status-kontaktet" onclick="cycleStatus('${orgnr}')">✓</button>`;
+  } else {
+    statusBtnHtml = `<button class="status-btn status-solgt" onclick="cycleStatus('${orgnr}')">💰 ${status.poeng}p</button>`;
+  }
+  return `
+    <tr data-orgnr="${orgnr}" class="${status.status === 'solgt' ? 'row-solgt' : 'row-contacted'}">
+      <td class="status-cell">${statusBtnHtml}</td>
+      <td>
+        <div class="company-name">${escapeHtml(e.navn)}</div>
+        <div class="company-meta">Registrert utenfor n\u00e5v\u00e6rende periode</div>
+      </td>
+      <td><span class="orgnr">${orgnr}</span></td>
+      <td><a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener" style="color:var(--blue); font-size:12px">Se i BRREG</a></td>
+      <td><span class="company-meta">–</span></td>
+      <td><span class="time-ago">${status.dato || ''}</span></td>
+    </tr>`;
+}
+
+// ===== Periode-helpers =====
+const PERIOD_KEY = 'brreg_period_v1';
+function loadBehandledePeriod() {
+  try { return localStorage.getItem(PERIOD_KEY) || 'month'; } catch (e) { return 'month'; }
+}
+function saveBehandledePeriod(v) {
+  try { localStorage.setItem(PERIOD_KEY, v); } catch (e) {}
+}
+
+function isInPeriod(dato, period) {
+  if (!dato) return period === 'all';
+  if (period === 'all') return true;
+
+  const now = new Date();
+  const d = new Date(dato);
+  if (isNaN(d.getTime())) return false;
+
+  if (period === 'today') {
+    const todayStr = now.toISOString().slice(0, 10);
+    return dato === todayStr;
+  }
+  if (period === 'week') {
+    // Fra mandag denne uken
+    const dow = now.getDay() || 7; // søndag=7
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (dow - 1));
+    monday.setHours(0,0,0,0);
+    return d >= monday;
+  }
+  if (period === 'month') {
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }
+  if (period === 'prevMonth') {
+    const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return d.getFullYear() === prev.getFullYear() && d.getMonth() === prev.getMonth();
+  }
+  if (period === 'year') {
+    return d.getFullYear() === now.getFullYear();
+  }
+  return true;
+}
+
+function periodLabelFor(period) {
+  const map = {
+    today: 'i dag', week: 'denne uken', month: 'denne måneden',
+    prevMonth: 'forrige måned', year: 'i år', all: 'totalt'
+  };
+  return map[period] || '';
 }
 
 // Klikk på statistikk-bokser for å åpne modal
@@ -1031,18 +1245,70 @@ document.addEventListener('keydown', (e) => {
     if (behandledeModal.classList.contains('show')) closeBehandledeModal();
     if (importModal.classList.contains('show')) importModal.classList.remove('show');
     if (solgtModal.classList.contains('show')) { solgtModal.classList.remove('show'); pendingSolgtOrgnr = null; }
+    if (backupImportModal.classList.contains('show')) backupImportModal.classList.remove('show');
   }
 });
 
-resetContactedBtn.addEventListener('click', () => {
-  if (statusMap.size === 0) { showToast('Ingen markeringer å nullstille'); return; }
-  if (confirm(`Nullstille markeringen på ${statusMap.size} selskap (kontaktet og solgt)? Dette kan ikke angres.`)) {
-    statusMap.clear();
-    saveStatus();
-    render();
-    updatePointsBox();
-    showToast('Markeringer nullstilt');
+// ===== Backup eksport/import =====
+backupExportBtn.addEventListener('click', async () => {
+  if (statusMap.size === 0) { showToast('Ingen markeringer å eksportere'); return; }
+
+  const lines = [
+    '# BRREG-markeringer backup — ' + new Date().toLocaleString('nb-NO'),
+    '# Format: orgnr | status | dato | poeng',
+    ''
+  ];
+  for (const [orgnr, data] of statusMap.entries()) {
+    const poeng = data.poeng != null ? data.poeng : '';
+    const dato = data.dato || '';
+    lines.push(`${orgnr} | ${data.status} | ${dato} | ${poeng}`);
   }
+  const text = lines.join('\n');
+
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast(`✓ Backup kopiert (${statusMap.size} markeringer)`);
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✓ Backup kopiert');
+  }
+});
+
+backupImportBtn.addEventListener('click', () => {
+  backupImportText.value = '';
+  backupImportModal.classList.add('show');
+  setTimeout(() => backupImportText.focus(), 100);
+});
+backupImportCancelBtn.addEventListener('click', () => backupImportModal.classList.remove('show'));
+backupImportModal.addEventListener('click', (e) => { if (e.target === backupImportModal) backupImportModal.classList.remove('show'); });
+backupImportConfirmBtn.addEventListener('click', () => {
+  const raw = backupImportText.value;
+  if (!raw.trim()) { showToast('Ingen tekst å importere'); return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  let added = 0;
+  for (const line of lines) {
+    const parts = line.split('|').map(p => p.trim());
+    if (parts.length < 3) continue;
+    const orgnr = parts[0];
+    const status = parts[1];
+    const dato = parts[2];
+    const poeng = parts[3] ? parseInt(parts[3], 10) : null;
+    if (!orgnr || !['kontaktet','solgt'].includes(status)) continue;
+    const obj = { status, dato };
+    if (poeng != null && !isNaN(poeng)) obj.poeng = poeng;
+    statusMap.set(orgnr, obj);
+    added++;
+  }
+  saveStatus();
+  render();
+  updatePointsBox();
+  backupImportModal.classList.remove('show');
+  showToast(`✓ Importerte ${added} markeringer`);
 });
 
 // ===== Poeng-boks i header =====
