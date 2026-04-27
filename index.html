@@ -376,7 +376,43 @@
     min-width:60px; padding:0 10px;
   }
   .status-btn:hover { transform:scale(1.05); }
-  .status-cell { width:80px; padding:18px 8px !important; vertical-align:top; }
+  .status-cell { width:120px; padding:14px 8px !important; vertical-align:top; }
+  .status-buttons {
+    display:flex; flex-direction:column; gap:4px; align-items:stretch;
+  }
+  .status-btn-pair {
+    background:transparent; border:2px solid var(--border);
+    color:var(--muted); cursor:pointer;
+    border-radius:5px; font-family:var(--sans);
+    font-size:11px; font-weight:700;
+    padding:6px 10px; line-height:1;
+    transition:all 0.15s; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .status-btn-pair.kontaktet-btn {
+    border-color:rgba(255,204,77,0.4); color:var(--accent);
+  }
+  .status-btn-pair.kontaktet-btn:hover {
+    background:var(--accent); color:#111; border-color:var(--accent);
+  }
+  .status-btn-pair.solgt-btn {
+    border-color:rgba(101,206,121,0.4); color:var(--green);
+  }
+  .status-btn-pair.solgt-btn:hover {
+    background:var(--green); color:#111; border-color:var(--green);
+  }
+  /* Aktive (allerede markerte) - vises i modalene */
+  .status-btn-pair.active-kontaktet {
+    background:var(--accent); color:#111; border-color:var(--accent);
+  }
+  .status-btn-pair.active-solgt {
+    background:var(--green); color:#111; border-color:var(--green);
+  }
+  .status-btn-pair.fjern-btn {
+    border-color:rgba(254,100,100,0.4); color:var(--red);
+  }
+  .status-btn-pair.fjern-btn:hover {
+    background:var(--red); color:#111; border-color:var(--red);
+  }
 
   /* Oppslag-knapper */
   .lookup-links { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:6px; }
@@ -954,52 +990,70 @@ function saveReservations() {
   catch (e) { console.error(e); }
 }
 
-// ===== Status-system: Ny → Kontaktet → Solgt → Ny =====
-window.cycleStatus = function(orgnr) {
+// ===== Status-system: To separate knapper =====
+
+// Marker som kontaktet (fra Ny eller fra Solgt)
+window.markerKontaktet = function(orgnr) {
   const current = statusMap.get(orgnr);
-  if (!current) {
-    // Ny → Kontaktet (ingen bekreftelse - rask å markere)
-    statusMap.set(orgnr, { status: 'kontaktet', dato: today });
-    saveStatus();
-    render();
-    updatePointsBox();
-  } else if (current.status === 'kontaktet') {
-    // Kontaktet → kan gå til Solgt eller tilbake til Ny
-    // Spør først hva brukeren vil
-    const valg = window.prompt(
-      'Hva vil du gjøre med denne kontaktede oppføringen?\n\n' +
-      '1 = Marker som SOLGT (åpner poeng-vindu)\n' +
-      '2 = Fjern kontaktet-markeringen (mister historikk)\n' +
-      'Avbryt = ikke endre',
-      '1'
-    );
-    if (valg === '1') {
-      // Åpne solgt-modal
-      pendingSolgtOrgnr = orgnr;
-      solgtPoeng.value = '1';
-      solgtModal.classList.add('show');
-      setTimeout(() => solgtPoeng.focus(), 100);
-      solgtPoeng.select();
-    } else if (valg === '2') {
-      if (confirm('⚠️ Er du sikker?\n\nDu mister historikken at du har kontaktet dette selskapet.\nDette kan IKKE angres.')) {
-        statusMap.delete(orgnr);
-        saveStatus();
-        render();
-        updatePointsBox();
-        showToast('Markering fjernet');
-      }
-    }
-    // Avbryt: gjør ingenting
-  } else if (current.status === 'solgt') {
-    // Solgt → bekreftelse før fjerning
-    if (confirm(`⚠️ Vil du fjerne salgsmarkeringen?\n\nDette sletter ${current.poeng} poeng fra denne registreringen.\nKontakthistorikken fjernes også.`)) {
+  if (current?.status === 'kontaktet') {
+    // Klikket Kontaktet på en allerede kontaktet - betyr "fjern markering"
+    if (confirm('⚠️ Vil du fjerne kontaktet-markeringen?\n\nDu mister historikken at du har kontaktet dette selskapet.')) {
       statusMap.delete(orgnr);
       saveStatus();
       render();
       updatePointsBox();
-      showToast('Salg fjernet');
+      showToast('Markering fjernet');
+    }
+    return;
+  }
+  if (current?.status === 'solgt') {
+    // Konvertering fra solgt til kontaktet - mister poeng
+    if (!confirm(`⚠️ Endre fra SOLGT til Kontaktet?\n\nDu mister ${current.poeng}p og må registrere salget på nytt hvis du vil ha det tilbake.`)) {
+      return;
     }
   }
+  statusMap.set(orgnr, { status: 'kontaktet', dato: today });
+  saveStatus();
+  render();
+  updatePointsBox();
+  showToast('Markert som kontaktet');
+};
+
+// Marker som solgt (fra Ny eller fra Kontaktet) - åpner poeng-modal
+window.markerSolgt = function(orgnr) {
+  const current = statusMap.get(orgnr);
+  if (current?.status === 'solgt') {
+    // Klikket Solgt på en allerede solgt - mulighet for å endre poeng
+    const valg = window.prompt(
+      'Hva vil du gjøre?\n\n' +
+      '1 = Endre antall poeng\n' +
+      '2 = Fjern salgsmarkeringen\n' +
+      'Avbryt = behold som er',
+      '1'
+    );
+    if (valg === '1') {
+      pendingSolgtOrgnr = orgnr;
+      solgtPoeng.value = current.poeng || 1;
+      solgtModal.classList.add('show');
+      setTimeout(() => solgtPoeng.focus(), 100);
+      solgtPoeng.select();
+    } else if (valg === '2') {
+      if (confirm(`⚠️ Fjerne salgsmarkeringen?\n\nDette sletter ${current.poeng} poeng.`)) {
+        statusMap.delete(orgnr);
+        saveStatus();
+        render();
+        updatePointsBox();
+        showToast('Salg fjernet');
+      }
+    }
+    return;
+  }
+  // Fra Ny eller Kontaktet til Solgt - åpne poeng-modal
+  pendingSolgtOrgnr = orgnr;
+  solgtPoeng.value = '1';
+  solgtModal.classList.add('show');
+  setTimeout(() => solgtPoeng.focus(), 100);
+  solgtPoeng.select();
 };
 
 solgtConfirmBtn.addEventListener('click', () => {
@@ -1156,15 +1210,14 @@ function renderBehandledeModal() {
 function rowHtmlBackup(e) {
   const orgnr = e.organisasjonsnummer;
   const status = statusMap.get(orgnr);
-  let statusBtnHtml;
-  if (status.status === 'kontaktet') {
-    statusBtnHtml = `<button class="status-btn status-kontaktet" onclick="cycleStatus('${orgnr}')">✓</button>`;
-  } else {
-    statusBtnHtml = `<button class="status-btn status-solgt" onclick="cycleStatus('${orgnr}')">💰 ${status.poeng}p</button>`;
-  }
+  const buttonsHtml = `
+    <div class="status-buttons">
+      <button class="status-btn-pair kontaktet-btn ${status.status === 'kontaktet' ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${status.status === 'kontaktet' ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${status.status === 'kontaktet' ? '✓ Kontaktet' : 'Kontaktet'}</button>
+      <button class="status-btn-pair solgt-btn ${status.status === 'solgt' ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${status.status === 'solgt' ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${status.status === 'solgt' ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+    </div>`;
   return `
     <tr data-orgnr="${orgnr}" class="${status.status === 'solgt' ? 'row-solgt' : 'row-contacted'}">
-      <td class="status-cell">${statusBtnHtml}</td>
+      <td class="status-cell">${buttonsHtml}</td>
       <td>
         <div class="company-name">${escapeHtml(e.navn)}</div>
         <div class="company-meta">Registrert utenfor n\u00e5v\u00e6rende periode</div>
@@ -1782,15 +1835,14 @@ function rowHtml(e) {
     ${email ? `<div class="company-meta" style="margin-top:6px">✉ <a href="mailto:${email}" style="color:var(--muted)">${escapeHtml(email)}</a></div>` : ''}
   </div>`;
 
-  // Status-knapp
-  let statusBtnHtml;
-  if (!status) {
-    statusBtnHtml = `<button class="status-btn" onclick="cycleStatus('${orgnr}')" title="Marker som kontaktet">Ny</button>`;
-  } else if (status.status === 'kontaktet') {
-    statusBtnHtml = `<button class="status-btn status-kontaktet" onclick="cycleStatus('${orgnr}')" title="Marker som solgt">✓</button>`;
-  } else if (status.status === 'solgt') {
-    statusBtnHtml = `<button class="status-btn status-solgt" onclick="cycleStatus('${orgnr}')" title="Fjern markering">💰 ${status.poeng}p</button>`;
-  }
+  // Status-knapper
+  const isKontaktet = status?.status === 'kontaktet';
+  const isSolgt = status?.status === 'solgt';
+  const buttonsHtml = `
+    <div class="status-buttons">
+      <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+      <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+    </div>`;
 
   const rowClass = [
     status?.status === 'kontaktet' ? 'row-contacted' : '',
@@ -1801,7 +1853,7 @@ function rowHtml(e) {
 
   return `
     <tr data-orgnr="${orgnr}" class="${rowClass}">
-      <td class="status-cell">${statusBtnHtml}</td>
+      <td class="status-cell">${buttonsHtml}</td>
       <td>
         <div class="company-name">${name}${reservedBadge}${solgtBadge}</div>
         <div class="company-meta">${orgFormHtml} · ${sted}</div>
