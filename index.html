@@ -99,6 +99,65 @@
     display:grid;
     grid-template-columns:var(--sidebar-w) 1fr;
     min-height:calc(100vh - var(--header-h));
+    transition:grid-template-columns 0.25s ease;
+  }
+  .layout.sidebar-collapsed {
+    grid-template-columns:0 1fr;
+  }
+  .layout.sidebar-collapsed .sidebar {
+    transform:translateX(-100%);
+    pointer-events:none;
+  }
+
+  /* Toggle-knapp for sidebar */
+  .sidebar-toggle {
+    position:fixed; top:calc(var(--header-h) + 12px); left:12px;
+    z-index:15;
+    width:36px; height:36px; padding:0;
+    background:var(--panel); color:var(--text);
+    border:1px solid var(--border); border-radius:8px;
+    font-size:16px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center;
+    transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .sidebar-toggle:hover { background:var(--panel-2); border-color:var(--accent); }
+  .layout:not(.sidebar-collapsed) .sidebar-toggle {
+    left:calc(var(--sidebar-w) - 18px);
+  }
+
+  /* Behandlede-seksjon */
+  .behandlede-section {
+    margin-top:30px;
+    border-top:1px solid var(--border);
+    padding-top:20px;
+  }
+  .behandlede-toggle {
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+    user-select:none; padding:12px 16px;
+    background:var(--panel-2); border:1px solid var(--border);
+    border-radius:8px; transition:all 0.15s;
+    width:100%; text-align:left; color:var(--text);
+    font-family:var(--sans); font-size:13px; font-weight:600;
+  }
+  .behandlede-toggle:hover { background:var(--panel-3); border-color:var(--muted-soft); }
+  .behandlede-toggle .arrow {
+    transition:transform 0.2s; font-size:12px; color:var(--muted);
+  }
+  .behandlede-toggle.open .arrow { transform:rotate(90deg); }
+  .behandlede-toggle .count-badge {
+    margin-left:auto; display:flex; gap:8px; align-items:center;
+  }
+  .behandlede-toggle .count-pill {
+    padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;
+  }
+  .count-pill.kontaktet { background:rgba(255,204,77,0.2); color:var(--accent); border:1px solid rgba(255,204,77,0.4); }
+  .count-pill.solgt { background:rgba(101,206,121,0.2); color:var(--green); border:1px solid rgba(101,206,121,0.4); }
+  .behandlede-content {
+    display:none; margin-top:16px;
+  }
+  .behandlede-content.open { display:block; }
+  .behandlede-empty {
+    text-align:center; padding:40px; color:var(--muted-soft); font-style:italic;
   }
 
   .sidebar {
@@ -106,6 +165,7 @@
     padding:24px; overflow-y:auto;
     position:sticky; top:var(--header-h);
     height:calc(100vh - var(--header-h));
+    transition:transform 0.25s ease;
   }
   .sidebar-section {
     margin-bottom:32px;
@@ -143,8 +203,8 @@
   }
   .stat-value { font-size:20px; font-weight:700; color:var(--accent); line-height:1.1; }
   .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:600; }
-  .stat.contacted .stat-value { color:var(--green); }
-  .stat.solgt .stat-value { color:var(--gold); }
+  .stat.contacted .stat-value { color:var(--accent); }
+  .stat.solgt .stat-value { color:var(--green); }
   .stat.gjenstaar .stat-value { color:var(--text); }
 
   /* Reservasjon-panel i sidebar */
@@ -201,11 +261,13 @@
   }
   tr:hover td { background:var(--panel); }
 
-  /* Kontaktet/solgt: tone ned hele raden */
-  tr.row-contacted td { opacity:0.55; background:rgba(101, 206, 121, 0.04) !important; }
-  tr.row-contacted:hover td { opacity:0.8; }
-  tr.row-solgt td { background:rgba(255, 204, 77, 0.06) !important; opacity:0.85; }
-  tr.row-solgt:hover td { opacity:1; }
+  /* Kontaktet (gul) og solgt (grønn) - litt dempet */
+  tr.row-contacted td { background:rgba(255, 204, 77, 0.06) !important; opacity:0.85; }
+  tr.row-contacted:hover td { opacity:1; }
+  tr.row-contacted td:first-child { border-left:3px solid var(--accent); padding-left:13px; }
+  tr.row-solgt td { background:rgba(101, 206, 121, 0.10) !important; opacity:1; }
+  tr.row-solgt:hover td { background:rgba(101, 206, 121, 0.16) !important; }
+  tr.row-solgt td:first-child { border-left:4px solid var(--green); padding-left:12px; }
 
   /* Reservert rad: tydelig rød ramme */
   tr.row-reserved td {
@@ -271,10 +333,10 @@
     transition:all 0.15s; font-size:12px; line-height:1; font-weight:700;
   }
   .status-btn.status-kontaktet {
-    background:var(--green); color:#111; border-color:var(--green);
+    background:var(--accent); color:#111; border-color:var(--accent);
   }
   .status-btn.status-solgt {
-    background:var(--gold); color:#111; border-color:var(--gold);
+    background:var(--green); color:#111; border-color:var(--green);
     min-width:60px; padding:0 10px;
   }
   .status-btn:hover { transform:scale(1.05); }
@@ -332,7 +394,7 @@
     margin-left:10px; vertical-align:middle;
   }
   .badge-solgt {
-    display:inline-block; background:var(--gold); color:#111;
+    display:inline-block; background:var(--green); color:#111;
     padding:3px 10px; border-radius:4px; font-size:10px;
     font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
     margin-left:10px; vertical-align:middle;
@@ -452,7 +514,9 @@
   </div>
 </header>
 
-<div class="layout">
+<div class="layout" id="layout">
+  <button class="sidebar-toggle" id="sidebarToggle" title="Skjul/vis sidelinje">☰</button>
+
   <aside class="sidebar">
 
     <div class="sidebar-section">
@@ -469,10 +533,6 @@
         <label>Søk</label>
         <input type="text" id="searchBox" placeholder="Filtrer navn, sted, NACE…">
       </div>
-      <label class="toggle">
-        <input type="checkbox" id="hideContacted">
-        <span>Skjul kontaktede & solgte</span>
-      </label>
     </div>
 
     <div class="sidebar-section">
@@ -525,6 +585,34 @@
         <tr><td colspan="6" class="empty">Laster data fra Brønnøysundregistrene…</td></tr>
       </tbody>
     </table>
+
+    <div class="behandlede-section">
+      <button class="behandlede-toggle" id="behandledeToggle">
+        <span class="arrow">▶</span>
+        <span>Behandlede selskaper</span>
+        <span class="count-badge">
+          <span class="count-pill kontaktet" id="behandledeKontaktetCount">0 kontaktet</span>
+          <span class="count-pill solgt" id="behandledeSolgtCount">0 solgt</span>
+        </span>
+      </button>
+      <div class="behandlede-content" id="behandledeContent">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:80px">Status</th>
+              <th style="width:32%">Selskap</th>
+              <th style="width:14%">Org.nr</th>
+              <th style="width:20%">Kontaktperson</th>
+              <th style="width:24%">Telefon / oppslag</th>
+              <th style="width:10%">Registrert</th>
+            </tr>
+          </thead>
+          <tbody id="behandledeTbody">
+            <tr><td colspan="6" class="behandlede-empty">Ingen behandlede selskaper enda</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <div class="main-footer">
       Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Markeringer lagres lokalt i nettleseren. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00.
@@ -720,7 +808,6 @@ const searchBox = document.getElementById('searchBox');
 const refreshBtn = document.getElementById('refreshBtn');
 const autoBtn = document.getElementById('autoBtn');
 const toastEl = document.getElementById('toast');
-const hideContactedEl = document.getElementById('hideContacted');
 const resetContactedBtn = document.getElementById('resetContactedBtn');
 const soundBtn = document.getElementById('soundBtn');
 const reserveTermEl = document.getElementById('reserveTerm');
@@ -740,6 +827,13 @@ const solgtConfirmBtn = document.getElementById('solgtConfirmBtn');
 const pointsLabel = document.getElementById('pointsLabel');
 const pointsValue = document.getElementById('pointsValue');
 const resultsHeader = document.getElementById('resultsHeader');
+const sidebarToggle = document.getElementById('sidebarToggle');
+const layoutEl = document.getElementById('layout');
+const behandledeToggle = document.getElementById('behandledeToggle');
+const behandledeContent = document.getElementById('behandledeContent');
+const behandledeTbody = document.getElementById('behandledeTbody');
+const behandledeKontaktetCount = document.getElementById('behandledeKontaktetCount');
+const behandledeSolgtCount = document.getElementById('behandledeSolgtCount');
 
 const today = new Date().toISOString().slice(0,10);
 fromDateEl.value = today;
@@ -833,6 +927,44 @@ solgtCancelBtn.addEventListener('click', () => {
 });
 solgtModal.addEventListener('click', (e) => { if (e.target === solgtModal) { solgtModal.classList.remove('show'); pendingSolgtOrgnr = null; } });
 solgtPoeng.addEventListener('keydown', (e) => { if (e.key === 'Enter') solgtConfirmBtn.click(); });
+
+// ===== Sidebar toggle =====
+const SIDEBAR_KEY = 'brreg_sidebar_collapsed_v1';
+function loadSidebarState() {
+  try { return localStorage.getItem(SIDEBAR_KEY) === 'true'; } catch (e) { return false; }
+}
+function saveSidebarState(collapsed) {
+  try { localStorage.setItem(SIDEBAR_KEY, collapsed ? 'true' : 'false'); } catch (e) {}
+}
+if (loadSidebarState()) {
+  layoutEl.classList.add('sidebar-collapsed');
+  sidebarToggle.textContent = '☰';
+} else {
+  sidebarToggle.textContent = '◀';
+}
+sidebarToggle.addEventListener('click', () => {
+  const isCollapsed = layoutEl.classList.toggle('sidebar-collapsed');
+  saveSidebarState(isCollapsed);
+  sidebarToggle.textContent = isCollapsed ? '☰' : '◀';
+});
+
+// ===== Behandlede-seksjon toggle =====
+const BEHANDLEDE_OPEN_KEY = 'brreg_behandlede_open_v1';
+function loadBehandledeState() {
+  try { return localStorage.getItem(BEHANDLEDE_OPEN_KEY) === 'true'; } catch (e) { return false; }
+}
+function saveBehandledeState(open) {
+  try { localStorage.setItem(BEHANDLEDE_OPEN_KEY, open ? 'true' : 'false'); } catch (e) {}
+}
+if (loadBehandledeState()) {
+  behandledeToggle.classList.add('open');
+  behandledeContent.classList.add('open');
+}
+behandledeToggle.addEventListener('click', () => {
+  const isOpen = behandledeToggle.classList.toggle('open');
+  behandledeContent.classList.toggle('open', isOpen);
+  saveBehandledeState(isOpen);
+});
 
 resetContactedBtn.addEventListener('click', () => {
   if (statusMap.size === 0) { showToast('Ingen markeringer å nullstille'); return; }
@@ -1146,41 +1278,69 @@ function applyFilters(list) {
 }
 
 function render() {
-  const hideContacted = hideContactedEl.checked;
   const totalInView = applyFilters(currentData);
 
+  // Splitt i ubehandlede og behandlede
+  const ubehandlede = [];
+  const behandlede = [];
   let contactedInView = 0;
   let solgtInView = 0;
   for (const e of totalInView) {
     const s = statusMap.get(e.organisasjonsnummer);
-    if (s?.status === 'kontaktet') contactedInView++;
-    else if (s?.status === 'solgt') solgtInView++;
+    if (s?.status === 'kontaktet') { contactedInView++; behandlede.push(e); }
+    else if (s?.status === 'solgt') { solgtInView++; behandlede.push(e); }
+    else { ubehandlede.push(e); }
   }
-  const pendingInView = totalInView.length - contactedInView - solgtInView;
+  const pendingInView = ubehandlede.length;
 
-  const visible = hideContacted
-    ? totalInView.filter(e => {
-        const s = statusMap.get(e.organisasjonsnummer);
-        return !s || (s.status !== 'kontaktet' && s.status !== 'solgt');
-      })
-    : totalInView;
+  // Sortering for behandlede: solgte først, så kontaktede, så på orgnr
+  behandlede.sort((a, b) => {
+    const sA = statusMap.get(a.organisasjonsnummer)?.status || '';
+    const sB = statusMap.get(b.organisasjonsnummer)?.status || '';
+    const rA = sA === 'solgt' ? 0 : 1;
+    const rB = sB === 'solgt' ? 0 : 1;
+    if (rA !== rB) return rA - rB;
+    const dateA = a.registreringsdatoEnhetsregisteret || '';
+    const dateB = b.registreringsdatoEnhetsregisteret || '';
+    if (dateA !== dateB) return dateB.localeCompare(dateA);
+    const orgA = parseInt(a.organisasjonsnummer, 10) || 0;
+    const orgB = parseInt(b.organisasjonsnummer, 10) || 0;
+    return orgB - orgA;
+  });
 
   document.getElementById('totalCount').textContent = totalInView.length;
   document.getElementById('contactedCount').textContent = contactedInView;
   document.getElementById('pendingCount').textContent = pendingInView;
   document.getElementById('solgtCount').textContent = solgtInView;
-  resultsHeader.textContent = `${visible.length} ${visible.length === 1 ? 'selskap' : 'selskaper'} ${hideContacted && (contactedInView+solgtInView) > 0 ? '(skjuler ' + (contactedInView+solgtInView) + ')' : ''}`;
+  resultsHeader.textContent = `${pendingInView} ${pendingInView === 1 ? 'selskap' : 'selskaper'} å kontakte`;
 
-  if (visible.length === 0) {
-    const msg = hideContacted && (contactedInView+solgtInView) > 0
-      ? `Alle ${(contactedInView+solgtInView)} treff er behandlet. Fjern haken på "Skjul kontaktede & solgte" for å se dem.`
+  // Oppdater count-pills i behandlede-seksjonen
+  behandledeKontaktetCount.textContent = `${contactedInView} kontaktet`;
+  behandledeSolgtCount.textContent = `${solgtInView} solgt`;
+
+  // Render hovedtabellen (kun ubehandlede)
+  if (ubehandlede.length === 0) {
+    const msg = (contactedInView + solgtInView) > 0
+      ? `Alle ${(contactedInView+solgtInView)} treff er behandlet. Se i seksjonen under.`
       : 'Ingen treff i perioden. Prøv å utvide datointervallet.';
     tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
-    return;
+  } else {
+    tbody.innerHTML = renderRowsGrouped(ubehandlede);
   }
 
+  // Render behandlede-tabellen
+  if (behandlede.length === 0) {
+    behandledeTbody.innerHTML = `<tr><td colspan="6" class="behandlede-empty">Ingen behandlede selskaper enda</td></tr>`;
+  } else {
+    behandledeTbody.innerHTML = behandlede.map(e => rowHtml(e)).join('');
+  }
+
+  enrichDagligLedere([...ubehandlede, ...behandlede]);
+}
+
+function renderRowsGrouped(list) {
   const byDate = new Map();
-  for (const e of visible) {
+  for (const e of list) {
     const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
     if (!byDate.has(d)) byDate.set(d, { foretak: [], enhets: [] });
     const bucket = byDate.get(d);
@@ -1189,7 +1349,7 @@ function render() {
 
   const rowsHtml = [];
   const seenDates = new Set();
-  for (const e of visible) {
+  for (const e of list) {
     const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
     if (seenDates.has(d)) continue;
     seenDates.add(d);
@@ -1204,8 +1364,7 @@ function render() {
       for (const item of group.enhets) rowsHtml.push(rowHtml(item));
     }
   }
-  tbody.innerHTML = rowsHtml.join('');
-  enrichDagligLedere(visible);
+  return rowsHtml.join('');
 }
 
 function formatDateHeader(d) {
@@ -1522,7 +1681,6 @@ autoBtn.addEventListener('click', () => {
 searchBox.addEventListener('input', render);
 fromDateEl.addEventListener('change', fetchCompanies);
 toDateEl.addEventListener('change', fetchCompanies);
-hideContactedEl.addEventListener('change', render);
 
 renderReserveList();
 updatePointsBox();
