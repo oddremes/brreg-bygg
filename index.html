@@ -581,6 +581,7 @@
       <span id="statusText">Starter…</span>
     </div>
     <button class="sound-btn" id="soundBtn">🔔 Lyd: AV</button>
+    <button class="sound-btn" id="notifBtn">📢 Varsel: AV</button>
     <button class="secondary" id="refreshBtn">Oppdater nå</button>
     <button id="autoBtn">Auto: PÅ</button>
   </div>
@@ -1525,6 +1526,109 @@ soundBtn.addEventListener('click', () => {
 });
 updateSoundBtn();
 
+// ===== Nettleser-varsler =====
+const NOTIF_KEY = 'brreg_notif_enabled_v1';
+const notifBtn = document.getElementById('notifBtn');
+let notifEnabled = false;
+
+function loadNotifPref() {
+  try { return localStorage.getItem(NOTIF_KEY) === 'true'; } catch (e) { return false; }
+}
+function saveNotifPref() {
+  try { localStorage.setItem(NOTIF_KEY, notifEnabled ? 'true' : 'false'); } catch (e) {}
+}
+function updateNotifBtn() {
+  if (!('Notification' in window)) {
+    notifBtn.textContent = '📢 Varsel: ikke støttet';
+    notifBtn.disabled = true;
+    notifBtn.style.opacity = '0.4';
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    notifBtn.textContent = '📢 Varsel: blokkert';
+    notifBtn.disabled = true;
+    notifBtn.style.opacity = '0.4';
+    notifBtn.title = 'Tillat varsler i nettleserinnstillingene for å bruke';
+    return;
+  }
+  notifBtn.textContent = notifEnabled && Notification.permission === 'granted' ? '📢 Varsel: PÅ' : '📢 Varsel: AV';
+  notifBtn.classList.toggle('active', notifEnabled && Notification.permission === 'granted');
+}
+
+notifBtn.addEventListener('click', async () => {
+  if (!('Notification' in window)) {
+    showToast('Nettleseren din støtter ikke varsler');
+    return;
+  }
+  if (notifEnabled) {
+    // Skru av
+    notifEnabled = false;
+    saveNotifPref();
+    updateNotifBtn();
+    showToast('Varsler deaktivert');
+    return;
+  }
+  // Skru på
+  if (Notification.permission === 'default') {
+    const result = await Notification.requestPermission();
+    if (result !== 'granted') {
+      showToast('Tillatelse avslått');
+      updateNotifBtn();
+      return;
+    }
+  }
+  if (Notification.permission === 'granted') {
+    notifEnabled = true;
+    saveNotifPref();
+    updateNotifBtn();
+    // Send testvarsel for å bekrefte
+    try {
+      new Notification('Varsler aktivert', {
+        body: 'Du vil få varsel når nye selskaper dukker opp',
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23FFCC4D"/></svg>',
+        silent: false
+      });
+    } catch (e) { console.error(e); }
+    showToast('Varsler aktivert');
+  } else {
+    showToast('Tillatelse ble avslått');
+    updateNotifBtn();
+  }
+});
+
+function sendNotification(antall) {
+  if (!notifEnabled) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // Ikke vis varsel hvis fanen er aktiv (du ser det jo allerede)
+  if (document.visibilityState === 'visible' && document.hasFocus()) return;
+  try {
+    const title = antall === 1 ? '🏗️ 1 nytt selskap registrert' : `🏗️ ${antall} nye selskaper registrert`;
+    const body = 'Klikk for å åpne dashbordet';
+    const n = new Notification(title, {
+      body,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="15" fill="%230d1117"/><text x="50" y="65" text-anchor="middle" font-size="55" fill="%23FFCC4D">🏗️</text></svg>',
+      tag: 'brreg-new',
+      renotify: true,
+      requireInteraction: false
+    });
+    n.onclick = () => {
+      window.focus();
+      n.close();
+    };
+    // Auto-lukk etter 8 sekunder
+    setTimeout(() => { try { n.close(); } catch (e) {} }, 8000);
+  } catch (e) { console.error('Notif feil:', e); }
+}
+
+// Initialiser notifikasjons-status
+notifEnabled = loadNotifPref();
+// Sjekk om tillatelsen fortsatt er gyldig
+if (notifEnabled && (!('Notification' in window) || Notification.permission !== 'granted')) {
+  notifEnabled = false;
+  saveNotifPref();
+}
+updateNotifBtn();
+
 // ===== API =====
 async function apiGet(url) {
   const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
@@ -1624,6 +1728,7 @@ async function fetchCompanies() {
       for (const e of merged) if (!seenOrgnrSet.has(e.organisasjonsnummer)) newOrgnrsSincelast.add(e.organisasjonsnummer);
       if (newOrgnrsSincelast.size > 0) {
         playPling();
+        sendNotification(newOrgnrsSincelast.size);
         showToast(`${newOrgnrsSincelast.size} nye selskap!`);
       }
     }
