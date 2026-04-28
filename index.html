@@ -321,10 +321,27 @@
   tr.row-reserved:hover td { background:rgba(255, 204, 77, 0.22) !important; }
 
   /* Ny rad: gul highlight i 3 sek */
-  tr.new-row td { animation:highlightNew 3s ease-out; }
-  @keyframes highlightNew {
-    0% { background:rgba(255, 204, 77, 0.25); }
-    100% { background:transparent; }
+  /* Ny rad: vedvarende lysere bakgrunn med badge til brukeren har klikket */
+  tr.new-row td {
+    background:rgba(255, 204, 77, 0.10) !important;
+    border-left:0;
+  }
+  tr.new-row td:first-child {
+    border-left:3px solid var(--accent);
+    padding-left:13px;
+  }
+  tr.new-row:hover td { background:rgba(255, 204, 77, 0.16) !important; }
+
+  .badge-new {
+    display:inline-block; background:var(--accent); color:#111;
+    padding:2px 8px; border-radius:3px; font-size:10px;
+    font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+    margin-left:8px; vertical-align:middle; line-height:1.4;
+    animation:newPulse 2s ease-in-out infinite;
+  }
+  @keyframes newPulse {
+    0%, 100% { opacity:1; }
+    50% { opacity:0.6; }
   }
 
   /* Tekst-styling */
@@ -480,6 +497,15 @@
     font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
     margin-left:10px; vertical-align:middle;
   }
+
+  /* Register-tag (F = Foretaksregister, E = Enhetsregister) */
+  .register-tag {
+    display:inline-block; padding:2px 7px; border-radius:3px;
+    font-size:10px; font-weight:700; letter-spacing:0.5px;
+    margin-left:8px; vertical-align:middle; line-height:1.4;
+  }
+  .register-tag.foretak { background:rgba(96, 165, 250, 0.2); color:var(--blue); border:1px solid rgba(96, 165, 250, 0.5); }
+  .register-tag.enhets { background:rgba(34, 211, 238, 0.2); color:var(--cyan); border:1px solid rgba(34, 211, 238, 0.5); }
   .badge-solgt {
     display:inline-block; background:var(--green); color:#111;
     padding:3px 10px; border-radius:4px; font-size:10px;
@@ -1022,16 +1048,30 @@ function saveSkjulte() {
   catch (e) { console.error(e); }
 }
 
+// Marker en rad som "sett" - fjerner NY-markeringen
+window.markerSomSett = function(orgnr) {
+  if (newOrgnrsSincelast.has(orgnr)) {
+    newOrgnrsSincelast.delete(orgnr);
+    // Fjern visuell markering fra raden uten å re-rendre alt
+    const rows = document.querySelectorAll(`tr[data-orgnr="${orgnr}"]`);
+    rows.forEach(row => {
+      row.classList.remove('new-row');
+      const badge = row.querySelector('.badge-new');
+      if (badge) badge.remove();
+    });
+  }
+};
+
 // Marker som "ingen nr" - skjuler permanent fra dashbordet
 window.markerIngenNr = function(orgnr) {
-  if (confirm('⚠️ Skjul dette selskapet for godt?\n\nDet vil ikke dukke opp igjen i listen, og kan ikke hentes tilbake.\n(Brukes for selskaper uten telefonnummer du ikke får tak i.)')) {
+  if (confirm('Fjern dette selskapet fra listen?\n\nDet dukker ikke opp igjen og kan ikke hentes tilbake.')) {
     skjulteOrgnrs.add(orgnr);
     saveSkjulte();
     // Fjern også fra statusMap hvis det skulle være der
     statusMap.delete(orgnr);
     saveStatus();
     render();
-    showToast('Selskapet er skjult');
+    showToast('Selskapet er fjernet');
   }
 };
 
@@ -1782,13 +1822,19 @@ async function fetchCompanies() {
       return orgB - orgA;
     });
 
-    newOrgnrsSincelast.clear();
+    // Ikke clear newOrgnrsSincelast - markeringen skal vedvare til brukeren klikker
     if (!isFirstLoad) {
-      for (const e of merged) if (!seenOrgnrSet.has(e.organisasjonsnummer)) newOrgnrsSincelast.add(e.organisasjonsnummer);
-      if (newOrgnrsSincelast.size > 0) {
+      const justAdded = new Set();
+      for (const e of merged) {
+        if (!seenOrgnrSet.has(e.organisasjonsnummer)) {
+          newOrgnrsSincelast.add(e.organisasjonsnummer);
+          justAdded.add(e.organisasjonsnummer);
+        }
+      }
+      if (justAdded.size > 0) {
         playPling();
-        sendNotification(newOrgnrsSincelast.size);
-        showToast(`${newOrgnrsSincelast.size} nye selskap!`);
+        sendNotification(justAdded.size);
+        showToast(`${justAdded.size} nye selskap!`);
       }
     }
     for (const e of merged) seenOrgnrSet.add(e.organisasjonsnummer);
@@ -1870,12 +1916,12 @@ function render() {
 }
 
 function renderRowsGrouped(list) {
+  // Grupper kun på dato (ikke på register lenger - vi viser register med F/E-tag på selskapsnavnet)
   const byDate = new Map();
   for (const e of list) {
     const d = e.registreringsdatoEnhetsregisteret || 'Ukjent dato';
-    if (!byDate.has(d)) byDate.set(d, { foretak: [], enhets: [] });
-    const bucket = byDate.get(d);
-    if (e.registrertIForetaksregisteret) bucket.foretak.push(e); else bucket.enhets.push(e);
+    if (!byDate.has(d)) byDate.set(d, []);
+    byDate.get(d).push(e);
   }
 
   const rowsHtml = [];
@@ -1885,15 +1931,8 @@ function renderRowsGrouped(list) {
     if (seenDates.has(d)) continue;
     seenDates.add(d);
     const group = byDate.get(d);
-    rowsHtml.push(`<tr><td colspan="6" class="date-header">📅 Registrert ${formatDateHeader(d)}</td></tr>`);
-    if (group.foretak.length > 0) {
-      rowsHtml.push(`<tr><td colspan="6" class="register-header foretak">📘 Foretaksregisteret (${group.foretak.length})</td></tr>`);
-      for (const item of group.foretak) rowsHtml.push(rowHtml(item));
-    }
-    if (group.enhets.length > 0) {
-      rowsHtml.push(`<tr><td colspan="6" class="register-header enhets">📗 Kun Enhetsregisteret (${group.enhets.length})</td></tr>`);
-      for (const item of group.enhets) rowsHtml.push(rowHtml(item));
-    }
+    rowsHtml.push(`<tr><td colspan="6" class="date-header">📅 Registrert ${formatDateHeader(d)} (${group.length})</td></tr>`);
+    for (const item of group) rowsHtml.push(rowHtml(item));
   }
   return rowsHtml.join('');
 }
@@ -1984,6 +2023,11 @@ function rowHtml(e) {
 
   const reservedBadge = reserved ? `<span class="badge-reserved">🔒 RESERVERT AV ${escapeHtml(reserved.by.toUpperCase())}</span>` : '';
   const solgtBadge = (status?.status === 'solgt') ? `<span class="badge-solgt">💰 SOLGT (${status.poeng}p)</span>` : '';
+  const newBadge = isNew ? `<span class="badge-new">🆕 NY</span>` : '';
+  const isForetak = e.registrertIForetaksregisteret === true;
+  const registerTag = isForetak
+    ? `<span class="register-tag foretak" title="Foretaksregisteret">F</span>`
+    : `<span class="register-tag enhets" title="Kun Enhetsregisteret">E</span>`;
 
   const orgFormHtml = isNuf
     ? `<span class="orgform-tag nuf">NUF ⚠</span>`
@@ -2007,7 +2051,7 @@ function rowHtml(e) {
     <div class="status-buttons">
       <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
       <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
-      <button class="status-btn-pair ingenr-btn" onclick="markerIngenNr('${orgnr}')" title="Skjul - ingen nr">Ingen nr</button>
+      <button class="status-btn-pair ingenr-btn" onclick="markerIngenNr('${orgnr}')" title="Fjern fra listen">Fjern</button>
     </div>`;
 
   const rowClass = [
@@ -2018,10 +2062,10 @@ function rowHtml(e) {
   ].filter(Boolean).join(' ');
 
   return `
-    <tr data-orgnr="${orgnr}" class="${rowClass}">
+    <tr data-orgnr="${orgnr}" class="${rowClass}" onclick="markerSomSett('${orgnr}')">
       <td class="status-cell">${buttonsHtml}</td>
       <td>
-        <div class="company-name">${name}${reservedBadge}${solgtBadge}</div>
+        <div class="company-name">${name}${registerTag}${newBadge}${reservedBadge}${solgtBadge}</div>
         <div class="company-meta">${orgFormHtml} · ${sted}</div>
         <div class="nace">${nace}</div>
         ${web ? `<div class="company-meta" style="margin-top:4px">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
