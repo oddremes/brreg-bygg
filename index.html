@@ -2,7 +2,7 @@
 <html lang="nb">
 <head>
 <meta charset="UTF-8">
-<title>Nyreg bygg & anlegg</title>
+<title>Nyreg Bygg & Anlegg</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,8 +24,7 @@
     --blue: #60a5fa;
     --cyan: #22d3ee;
     --proff: #8b3ca8;
-    --gsider: #FFD100;
-    --reserved: #FE6464;
+    --reserved: #FFCC4D;
     --gold: #FFCC4D;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -61,14 +60,14 @@
   .header-center { display:flex; align-items:center; gap:18px; }
   .points-box {
     display:flex; align-items:center; gap:12px;
-    background:linear-gradient(135deg, rgba(255,204,77,0.15), rgba(255,204,77,0.05));
-    border:1px solid rgba(255,204,77,0.4);
+    background:linear-gradient(135deg, rgba(101,206,121,0.15), rgba(101,206,121,0.05));
+    border:1px solid rgba(101,206,121,0.4);
     padding:10px 18px; border-radius:8px;
   }
   .points-box .icon { font-size:20px; }
   .points-box .info { display:flex; flex-direction:column; }
   .points-box .label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
-  .points-box .points-value { font-size:18px; font-weight:700; color:var(--gold); }
+  .points-box .points-value { font-size:18px; font-weight:700; color:var(--green); }
 
   .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
@@ -109,7 +108,13 @@
     pointer-events:none;
   }
 
-  /* Toggle-knapp for sidebar */
+  /* Når sidebaren er skjult, gi main litt venstre-padding så toggle-knappen ikke dekker innhold */
+  .layout.sidebar-collapsed .main {
+    padding-left:60px;
+  }
+  .layout.sidebar-collapsed .main-header {
+    padding-left:4px;
+  }
   .sidebar-toggle {
     position:fixed; top:calc(var(--header-h) + 12px); left:12px;
     z-index:15;
@@ -248,13 +253,13 @@
   .reserve-form input[type="text"] { font-size:12px; }
   .reserve-form .reserve-buttons { display:flex; gap:6px; }
   .reserve-form button { flex:1; font-size:12px; padding:7px 10px; background:var(--reserved); color:#111; }
-  .reserve-form button:hover { background:#ff8585; }
+  .reserve-form button:hover { background:#ffdc7a; }
   .reserve-form button.export { background:transparent; color:var(--reserved); border:1px solid var(--reserved); }
   .reserve-form button.export:hover { background:var(--reserved); color:#111; }
   .reserve-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; }
   .reserve-chip {
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    background:rgba(254, 100, 100, 0.1); border:1px solid rgba(254, 100, 100, 0.3);
+    background:rgba(255, 204, 77, 0.15); border:1px solid rgba(255, 204, 77, 0.5);
     border-radius:5px; padding:6px 10px; font-size:11px;
   }
   .reserve-chip .chip-info { display:flex; flex-direction:column; min-width:0; flex:1; }
@@ -307,13 +312,13 @@
 
   /* Reservert rad: tydelig rød ramme */
   tr.row-reserved td {
-    background:rgba(254, 100, 100, 0.10) !important;
+    background:rgba(255, 204, 77, 0.15) !important;
     border-top:2px solid var(--reserved);
     border-bottom:2px solid var(--reserved);
   }
   tr.row-reserved td:first-child { border-left:4px solid var(--reserved); padding-left:12px; }
   tr.row-reserved td:last-child { border-right:2px solid var(--reserved); }
-  tr.row-reserved:hover td { background:rgba(254, 100, 100, 0.16) !important; }
+  tr.row-reserved:hover td { background:rgba(255, 204, 77, 0.22) !important; }
 
   /* Ny rad: gul highlight i 3 sek */
   tr.new-row td { animation:highlightNew 3s ease-out; }
@@ -400,6 +405,12 @@
   .status-btn-pair.solgt-btn:hover {
     background:var(--green); color:#111; border-color:var(--green);
   }
+  .status-btn-pair.ingenr-btn {
+    border-color:rgba(254,100,100,0.4); color:var(--red);
+  }
+  .status-btn-pair.ingenr-btn:hover {
+    background:var(--red); color:#111; border-color:var(--red);
+  }
   /* Aktive (allerede markerte) - vises i modalene */
   .status-btn-pair.active-kontaktet {
     background:var(--accent); color:#111; border-color:var(--accent);
@@ -421,15 +432,19 @@
     border:1px solid var(--border); border-radius:4px; color:var(--text);
     text-decoration:none; font-size:11px; transition:all 0.15s; font-weight:500;
   }
-  .lookup-links a:hover { background:var(--accent); color:#111; border-color:var(--accent); }
-  .lookup-links a.google { border-color:rgba(96,165,250,0.5); color:var(--blue); }
-  .lookup-links a.google:hover { background:var(--blue); color:#111; border-color:var(--blue); }
-  .lookup-links a.person-search { border-color:rgba(101,206,121,0.5); color:var(--green); }
-  .lookup-links a.person-search:hover { background:var(--green); color:#111; border-color:var(--green); }
-  .lookup-links a.gsider { border-color:rgba(255,209,0,0.6); color:var(--gsider); }
-  .lookup-links a.gsider:hover { background:var(--gsider); color:#111; border-color:var(--gsider); }
+  .lookup-links a:hover { background:var(--panel-3); }
+  /* Google = grønn */
+  .lookup-links a.google { border-color:rgba(101,206,121,0.5); color:var(--green); }
+  .lookup-links a.google:hover { background:var(--green); color:#111; border-color:var(--green); }
+  /* 1881 = mørkeblå */
+  .lookup-links a.person-search { border-color:rgba(0,90,156,0.6); color:#5b9bd5; }
+  .lookup-links a.person-search:hover { background:#005A9C; color:#fff; border-color:#005A9C; }
+  /* Proff = lilla */
   .lookup-links a.proff { border-color:rgba(139,60,168,0.6); color:#c580e0; }
   .lookup-links a.proff:hover { background:var(--proff); color:#fff; border-color:var(--proff); }
+  /* BRREG = gul */
+  .lookup-links a.brreg { border-color:rgba(255,204,77,0.5); color:var(--accent); }
+  .lookup-links a.brreg:hover { background:var(--accent); color:#111; border-color:var(--accent); }
   .lookup-links a.pending { opacity:0.5; cursor:wait; }
 
   /* Empty/error/footer */
@@ -560,7 +575,7 @@
   </g>
 </svg>
     <div class="title-block">
-      <h1>Nyreg bygg & anlegg</h1>
+      <h1>Nyreg Bygg & Anlegg</h1>
       <span class="tagline">Prospekteringsverktøy</span>
     </div>
   </div>
@@ -810,6 +825,7 @@ const STATUS_KEY = 'brreg_status_v1'; // { orgnr: { status: 'kontaktet'|'solgt',
 const SOUND_KEY = 'brreg_sound_enabled_v1';
 const SEEN_KEY = 'brreg_seen_orgnr_v1';
 const RESERVE_KEY = 'brreg_reservations_v1';
+const SKJULTE_KEY = 'brreg_skjulte_orgnr_v1';
 
 // ===== Helligdager/arbeidstid =====
 function paaskesondag(year) {
@@ -885,6 +901,7 @@ let statusMap = loadStatus();          // Map<orgnr, {status, poeng, dato}>
 let seenOrgnrSet = loadSeen();
 let soundEnabled = loadSoundPref();
 let reservations = loadReservations();
+let skjulteOrgnrs = loadSkjulte();
 let autoRefresh = true;
 let refreshTimer = null;
 let countdownTimer = null;
@@ -990,6 +1007,33 @@ function saveReservations() {
   try { localStorage.setItem(RESERVE_KEY, JSON.stringify(reservations)); }
   catch (e) { console.error(e); }
 }
+
+// Skjulte selskaper (markert som "ingen nr")
+function loadSkjulte() {
+  try {
+    const raw = localStorage.getItem(SKJULTE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch (e) { return new Set(); }
+}
+function saveSkjulte() {
+  try { localStorage.setItem(SKJULTE_KEY, JSON.stringify([...skjulteOrgnrs])); }
+  catch (e) { console.error(e); }
+}
+
+// Marker som "ingen nr" - skjuler permanent fra dashbordet
+window.markerIngenNr = function(orgnr) {
+  if (confirm('⚠️ Skjul dette selskapet for godt?\n\nDet vil ikke dukke opp igjen i listen, og kan ikke hentes tilbake.\n(Brukes for selskaper uten telefonnummer du ikke får tak i.)')) {
+    skjulteOrgnrs.add(orgnr);
+    saveSkjulte();
+    // Fjern også fra statusMap hvis det skulle være der
+    statusMap.delete(orgnr);
+    saveStatus();
+    render();
+    showToast('Selskapet er skjult');
+  }
+};
 
 // ===== Status-system: To separate knapper =====
 
@@ -1639,6 +1683,20 @@ async function apiGet(url) {
   return await res.json();
 }
 
+// Filtrerer ut konkursbo, slettede enheter og selskaper under avvikling
+function erKonkursEllerAvviklet(e) {
+  if (e.konkurs === true) return true;
+  if (e.underAvvikling === true) return true;
+  if (e.underTvangsavviklingEllerTvangsopplosning === true) return true;
+  if (e.organisasjonsform?.kode === 'KBO') return true;
+  if (e.slettedato) return true;
+  const navn = (e.navn || '').toLowerCase();
+  if (navn.includes('konkursbo')) return true;
+  if (navn.includes('under avvikling')) return true;
+  if (navn.includes('under tvangsavvikling')) return true;
+  return false;
+}
+
 async function fetchByNace(from, to) {
   const results = await Promise.all(NACE_GROUPS.map(async group => {
     const params = new URLSearchParams();
@@ -1649,7 +1707,7 @@ async function fetchByNace(from, to) {
     const data = await apiGet(`https://data.brreg.no/enhetsregisteret/api/enheter?${params.toString()}`);
     return data._embedded?.enheter || [];
   }));
-  const flat = results.flat();
+  const flat = results.flat().filter(e => !erKonkursEllerAvviklet(e));
   flat.forEach(e => { e._source = 'nace'; });
   return flat;
 }
@@ -1677,6 +1735,7 @@ async function fetchByFormal(from, to) {
   }
   const nacePrefixes = ['41.','42.','43.','49.410','77.320','81.300'];
   const filtered = all.filter(e => {
+    if (erKonkursEllerAvviklet(e)) return false;
     const nace = e.naeringskode1?.kode || '';
     for (const p of nacePrefixes) { if (nace.startsWith(p)) return false; }
     for (const p of EXCLUDE_NACE_PREFIXES) { if (nace.startsWith(p)) return false; }
@@ -1756,6 +1815,8 @@ function setStatus(state, text) {
 function applyFilters(list) {
   const search = searchBox.value.toLowerCase().trim();
   return list.filter(e => {
+    // Skjul "ingen nr"-markerte selskaper
+    if (skjulteOrgnrs.has(e.organisasjonsnummer)) return false;
     if (!search) return true;
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
     const hay = [
@@ -1881,9 +1942,8 @@ function buildLookupLinks(e, personNavn) {
     <div class="lookup-links" data-orgnr="${orgnr}">
       <a class="google ${pendingAttr}" href="https://www.google.com/search?q=${encodeURIComponent(googleQuery)}" target="_blank" rel="noopener" ${personTooltip}>Google</a>
       <a class="person-search ${pendingAttr}" href="https://www.1881.no/?query=${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" ${personTooltip}>1881</a>
-      <a class="gsider ${pendingAttr}" href="https://www.gulesider.no/person/resultat/${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" ${personTooltip}>G.Sider</a>
       <a class="proff" href="https://www.proff.no/bransjes%C3%B8k?q=${encodeURIComponent(firma)}" target="_blank" rel="noopener">Proff</a>
-      <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
+      <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
     </div>`;
 }
 
@@ -1947,6 +2007,7 @@ function rowHtml(e) {
     <div class="status-buttons">
       <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
       <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+      <button class="status-btn-pair ingenr-btn" onclick="markerIngenNr('${orgnr}')" title="Skjul - ingen nr">Ingen nr</button>
     </div>`;
 
   const rowClass = [
