@@ -822,7 +822,12 @@ const FORMAL_KEYWORDS = [
   'steinarbeid','natursteinsarbeid',
   'brønnborer','bronnborer',
   'håndverk','handverk',
-  'entreprenør','entreprenor'
+  'entreprenør','entreprenor',
+  // Generelle byggord
+  'bygg','anlegg','byggvirksomhet','byggearbeid','byggebransje',
+  'anleggsarbeid','anleggsvirksomhet','byggetjenester','anleggstjenester',
+  'oppføring','rehabilitering','vedlikehold av bygninger','vedlikehold av bygg',
+  'byggeprosjekt','anleggsprosjekt'
 ];
 const FORMAL_REGEX = new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i');
 
@@ -1777,12 +1782,19 @@ async function fetchByFormal(from, to) {
   const filtered = all.filter(e => {
     if (erKonkursEllerAvviklet(e)) return false;
     const nace = e.naeringskode1?.kode || '';
+    // Hvis NACE allerede er i bygg-prefixene, hentes den allerede via fetchByNace
     for (const p of nacePrefixes) { if (nace.startsWith(p)) return false; }
     for (const p of EXCLUDE_NACE_PREFIXES) { if (nace.startsWith(p)) return false; }
+
+    // Sjekker selskapsnavn OG formål mot inkluderings-ord
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
-    if (!formal) return false;
-    if (!FORMAL_REGEX.test(formal)) return false;
-    if (EXCLUDE_REGEX.test(formal)) return false;
+    const navn = e.navn || '';
+    const haystack = navn + ' ' + formal;
+
+    if (!FORMAL_REGEX.test(haystack)) return false;
+    // Ekskluderingen sjekker fortsatt bare formålsteksten (ikke navnet),
+    // siden navnet ofte er kreativt og kan inneholde uønskede ord uten at det er problem
+    if (formal && EXCLUDE_REGEX.test(formal)) return false;
     return true;
   });
   filtered.forEach(e => { e._source = 'formal'; });
