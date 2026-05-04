@@ -990,9 +990,12 @@ const backupImportConfirmBtn = document.getElementById('backupImportConfirmBtn')
 let behandledeFilter = null; // 'kontaktet' | 'solgt' | null (alle)
 let behandledePeriodValue = loadBehandledePeriod();
 
-const today = new Date().toISOString().slice(0,10);
-fromDateEl.value = today;
-toDateEl.value = today;
+// Returnerer dagens dato som 'YYYY-MM-DD' - regnes alltid ut fersk så salg/kontakter får riktig dato selv om fanen er åpen over flere dager
+function getToday() {
+  return new Date().toISOString().slice(0,10);
+}
+fromDateEl.value = getToday();
+toDateEl.value = getToday();
 
 // ===== Lagring =====
 function loadStatus() {
@@ -1016,12 +1019,12 @@ function loadSeen() {
     const raw = localStorage.getItem(SEEN_KEY);
     if (!raw) return new Set();
     const obj = JSON.parse(raw);
-    if (obj.date === today && Array.isArray(obj.orgnrs)) return new Set(obj.orgnrs);
+    if (obj.date === getToday() && Array.isArray(obj.orgnrs)) return new Set(obj.orgnrs);
     return new Set();
   } catch (e) { return new Set(); }
 }
 function saveSeen() {
-  try { localStorage.setItem(SEEN_KEY, JSON.stringify({ date: today, orgnrs: [...seenOrgnrSet] })); }
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify({ date: getToday(), orgnrs: [...seenOrgnrSet] })); }
   catch (e) { console.error(e); }
 }
 function loadSoundPref() { try { return localStorage.getItem(SOUND_KEY) === 'true'; } catch (e) { return false; } }
@@ -1102,7 +1105,7 @@ window.markerKontaktet = function(orgnr) {
       return;
     }
   }
-  statusMap.set(orgnr, { status: 'kontaktet', dato: today });
+  statusMap.set(orgnr, { status: 'kontaktet', dato: getToday() });
   saveStatus();
   render();
   updatePointsBox();
@@ -1150,7 +1153,7 @@ solgtConfirmBtn.addEventListener('click', () => {
   const poeng = parseInt(solgtPoeng.value, 10);
   if (!poeng || poeng < 1) { showToast('Skriv inn et gyldig antall poeng'); return; }
   if (!pendingSolgtOrgnr) return;
-  statusMap.set(pendingSolgtOrgnr, { status: 'solgt', poeng, dato: today });
+  statusMap.set(pendingSolgtOrgnr, { status: 'solgt', poeng, dato: getToday() });
   saveStatus();
   solgtModal.classList.remove('show');
   pendingSolgtOrgnr = null;
