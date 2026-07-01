@@ -246,6 +246,7 @@
   .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:600; }
   .stat.contacted .stat-value { color:var(--accent); }
   .stat.solgt .stat-value { color:var(--green); }
+  .stat.ikkesvar .stat-value { color:var(--blue); }
   .stat.gjenstaar .stat-value { color:var(--text); }
 
   /* Reservasjon-panel i sidebar */
@@ -309,6 +310,10 @@
   tr.row-solgt td { background:rgba(101, 206, 121, 0.10) !important; opacity:1; }
   tr.row-solgt:hover td { background:rgba(101, 206, 121, 0.16) !important; }
   tr.row-solgt td:first-child { border-left:4px solid var(--green); padding-left:12px; }
+
+  tr.row-ikkesvar td { background:rgba(96, 165, 250, 0.08) !important; opacity:1; }
+  tr.row-ikkesvar:hover td { background:rgba(96, 165, 250, 0.14) !important; }
+  tr.row-ikkesvar td:first-child { border-left:4px solid var(--blue); padding-left:12px; }
 
   /* Reservert rad: tydelig rød ramme */
   tr.row-reserved td {
@@ -428,6 +433,15 @@
   .status-btn-pair.ingenr-btn:hover {
     background:var(--red); color:#111; border-color:var(--red);
   }
+  .status-btn-pair.ikkesvar-btn {
+    border-color:rgba(96,165,250,0.4); color:var(--blue);
+  }
+  .status-btn-pair.ikkesvar-btn:hover {
+    background:var(--blue); color:#111; border-color:var(--blue);
+  }
+  .status-btn-pair.active-ikkesvar {
+    background:var(--blue); color:#111; border-color:var(--blue);
+  }
   /* Aktive (allerede markerte) - vises i modalene */
   .status-btn-pair.active-kontaktet {
     background:var(--accent); color:#111; border-color:var(--accent);
@@ -512,6 +526,34 @@
     font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
     margin-left:10px; vertical-align:middle;
   }
+  .badge-ikkesvar {
+    display:inline-block; background:var(--blue); color:#111;
+    padding:3px 10px; border-radius:4px; font-size:10px;
+    font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+    margin-left:10px; vertical-align:middle;
+  }
+
+  /* Ikke svar-detaljer (telefon + notat) */
+  .ikkesvar-detail {
+    margin-top:8px; padding:8px 12px;
+    background:rgba(96, 165, 250, 0.08); border:1px solid rgba(96, 165, 250, 0.3);
+    border-radius:5px; font-size:12px;
+  }
+  .ikkesvar-detail .field {
+    display:flex; gap:8px; margin-bottom:4px;
+  }
+  .ikkesvar-detail .field:last-child { margin-bottom:0; }
+  .ikkesvar-detail .field-label {
+    color:var(--muted); font-weight:600; text-transform:uppercase;
+    letter-spacing:0.5px; font-size:10px; min-width:55px;
+  }
+  .ikkesvar-detail .field-value { color:var(--text); flex:1; }
+  .ikkesvar-detail .field-value.phone { color:var(--green); font-family:var(--mono); font-weight:700; }
+  .ikkesvar-detail .edit-btn {
+    background:transparent; color:var(--muted); border:1px solid var(--border);
+    font-size:11px; padding:3px 8px; margin-left:auto;
+  }
+  .ikkesvar-detail .edit-btn:hover { background:var(--panel-2); color:var(--text); }
 
   /* Toast */
   .toast {
@@ -656,6 +698,7 @@
         <div class="stat gjenstaar"><div class="stat-value" id="pendingCount">–</div><div class="stat-label">Gjenstår</div></div>
         <div class="stat contacted clickable" data-filter="kontaktet" title="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
         <div class="stat solgt clickable" data-filter="solgt" title="Klikk for å se solgte"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Solgt</div></div>
+        <div class="stat ikkesvar clickable" data-filter="ikkesvar" title="Klikk for å se ikke svar"><div class="stat-value" id="ikkesvarCount">–</div><div class="stat-label">Ikke svar</div></div>
       </div>
       <button class="secondary" id="backupExportBtn" style="width:100%; margin-top:12px; font-size:12px;">📤 Eksporter backup</button>
       <button class="secondary" id="backupImportBtn" style="width:100%; margin-top:6px; font-size:12px;">📥 Importer backup</button>
@@ -729,6 +772,25 @@
     <div class="modal-actions">
       <button class="secondary" id="solgtCancelBtn">Avbryt</button>
       <button id="solgtConfirmBtn">Bekreft salg</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="ikkesvarModal">
+  <div class="modal">
+    <h3 id="ikkesvarModalTitle">📵 Marker som Ikke svar</h3>
+    <p>Registrer telefonnummeret du fant og et kort notat til deg selv.</p>
+    <div style="margin-bottom:12px;">
+      <label style="display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600; margin-bottom:4px;">Telefonnummer <span style="color:var(--red)">*</span></label>
+      <input type="text" id="ikkesvarTelefon" placeholder="F.eks. 90 12 34 56" style="width:100%; font-size:15px; padding:10px;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600; margin-bottom:4px;">Notat <span style="color:var(--red)">*</span></label>
+      <textarea id="ikkesvarNotat" placeholder="F.eks. 'Ringt 09:30, prøvd tre ganger, ingen svar'" style="width:100%; min-height:80px; padding:10px; font-size:14px; font-family:var(--sans);"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary" id="ikkesvarCancelBtn">Avbryt</button>
+      <button id="ikkesvarConfirmBtn" style="background:var(--blue);">Bekreft</button>
     </div>
   </div>
 </div>
@@ -969,6 +1031,13 @@ const solgtModal = document.getElementById('solgtModal');
 const solgtPoeng = document.getElementById('solgtPoeng');
 const solgtCancelBtn = document.getElementById('solgtCancelBtn');
 const solgtConfirmBtn = document.getElementById('solgtConfirmBtn');
+const ikkesvarModal = document.getElementById('ikkesvarModal');
+const ikkesvarModalTitle = document.getElementById('ikkesvarModalTitle');
+const ikkesvarTelefon = document.getElementById('ikkesvarTelefon');
+const ikkesvarNotat = document.getElementById('ikkesvarNotat');
+const ikkesvarCancelBtn = document.getElementById('ikkesvarCancelBtn');
+const ikkesvarConfirmBtn = document.getElementById('ikkesvarConfirmBtn');
+let pendingIkkesvarOrgnr = null;
 const pointsLabel = document.getElementById('pointsLabel');
 const pointsValue = document.getElementById('pointsValue');
 const resultsHeader = document.getElementById('resultsHeader');
@@ -1083,6 +1152,54 @@ window.markerIngenNr = function(orgnr) {
   }
 };
 
+// Marker som Ikke svar - åpner modal for telefon + notat
+window.markerIkkesvar = function(orgnr) {
+  const current = statusMap.get(orgnr);
+  pendingIkkesvarOrgnr = orgnr;
+  // Hvis allerede Ikke svar, forhåndsutfyll for redigering
+  if (current?.status === 'ikkesvar') {
+    ikkesvarModalTitle.innerHTML = '📵 Rediger Ikke svar';
+    ikkesvarTelefon.value = current.telefon || '';
+    ikkesvarNotat.value = current.notat || '';
+  } else {
+    ikkesvarModalTitle.innerHTML = '📵 Marker som Ikke svar';
+    ikkesvarTelefon.value = '';
+    ikkesvarNotat.value = '';
+  }
+  ikkesvarModal.classList.add('show');
+  setTimeout(() => ikkesvarTelefon.focus(), 100);
+};
+
+ikkesvarConfirmBtn.addEventListener('click', () => {
+  const telefon = ikkesvarTelefon.value.trim();
+  const notat = ikkesvarNotat.value.trim();
+  if (!telefon) { showToast('Telefonnummer må fylles ut'); ikkesvarTelefon.focus(); return; }
+  if (!notat) { showToast('Notat må fylles ut'); ikkesvarNotat.focus(); return; }
+  if (!pendingIkkesvarOrgnr) return;
+  statusMap.set(pendingIkkesvarOrgnr, { status: 'ikkesvar', telefon, notat, dato: getToday() });
+  saveStatus();
+  ikkesvarModal.classList.remove('show');
+  pendingIkkesvarOrgnr = null;
+  render();
+  showToast('📵 Markert som Ikke svar');
+});
+ikkesvarCancelBtn.addEventListener('click', () => {
+  ikkesvarModal.classList.remove('show');
+  pendingIkkesvarOrgnr = null;
+});
+ikkesvarModal.addEventListener('click', (e) => { if (e.target === ikkesvarModal) { ikkesvarModal.classList.remove('show'); pendingIkkesvarOrgnr = null; } });
+
+// Fjern en Ikke svar-oppføring (fra modalen)
+window.fjernIkkesvar = function(orgnr) {
+  if (confirm('⚠️ Fjerne denne oppføringen fra Ikke svar-listen?\n\nTelefonnummer og notat vil forsvinne.')) {
+    statusMap.delete(orgnr);
+    saveStatus();
+    render();
+    if (behandledeModal.classList.contains('show')) renderBehandledeModal();
+    showToast('Fjernet fra Ikke svar');
+  }
+};
+
 // ===== Status-system: To separate knapper =====
 
 // Marker som kontaktet (fra Ny eller fra Solgt)
@@ -1190,11 +1307,13 @@ sidebarToggle.addEventListener('click', () => {
 
 // ===== Behandlede modal =====
 function openBehandledeModal(filter) {
-  behandledeFilter = filter; // 'kontaktet' | 'solgt' | null
+  behandledeFilter = filter; // 'kontaktet' | 'solgt' | 'ikkesvar' | null
   if (filter === 'kontaktet') {
     behandledeModalTitle.innerHTML = '🟡 Kontaktede selskaper';
   } else if (filter === 'solgt') {
     behandledeModalTitle.innerHTML = '💰 Solgte selskaper';
+  } else if (filter === 'ikkesvar') {
+    behandledeModalTitle.innerHTML = '📵 Ikke svar-selskaper';
   } else {
     behandledeModalTitle.innerHTML = '📋 Behandlede selskaper';
   }
@@ -1221,9 +1340,15 @@ function renderBehandledeModal() {
     .filter(([orgnr, s]) => {
       if (behandledeFilter === 'kontaktet') return s.status === 'kontaktet';
       if (behandledeFilter === 'solgt') return s.status === 'solgt';
-      return s.status === 'kontaktet' || s.status === 'solgt';
+      if (behandledeFilter === 'ikkesvar') return s.status === 'ikkesvar';
+      return s.status === 'kontaktet' || s.status === 'solgt' || s.status === 'ikkesvar';
     })
-    .filter(([orgnr, s]) => isInPeriod(s.dato, behandledePeriodValue))
+    .filter(([orgnr, s]) => {
+      // Ikke svar-oppføringer respekterer IKKE periode - de vises alltid uansett dato
+      // (de skal aldri forsvinne før brukeren fjerner dem manuelt)
+      if (s.status === 'ikkesvar') return true;
+      return isInPeriod(s.dato, behandledePeriodValue);
+    })
     .map(([orgnr, s]) => orgnr);
 
   // Bygg liste: bruk currentData hvis tilgjengelig, ellers vis bare det vi har
@@ -1262,6 +1387,7 @@ function renderBehandledeModal() {
   // Beregn summary
   let totalKontaktet = 0;
   let totalSolgt = 0;
+  let totalIkkesvar = 0;
   let totalPoeng = 0;
   for (const orgnr of orgnrs) {
     const s = statusMap.get(orgnr);
@@ -1270,6 +1396,7 @@ function renderBehandledeModal() {
       totalSolgt++;
       totalPoeng += (s.poeng || 0);
     }
+    else if (s.status === 'ikkesvar') totalIkkesvar++;
   }
 
   // Oppdater summary-tekst
@@ -1277,14 +1404,17 @@ function renderBehandledeModal() {
     behandledeSummary.innerHTML = `<span class="num green">${totalSolgt}</span> salg, <span class="num green">${totalPoeng}p</span> totalt`;
   } else if (behandledeFilter === 'kontaktet') {
     behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktede`;
+  } else if (behandledeFilter === 'ikkesvar') {
+    behandledeSummary.innerHTML = `<span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
   } else {
-    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> solgt (${totalPoeng}p)`;
+    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> solgt (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
   }
 
   if (list.length === 0) {
     const periodLabel = periodLabelFor(behandledePeriodValue);
     const msg = behandledeFilter === 'kontaktet' ? `Ingen kontaktede ${periodLabel}`
       : behandledeFilter === 'solgt' ? `Ingen solgte ${periodLabel}`
+      : behandledeFilter === 'ikkesvar' ? `Ingen Ikke svar-oppføringer`
       : `Ingen behandlede ${periodLabel}`;
     behandledeTbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
     return;
@@ -1303,21 +1433,46 @@ function renderBehandledeModal() {
 function rowHtmlBackup(e) {
   const orgnr = e.organisasjonsnummer;
   const status = statusMap.get(orgnr);
+  const isIkkesvar = status.status === 'ikkesvar';
   const buttonsHtml = `
     <div class="status-buttons">
       <button class="status-btn-pair kontaktet-btn ${status.status === 'kontaktet' ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${status.status === 'kontaktet' ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${status.status === 'kontaktet' ? '✓ Kontaktet' : 'Kontaktet'}</button>
       <button class="status-btn-pair solgt-btn ${status.status === 'solgt' ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${status.status === 'solgt' ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${status.status === 'solgt' ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+      <button class="status-btn-pair ikkesvar-btn ${isIkkesvar ? 'active-ikkesvar' : ''}" onclick="markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+      ${isIkkesvar ? `<button class="status-btn-pair ingenr-btn" onclick="fjernIkkesvar('${orgnr}')" title="Fjern fra Ikke svar-listen">Fjern</button>` : ''}
     </div>`;
+
+  const detailBlock = isIkkesvar ? `
+    <div class="ikkesvar-detail">
+      <div class="field">
+        <span class="field-label">Telefon:</span>
+        <span class="field-value phone">${escapeHtml(status.telefon || '')}</span>
+      </div>
+      <div class="field">
+        <span class="field-label">Notat:</span>
+        <span class="field-value">${escapeHtml(status.notat || '')}</span>
+      </div>
+    </div>` : '';
+
+  const rowClass = status.status === 'solgt' ? 'row-solgt'
+    : status.status === 'ikkesvar' ? 'row-ikkesvar'
+    : 'row-contacted';
+
+  const phoneCell = isIkkesvar
+    ? `<div class="phone-direct"><a href="tel:${escapeHtml(status.telefon || '')}">${escapeHtml(status.telefon || '')}</a></div>`
+    : '<span class="company-meta">–</span>';
+
   return `
-    <tr data-orgnr="${orgnr}" class="${status.status === 'solgt' ? 'row-solgt' : 'row-contacted'}">
+    <tr data-orgnr="${orgnr}" class="${rowClass}">
       <td class="status-cell">${buttonsHtml}</td>
       <td>
         <div class="company-name">${escapeHtml(e.navn)}</div>
         <div class="company-meta">Registrert utenfor n\u00e5v\u00e6rende periode</div>
+        ${detailBlock}
       </td>
       <td><span class="orgnr">${orgnr}</span></td>
       <td><a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener" style="color:var(--blue); font-size:12px">Se i BRREG</a></td>
-      <td><span class="company-meta">–</span></td>
+      <td>${phoneCell}</td>
       <td><span class="time-ago">${status.dato || ''}</span></td>
     </tr>`;
 }
@@ -1392,6 +1547,7 @@ document.addEventListener('keydown', (e) => {
     if (importModal.classList.contains('show')) importModal.classList.remove('show');
     if (solgtModal.classList.contains('show')) { solgtModal.classList.remove('show'); pendingSolgtOrgnr = null; }
     if (backupImportModal.classList.contains('show')) backupImportModal.classList.remove('show');
+    if (ikkesvarModal.classList.contains('show')) { ikkesvarModal.classList.remove('show'); pendingIkkesvarOrgnr = null; }
   }
 });
 
@@ -1898,24 +2054,34 @@ function render() {
   const ubehandlede = [];
   let contactedInView = 0;
   let solgtInView = 0;
+  let ikkesvarInView = 0;
   for (const e of totalInView) {
     const s = statusMap.get(e.organisasjonsnummer);
     if (s?.status === 'kontaktet') contactedInView++;
     else if (s?.status === 'solgt') solgtInView++;
+    else if (s?.status === 'ikkesvar') ikkesvarInView++;
     else ubehandlede.push(e);
   }
   const pendingInView = ubehandlede.length;
+
+  // Totale tellere fra hele statusMap (også utenfor currentData)
+  let totalIkkesvar = 0;
+  for (const v of statusMap.values()) {
+    if (v.status === 'ikkesvar') totalIkkesvar++;
+  }
 
   document.getElementById('totalCount').textContent = totalInView.length;
   document.getElementById('contactedCount').textContent = contactedInView;
   document.getElementById('pendingCount').textContent = pendingInView;
   document.getElementById('solgtCount').textContent = solgtInView;
+  document.getElementById('ikkesvarCount').textContent = totalIkkesvar;
   resultsHeader.textContent = `${pendingInView} ${pendingInView === 1 ? 'selskap' : 'selskaper'} å kontakte`;
 
   // Render hovedtabellen (kun ubehandlede)
   if (ubehandlede.length === 0) {
-    const msg = (contactedInView + solgtInView) > 0
-      ? `Alle ${(contactedInView+solgtInView)} treff er behandlet. Klikk på "Kontaktet" eller "Solgt" i sidelinjen for å se dem.`
+    const behandlet = contactedInView + solgtInView + ikkesvarInView;
+    const msg = behandlet > 0
+      ? `Alle ${behandlet} treff er behandlet. Klikk på en av statusboksene i sidelinjen for å se dem.`
       : 'Ingen treff i perioden. Prøv å utvide datointervallet.';
     tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
   } else {
@@ -1996,7 +2162,6 @@ function buildLookupLinks(e, personNavn) {
     <div class="lookup-links" data-orgnr="${orgnr}">
       <a class="google ${pendingAttr}" href="https://www.google.com/search?q=${encodeURIComponent(googleQuery)}" target="_blank" rel="noopener" ${personTooltip}>Google</a>
       <a class="person-search ${pendingAttr}" href="https://www.1881.no/?query=${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" ${personTooltip}>1881</a>
-      <a class="proff" href="https://www.proff.no/bransjes%C3%B8k?q=${encodeURIComponent(firma)}" target="_blank" rel="noopener">Proff</a>
       <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
     </div>`;
 }
@@ -2038,11 +2203,25 @@ function rowHtml(e) {
 
   const reservedBadge = reserved ? `<span class="badge-reserved">🔒 RESERVERT AV ${escapeHtml(reserved.by.toUpperCase())}</span>` : '';
   const solgtBadge = (status?.status === 'solgt') ? `<span class="badge-solgt">💰 SOLGT (${status.poeng}p)</span>` : '';
+  const ikkesvarBadge = (status?.status === 'ikkesvar') ? `<span class="badge-ikkesvar">📵 IKKE SVAR</span>` : '';
   const newBadge = isNew ? `<span class="badge-new">🆕 NY</span>` : '';
   const isForetak = e.registrertIForetaksregisteret === true;
   const registerTag = isForetak
     ? `<span class="register-tag foretak" title="Foretaksregisteret">F</span>`
     : `<span class="register-tag enhets" title="Kun Enhetsregisteret">E</span>`;
+
+  // Ikke svar-detaljer (telefon + notat)
+  const ikkesvarDetail = (status?.status === 'ikkesvar') ? `
+    <div class="ikkesvar-detail">
+      <div class="field">
+        <span class="field-label">Telefon:</span>
+        <span class="field-value phone">${escapeHtml(status.telefon || '')}</span>
+      </div>
+      <div class="field">
+        <span class="field-label">Notat:</span>
+        <span class="field-value">${escapeHtml(status.notat || '')}</span>
+      </div>
+    </div>` : '';
 
   const orgFormHtml = isNuf
     ? `<span class="orgform-tag nuf">NUF ⚠</span>`
@@ -2062,16 +2241,19 @@ function rowHtml(e) {
   // Status-knapper
   const isKontaktet = status?.status === 'kontaktet';
   const isSolgt = status?.status === 'solgt';
+  const isIkkesvar = status?.status === 'ikkesvar';
   const buttonsHtml = `
     <div class="status-buttons">
-      <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
-      <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
-      <button class="status-btn-pair ingenr-btn" onclick="markerIngenNr('${orgnr}')" title="Fjern fra listen">Fjern</button>
+      <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+      <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+      <button class="status-btn-pair ikkesvar-btn ${isIkkesvar ? 'active-ikkesvar' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+      <button class="status-btn-pair ingenr-btn" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Fjern fra listen">Fjern</button>
     </div>`;
 
   const rowClass = [
     status?.status === 'kontaktet' ? 'row-contacted' : '',
     status?.status === 'solgt' ? 'row-solgt' : '',
+    status?.status === 'ikkesvar' ? 'row-ikkesvar' : '',
     reserved ? 'row-reserved' : '',
     isNew ? 'new-row' : ''
   ].filter(Boolean).join(' ');
@@ -2080,11 +2262,12 @@ function rowHtml(e) {
     <tr data-orgnr="${orgnr}" class="${rowClass}" onclick="markerSomSett('${orgnr}')">
       <td class="status-cell">${buttonsHtml}</td>
       <td>
-        <div class="company-name">${name}${registerTag}${newBadge}${reservedBadge}${solgtBadge}</div>
+        <div class="company-name">${name}${registerTag}${newBadge}${reservedBadge}${solgtBadge}${ikkesvarBadge}</div>
         <div class="company-meta">${orgFormHtml} · ${sted}</div>
         <div class="nace">${nace}</div>
         ${web ? `<div class="company-meta" style="margin-top:4px">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
         ${showFormal ? `<div class="formal-text">📜 ${escapeHtml(formalText)}</div>` : ''}
+        ${ikkesvarDetail}
       </td>
       <td>${orgnrCell}</td>
       <td>${contactBlock}</td>
