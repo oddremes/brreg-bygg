@@ -1320,20 +1320,24 @@ function saveStatus() {
 // ===== Fane-veksler =====
 function renderTabBar() {
   const bar = document.getElementById('tabBar');
-  if (!bar) return;
-  bar.innerHTML = TABS.map(t => {
-    // Antall gjenstående (ubehandlede) per fane
-    const count = getTabPendingCount(t.id);
-    const active = t.id === activeTab ? 'active' : '';
-    return `<button class="tab-btn ${active}" data-tab="${t.id}">
-      <span class="tab-icon">${t.icon}</span>
-      <span>${t.label}</span>
-      <span class="tab-count">${count}</span>
-    </button>`;
-  }).join('');
-  bar.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-  });
+  if (!bar) { console.error('tabBar element ikke funnet'); return; }
+  try {
+    bar.innerHTML = TABS.map(t => {
+      const count = getTabPendingCount(t.id);
+      const active = t.id === activeTab ? 'active' : '';
+      return `<button class="tab-btn ${active}" data-tab="${t.id}">
+        <span class="tab-icon">${t.icon}</span>
+        <span>${t.label}</span>
+        <span class="tab-count">${count}</span>
+      </button>`;
+    }).join('');
+    bar.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+  } catch (err) {
+    console.error('renderTabBar feilet:', err);
+    bar.innerHTML = '<div style="padding:12px; color:#fe6464">Fane-bar feilet: ' + err.message + '</div>';
+  }
 }
 
 // Teller ubehandlede i en fanes statusMap (utenfor aktiv fane brukes lokal lagring)
@@ -2682,10 +2686,4 @@ function rowHtml(e) {
   const rowClass = [
     status?.status === 'kontaktet' ? 'row-contacted' : '',
     status?.status === 'solgt' ? 'row-solgt' : '',
-    status?.status === 'ikkesvar' ? 'row-ikkesvar' : '',
-    reserved ? 'row-reserved' : '',
-    isNew ? 'new-row' : ''
-  ].filter(Boolean).join(' ');
-
-  return `
-    <tr data-orgnr="${orgnr}" class="${rowClass}" onclick="markerSomSett('${org
+    status?.status === 'ikkesvar'
