@@ -315,14 +315,17 @@
   tr.row-ikkesvar:hover td { background:rgba(96, 165, 250, 0.14) !important; }
   tr.row-ikkesvar td:first-child { border-left:4px solid var(--blue); padding-left:12px; }
 
-  /* Reservert rad: tydelig rød ramme */
+  /* Reservert rad: tydelig gul ramme - får ALLTID prioritet over status-rammer */
   tr.row-reserved td {
     background:rgba(255, 204, 77, 0.15) !important;
-    border-top:2px solid var(--reserved);
-    border-bottom:2px solid var(--reserved);
+    border-top:2px solid var(--reserved) !important;
+    border-bottom:2px solid var(--reserved) !important;
   }
-  tr.row-reserved td:first-child { border-left:4px solid var(--reserved); padding-left:12px; }
-  tr.row-reserved td:last-child { border-right:2px solid var(--reserved); }
+  tr.row-reserved td:first-child {
+    border-left:4px solid var(--reserved) !important;
+    padding-left:12px !important;
+  }
+  tr.row-reserved td:last-child { border-right:2px solid var(--reserved) !important; }
   tr.row-reserved:hover td { background:rgba(255, 204, 77, 0.22) !important; }
 
   /* Ny rad: gul highlight i 3 sek */
@@ -555,6 +558,102 @@
   }
   .ikkesvar-detail .edit-btn:hover { background:var(--panel-2); color:var(--text); }
 
+  /* Notat-visning for kontaktet/salg */
+  .notat-detail {
+    margin-top:8px; padding:6px 10px;
+    background:rgba(255, 204, 77, 0.08); border-left:3px solid rgba(255, 204, 77, 0.4);
+    border-radius:4px; font-size:12px;
+    display:flex; gap:8px; align-items:baseline;
+  }
+  .notat-detail .field-label {
+    color:var(--muted); font-weight:600; text-transform:uppercase;
+    letter-spacing:0.5px; font-size:10px;
+  }
+  .notat-detail .field-value { color:var(--text-soft); flex:1; }
+
+  /* Rediger notat-knapp */
+  .notat-icon-btn {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; padding:0; margin-left:4px;
+    background:transparent; border:1px solid var(--border);
+    border-radius:5px; color:var(--muted); cursor:pointer;
+    transition:all 0.15s; font-size:13px; line-height:1;
+  }
+  .notat-icon-btn:hover { background:var(--panel-2); color:var(--accent); border-color:var(--accent); }
+  .notat-icon-btn.has-notat { color:var(--accent); border-color:rgba(255,204,77,0.5); }
+
+  /* Ikke svar - kortvisning */
+  .ikkesvar-cards {
+    display:grid; grid-template-columns:1fr; gap:14px;
+  }
+  .ikkesvar-card {
+    background:var(--panel-2); border:1px solid var(--border);
+    border-left:4px solid var(--blue);
+    border-radius:10px; padding:18px 20px;
+    display:grid; grid-template-columns:1fr auto; gap:16px;
+    align-items:start;
+    transition:all 0.15s;
+  }
+  .ikkesvar-card:hover {
+    border-color:var(--muted-soft);
+    background:var(--panel-3);
+  }
+  .ikkesvar-card-main { min-width:0; }
+  .ikkesvar-card-name {
+    font-size:16px; font-weight:600; color:var(--text);
+    margin-bottom:6px; line-height:1.3;
+  }
+  .ikkesvar-card-name .orgnr {
+    font-size:11px; font-weight:400; color:var(--muted); margin-left:10px;
+    background:transparent; padding:0;
+  }
+  .ikkesvar-card-phone {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:16px; font-weight:700; color:var(--green);
+    font-family:var(--mono); margin-bottom:8px;
+  }
+  .ikkesvar-card-phone a { color:inherit; text-decoration:none; }
+  .ikkesvar-card-phone a:hover { text-decoration:underline; }
+  .ikkesvar-card-notat {
+    margin-top:8px; padding:8px 12px;
+    background:rgba(255, 204, 77, 0.08); border-left:3px solid rgba(255, 204, 77, 0.4);
+    border-radius:5px; font-size:12px; color:var(--text-soft);
+  }
+  .ikkesvar-card-notat .field-label {
+    color:var(--muted); font-weight:600; text-transform:uppercase;
+    letter-spacing:0.5px; font-size:10px; margin-right:6px;
+  }
+  .ikkesvar-card-meta {
+    font-size:11px; color:var(--muted); margin-top:8px;
+  }
+  .ikkesvar-card-actions {
+    display:flex; flex-direction:column; gap:6px; align-items:flex-end;
+  }
+  .ikkesvar-card-actions button {
+    min-width:110px;
+    font-size:12px; padding:8px 14px;
+    text-transform:uppercase; letter-spacing:0.5px; font-weight:700;
+  }
+  .ikkesvar-card-actions .card-btn-kontaktet {
+    background:var(--accent); color:#111;
+  }
+  .ikkesvar-card-actions .card-btn-kontaktet:hover { background:#ffdc7a; }
+  .ikkesvar-card-actions .card-btn-salg {
+    background:var(--green); color:#111;
+  }
+  .ikkesvar-card-actions .card-btn-salg:hover { background:#7ed99a; }
+  .ikkesvar-card-actions .card-btn-rediger {
+    background:transparent; color:var(--muted); border:1px solid var(--border);
+  }
+  .ikkesvar-card-actions .card-btn-rediger:hover { background:var(--panel-2); color:var(--text); }
+  .ikkesvar-card-actions .card-btn-slett {
+    background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4);
+  }
+  .ikkesvar-card-actions .card-btn-slett:hover { background:var(--red); color:#111; }
+  .ikkesvar-empty-card {
+    text-align:center; padding:60px 20px; color:var(--muted); font-style:italic;
+  }
+
   /* Toast */
   .toast {
     position:fixed; bottom:24px; right:24px; background:var(--green); color:#111;
@@ -697,7 +796,7 @@
         <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Totalt</div></div>
         <div class="stat gjenstaar"><div class="stat-value" id="pendingCount">–</div><div class="stat-label">Gjenstår</div></div>
         <div class="stat contacted clickable" data-filter="kontaktet" title="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
-        <div class="stat solgt clickable" data-filter="solgt" title="Klikk for å se solgte"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Solgt</div></div>
+        <div class="stat solgt clickable" data-filter="solgt" title="Klikk for å se salg"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Salg</div></div>
         <div class="stat ikkesvar clickable" data-filter="ikkesvar" title="Klikk for å se ikke svar"><div class="stat-value" id="ikkesvarCount">–</div><div class="stat-label">Ikke svar</div></div>
       </div>
       <button class="secondary" id="backupExportBtn" style="width:100%; margin-top:12px; font-size:12px;">📤 Eksporter backup</button>
@@ -766,12 +865,24 @@
 
 <div class="modal-backdrop" id="solgtModal">
   <div class="modal">
-    <h3>💰 Marker som solgt</h3>
+    <h3>💰 Marker som salg</h3>
     <p>Hvor mange poeng ga dette salget?</p>
     <input type="number" id="solgtPoeng" min="1" step="1" value="1" style="width:120px; font-size:18px; padding:10px;">
     <div class="modal-actions">
       <button class="secondary" id="solgtCancelBtn">Avbryt</button>
       <button id="solgtConfirmBtn">Bekreft salg</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="notatModal">
+  <div class="modal">
+    <h3 id="notatModalTitle">📝 Notat</h3>
+    <p style="color:var(--muted); font-size:12px;">Notat lagres på denne oppføringen og vises i modalene.</p>
+    <textarea id="notatText" placeholder="F.eks. 'Ringer tilbake tirsdag kl 10'" style="width:100%; min-height:100px; padding:10px; font-size:14px; font-family:var(--sans);"></textarea>
+    <div class="modal-actions">
+      <button class="secondary" id="notatCancelBtn">Avbryt</button>
+      <button id="notatConfirmBtn">Lagre notat</button>
     </div>
   </div>
 </div>
@@ -785,7 +896,7 @@
       <input type="text" id="ikkesvarTelefon" placeholder="F.eks. 90 12 34 56" style="width:100%; font-size:15px; padding:10px;">
     </div>
     <div style="margin-bottom:12px;">
-      <label style="display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600; margin-bottom:4px;">Notat <span style="color:var(--red)">*</span></label>
+      <label style="display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600; margin-bottom:4px;">Notat <span style="color:var(--muted); font-weight:400; text-transform:none;">(valgfritt)</span></label>
       <textarea id="ikkesvarNotat" placeholder="F.eks. 'Ringt 09:30, prøvd tre ganger, ingen svar'" style="width:100%; min-height:80px; padding:10px; font-size:14px; font-family:var(--sans);"></textarea>
     </div>
     <div class="modal-actions">
@@ -828,7 +939,7 @@
       <div class="behandlede-summary" id="behandledeSummary">–</div>
     </div>
     <div class="behandlede-modal-body">
-      <table>
+      <table id="behandledeTable">
         <thead>
           <tr>
             <th style="width:80px">Status</th>
@@ -843,6 +954,7 @@
           <tr><td colspan="6" class="empty">Ingen behandlede enda</td></tr>
         </tbody>
       </table>
+      <div id="behandledeCards" style="display:none; padding:20px;"></div>
     </div>
   </div>
 </div>
@@ -1038,6 +1150,13 @@ const ikkesvarNotat = document.getElementById('ikkesvarNotat');
 const ikkesvarCancelBtn = document.getElementById('ikkesvarCancelBtn');
 const ikkesvarConfirmBtn = document.getElementById('ikkesvarConfirmBtn');
 let pendingIkkesvarOrgnr = null;
+
+const notatModal = document.getElementById('notatModal');
+const notatText = document.getElementById('notatText');
+const notatModalTitle = document.getElementById('notatModalTitle');
+const notatCancelBtn = document.getElementById('notatCancelBtn');
+const notatConfirmBtn = document.getElementById('notatConfirmBtn');
+let pendingNotatOrgnr = null;
 const pointsLabel = document.getElementById('pointsLabel');
 const pointsValue = document.getElementById('pointsValue');
 const resultsHeader = document.getElementById('resultsHeader');
@@ -1141,15 +1260,12 @@ window.markerSomSett = function(orgnr) {
 
 // Marker som "ingen nr" - skjuler permanent fra dashbordet
 window.markerIngenNr = function(orgnr) {
-  if (confirm('Fjern dette selskapet fra listen?\n\nDet dukker ikke opp igjen og kan ikke hentes tilbake.')) {
-    skjulteOrgnrs.add(orgnr);
-    saveSkjulte();
-    // Fjern også fra statusMap hvis det skulle være der
-    statusMap.delete(orgnr);
-    saveStatus();
-    render();
-    showToast('Selskapet er fjernet');
-  }
+  skjulteOrgnrs.add(orgnr);
+  saveSkjulte();
+  statusMap.delete(orgnr);
+  saveStatus();
+  render();
+  showToast('Selskapet er slettet');
 };
 
 // Marker som Ikke svar - åpner modal for telefon + notat
@@ -1174,7 +1290,6 @@ ikkesvarConfirmBtn.addEventListener('click', () => {
   const telefon = ikkesvarTelefon.value.trim();
   const notat = ikkesvarNotat.value.trim();
   if (!telefon) { showToast('Telefonnummer må fylles ut'); ikkesvarTelefon.focus(); return; }
-  if (!notat) { showToast('Notat må fylles ut'); ikkesvarNotat.focus(); return; }
   if (!pendingIkkesvarOrgnr) return;
   statusMap.set(pendingIkkesvarOrgnr, { status: 'ikkesvar', telefon, notat, dato: getToday() });
   saveStatus();
@@ -1191,14 +1306,46 @@ ikkesvarModal.addEventListener('click', (e) => { if (e.target === ikkesvarModal)
 
 // Fjern en Ikke svar-oppføring (fra modalen)
 window.fjernIkkesvar = function(orgnr) {
-  if (confirm('⚠️ Fjerne denne oppføringen fra Ikke svar-listen?\n\nTelefonnummer og notat vil forsvinne.')) {
-    statusMap.delete(orgnr);
-    saveStatus();
-    render();
-    if (behandledeModal.classList.contains('show')) renderBehandledeModal();
-    showToast('Fjernet fra Ikke svar');
-  }
+  statusMap.delete(orgnr);
+  saveStatus();
+  render();
+  if (behandledeModal.classList.contains('show')) renderBehandledeModal();
+  showToast('Slettet');
 };
+
+// Åpner notat-modal for en oppføring (kontaktet/salg/ikkesvar)
+window.redigerNotat = function(orgnr) {
+  const current = statusMap.get(orgnr);
+  if (!current) return;
+  pendingNotatOrgnr = orgnr;
+  notatText.value = current.notat || '';
+  notatModal.classList.add('show');
+  setTimeout(() => notatText.focus(), 100);
+};
+
+notatConfirmBtn.addEventListener('click', () => {
+  if (!pendingNotatOrgnr) return;
+  const current = statusMap.get(pendingNotatOrgnr);
+  if (!current) { notatModal.classList.remove('show'); return; }
+  const notat = notatText.value.trim();
+  if (notat) {
+    current.notat = notat;
+  } else {
+    delete current.notat;
+  }
+  statusMap.set(pendingNotatOrgnr, current);
+  saveStatus();
+  notatModal.classList.remove('show');
+  pendingNotatOrgnr = null;
+  render();
+  if (behandledeModal.classList.contains('show')) renderBehandledeModal();
+  showToast('Notat lagret');
+});
+notatCancelBtn.addEventListener('click', () => {
+  notatModal.classList.remove('show');
+  pendingNotatOrgnr = null;
+});
+notatModal.addEventListener('click', (e) => { if (e.target === notatModal) { notatModal.classList.remove('show'); pendingNotatOrgnr = null; } });
 
 // ===== Status-system: To separate knapper =====
 
@@ -1218,7 +1365,7 @@ window.markerKontaktet = function(orgnr) {
   }
   if (current?.status === 'solgt') {
     // Konvertering fra solgt til kontaktet - mister poeng
-    if (!confirm(`⚠️ Endre fra SOLGT til Kontaktet?\n\nDu mister ${current.poeng}p og må registrere salget på nytt hvis du vil ha det tilbake.`)) {
+    if (!confirm(`⚠️ Endre fra SALG til Kontaktet?\n\nDu mister ${current.poeng}p og må registrere salget på nytt hvis du vil ha det tilbake.`)) {
       return;
     }
   }
@@ -1276,7 +1423,7 @@ solgtConfirmBtn.addEventListener('click', () => {
   pendingSolgtOrgnr = null;
   render();
   updatePointsBox();
-  showToast(`💰 Solgt registrert (${poeng}p)`);
+  showToast(`💰 Salg registrert (${poeng}p)`);
 });
 solgtCancelBtn.addEventListener('click', () => {
   solgtModal.classList.remove('show');
@@ -1311,7 +1458,7 @@ function openBehandledeModal(filter) {
   if (filter === 'kontaktet') {
     behandledeModalTitle.innerHTML = '🟡 Kontaktede selskaper';
   } else if (filter === 'solgt') {
-    behandledeModalTitle.innerHTML = '💰 Solgte selskaper';
+    behandledeModalTitle.innerHTML = '💰 Salg';
   } else if (filter === 'ikkesvar') {
     behandledeModalTitle.innerHTML = '📵 Ikke svar-selskaper';
   } else {
@@ -1407,14 +1554,63 @@ function renderBehandledeModal() {
   } else if (behandledeFilter === 'ikkesvar') {
     behandledeSummary.innerHTML = `<span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
   } else {
-    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> solgt (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
+    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> salg (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
   }
+
+  const table = document.getElementById('behandledeTable');
+  const cards = document.getElementById('behandledeCards');
+
+  if (behandledeFilter === 'ikkesvar') {
+    // Kortvisning for Ikke svar
+    table.style.display = 'none';
+    cards.style.display = 'block';
+
+    if (list.length === 0) {
+      cards.innerHTML = `<div class="ikkesvar-empty-card">Ingen Ikke svar-oppføringer</div>`;
+      return;
+    }
+
+    // Sortér på dato: eldst først (så du prøver dem først som har ventet lengst)
+    list.sort((a, b) => {
+      const da = statusMap.get(a.organisasjonsnummer)?.dato || '';
+      const db = statusMap.get(b.organisasjonsnummer)?.dato || '';
+      return da.localeCompare(db);
+    });
+
+    cards.innerHTML = '<div class="ikkesvar-cards">' + list.map(e => {
+      const orgnr = e.organisasjonsnummer;
+      const s = statusMap.get(orgnr) || {};
+      const telefon = escapeHtml(s.telefon || '');
+      const notat = s.notat ? `<div class="ikkesvar-card-notat"><span class="field-label">📝 Notat:</span>${escapeHtml(s.notat)}</div>` : '';
+      const navn = escapeHtml(e.navn || '(uten navn)');
+      const datoDisplay = s.dato ? `Registrert: ${s.dato}` : '';
+      return `
+        <div class="ikkesvar-card">
+          <div class="ikkesvar-card-main">
+            <div class="ikkesvar-card-name">${navn}<span class="orgnr">${orgnr}</span></div>
+            <div class="ikkesvar-card-phone">📞 <a href="tel:${telefon}">${telefon}</a></div>
+            ${notat}
+            <div class="ikkesvar-card-meta">${datoDisplay}</div>
+          </div>
+          <div class="ikkesvar-card-actions">
+            <button class="card-btn-kontaktet" onclick="markerKontaktet('${orgnr}')">✓ Kontaktet</button>
+            <button class="card-btn-salg" onclick="markerSolgt('${orgnr}')">💰 Salg</button>
+            <button class="card-btn-rediger" onclick="markerIkkesvar('${orgnr}')">✏️ Rediger</button>
+            <button class="card-btn-slett" onclick="fjernIkkesvar('${orgnr}')">🗑 Slett</button>
+          </div>
+        </div>`;
+    }).join('') + '</div>';
+    return;
+  }
+
+  // Tabellvisning for kontaktet/salg/alle
+  table.style.display = '';
+  cards.style.display = 'none';
 
   if (list.length === 0) {
     const periodLabel = periodLabelFor(behandledePeriodValue);
     const msg = behandledeFilter === 'kontaktet' ? `Ingen kontaktede ${periodLabel}`
-      : behandledeFilter === 'solgt' ? `Ingen solgte ${periodLabel}`
-      : behandledeFilter === 'ikkesvar' ? `Ingen Ikke svar-oppføringer`
+      : behandledeFilter === 'solgt' ? `Ingen salg ${periodLabel}`
       : `Ingen behandlede ${periodLabel}`;
     behandledeTbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
     return;
@@ -1437,9 +1633,9 @@ function rowHtmlBackup(e) {
   const buttonsHtml = `
     <div class="status-buttons">
       <button class="status-btn-pair kontaktet-btn ${status.status === 'kontaktet' ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${status.status === 'kontaktet' ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${status.status === 'kontaktet' ? '✓ Kontaktet' : 'Kontaktet'}</button>
-      <button class="status-btn-pair solgt-btn ${status.status === 'solgt' ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${status.status === 'solgt' ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${status.status === 'solgt' ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+      <button class="status-btn-pair solgt-btn ${status.status === 'solgt' ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${status.status === 'solgt' ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${status.status === 'solgt' ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
       <button class="status-btn-pair ikkesvar-btn ${isIkkesvar ? 'active-ikkesvar' : ''}" onclick="markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-      ${isIkkesvar ? `<button class="status-btn-pair ingenr-btn" onclick="fjernIkkesvar('${orgnr}')" title="Fjern fra Ikke svar-listen">Fjern</button>` : ''}
+      ${isIkkesvar ? `<button class="status-btn-pair ingenr-btn" onclick="fjernIkkesvar('${orgnr}')" title="Slett fra Ikke svar-listen">Slett</button>` : ''}
     </div>`;
 
   const detailBlock = isIkkesvar ? `
@@ -1548,6 +1744,7 @@ document.addEventListener('keydown', (e) => {
     if (solgtModal.classList.contains('show')) { solgtModal.classList.remove('show'); pendingSolgtOrgnr = null; }
     if (backupImportModal.classList.contains('show')) backupImportModal.classList.remove('show');
     if (ikkesvarModal.classList.contains('show')) { ikkesvarModal.classList.remove('show'); pendingIkkesvarOrgnr = null; }
+    if (notatModal.classList.contains('show')) { notatModal.classList.remove('show'); pendingNotatOrgnr = null; }
   }
 });
 
@@ -1555,17 +1752,10 @@ document.addEventListener('keydown', (e) => {
 backupExportBtn.addEventListener('click', async () => {
   if (statusMap.size === 0) { showToast('Ingen markeringer å eksportere'); return; }
 
-  const lines = [
-    '# BRREG-markeringer backup — ' + new Date().toLocaleString('nb-NO'),
-    '# Format: orgnr | status | dato | poeng',
-    ''
-  ];
-  for (const [orgnr, data] of statusMap.entries()) {
-    const poeng = data.poeng != null ? data.poeng : '';
-    const dato = data.dato || '';
-    lines.push(`${orgnr} | ${data.status} | ${dato} | ${poeng}`);
-  }
-  const text = lines.join('\n');
+  // JSON-format: fullstendig lagring av alle felter (status, dato, poeng, telefon, notat)
+  const obj = Object.fromEntries(statusMap);
+  const header = '# BRREG-markeringer backup — ' + new Date().toLocaleString('nb-NO') + '\n# Format: JSON\n';
+  const text = header + JSON.stringify(obj, null, 2);
 
   try {
     await navigator.clipboard.writeText(text);
@@ -1591,8 +1781,29 @@ backupImportModal.addEventListener('click', (e) => { if (e.target === backupImpo
 backupImportConfirmBtn.addEventListener('click', () => {
   const raw = backupImportText.value;
   if (!raw.trim()) { showToast('Ingen tekst å importere'); return; }
-  const lines = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   let added = 0;
+
+  // Prøv JSON først (nytt format)
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const obj = JSON.parse(jsonMatch[0]);
+      for (const [orgnr, v] of Object.entries(obj)) {
+        if (!orgnr || !v || !['kontaktet','solgt','ikkesvar'].includes(v.status)) continue;
+        statusMap.set(orgnr, v);
+        added++;
+      }
+      saveStatus();
+      render();
+      updatePointsBox();
+      backupImportModal.classList.remove('show');
+      showToast(`✓ Importerte ${added} markeringer`);
+      return;
+    } catch (e) { /* faller tilbake til gammelt format */ }
+  }
+
+  // Gammelt format (linje-basert)
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   for (const line of lines) {
     const parts = line.split('|').map(p => p.trim());
     if (parts.length < 3) continue;
@@ -1600,7 +1811,7 @@ backupImportConfirmBtn.addEventListener('click', () => {
     const status = parts[1];
     const dato = parts[2];
     const poeng = parts[3] ? parseInt(parts[3], 10) : null;
-    if (!orgnr || !['kontaktet','solgt'].includes(status)) continue;
+    if (!orgnr || !['kontaktet','solgt','ikkesvar'].includes(status)) continue;
     const obj = { status, dato };
     if (poeng != null && !isNaN(poeng)) obj.poeng = poeng;
     statusMap.set(orgnr, obj);
@@ -2202,7 +2413,7 @@ function rowHtml(e) {
     : '';
 
   const reservedBadge = reserved ? `<span class="badge-reserved">🔒 RESERVERT AV ${escapeHtml(reserved.by.toUpperCase())}</span>` : '';
-  const solgtBadge = (status?.status === 'solgt') ? `<span class="badge-solgt">💰 SOLGT (${status.poeng}p)</span>` : '';
+  const solgtBadge = (status?.status === 'solgt') ? `<span class="badge-solgt">💰 SALG (${status.poeng}p)</span>` : '';
   const ikkesvarBadge = (status?.status === 'ikkesvar') ? `<span class="badge-ikkesvar">📵 IKKE SVAR</span>` : '';
   const newBadge = isNew ? `<span class="badge-new">🆕 NY</span>` : '';
   const isForetak = e.registrertIForetaksregisteret === true;
@@ -2217,10 +2428,17 @@ function rowHtml(e) {
         <span class="field-label">Telefon:</span>
         <span class="field-value phone">${escapeHtml(status.telefon || '')}</span>
       </div>
-      <div class="field">
+      ${status.notat ? `<div class="field">
         <span class="field-label">Notat:</span>
-        <span class="field-value">${escapeHtml(status.notat || '')}</span>
-      </div>
+        <span class="field-value">${escapeHtml(status.notat)}</span>
+      </div>` : ''}
+    </div>` : '';
+
+  // Notat-visning for kontaktet/salg (uten telefon)
+  const notatDetail = (status && (status.status === 'kontaktet' || status.status === 'solgt') && status.notat) ? `
+    <div class="notat-detail">
+      <span class="field-label">📝 Notat:</span>
+      <span class="field-value">${escapeHtml(status.notat)}</span>
     </div>` : '';
 
   const orgFormHtml = isNuf
@@ -2242,12 +2460,16 @@ function rowHtml(e) {
   const isKontaktet = status?.status === 'kontaktet';
   const isSolgt = status?.status === 'solgt';
   const isIkkesvar = status?.status === 'ikkesvar';
+  const hasNotat = status?.notat ? true : false;
+  const notatBtn = (isKontaktet || isSolgt) ?
+    `<button class="notat-icon-btn ${hasNotat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${hasNotat ? 'Rediger notat' : 'Legg til notat'}">📝</button>` : '';
   const buttonsHtml = `
     <div class="status-buttons">
       <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
-      <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Solgt'}</button>
+      <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
       <button class="status-btn-pair ikkesvar-btn ${isIkkesvar ? 'active-ikkesvar' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-      <button class="status-btn-pair ingenr-btn" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Fjern fra listen">Fjern</button>
+      <button class="status-btn-pair ingenr-btn" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
+      ${notatBtn}
     </div>`;
 
   const rowClass = [
@@ -2268,6 +2490,7 @@ function rowHtml(e) {
         ${web ? `<div class="company-meta" style="margin-top:4px">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
         ${showFormal ? `<div class="formal-text">📜 ${escapeHtml(formalText)}</div>` : ''}
         ${ikkesvarDetail}
+        ${notatDetail}
       </td>
       <td>${orgnrCell}</td>
       <td>${contactBlock}</td>
