@@ -2885,4 +2885,101 @@ function applyActiveTab(tab) {
   // Oppdater side-tittel
   const tabObj = TABS.find(t => t.id === tab);
   if (tabObj) {
-    const titleEl = docume
+    const titleEl = document.getElementById('pageTitle');
+    if (titleEl) titleEl.textContent = tabObj.title;
+    document.title = tabObj.title;
+  }
+}
+
+function renderTabBar() {
+  const bar = document.getElementById('tabBar');
+  if (!bar) return;
+  bar.innerHTML = TABS.map(t => {
+    let count = '';
+    if (t.id === activeTab) {
+      let n = 0;
+      for (const e of currentData) {
+        if (skjulteOrgnrs.has(e.organisasjonsnummer)) continue;
+        const s = statusMap.get(e.organisasjonsnummer);
+        if (!s) n++;
+      }
+      count = n;
+    } else {
+      count = '–';
+    }
+    const active = t.id === activeTab ? 'active' : '';
+    return `<button class="tab-btn ${active}" data-tab="${t.id}">
+      <span class="tab-icon">${t.icon}</span>
+      <span>${t.label}</span>
+      <span class="tab-count">${count}</span>
+    </button>`;
+  }).join('');
+  bar.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+}
+
+function switchTab(tabId) {
+  if (tabId === activeTab) return;
+  if (!TABS.some(t => t.id === tabId)) return;
+  activeTab = tabId;
+  saveActiveTab(tabId);
+  applyActiveTab(tabId);
+  currentData = [];
+  renderTabBar();
+  renderReserveList();
+  updatePointsBox();
+  render();
+  fetchCompanies();
+}
+
+// Wrap updatePointsBox slik at poeng-boksen viser TOTAL fra alle faner
+const _origUpdatePointsBox = updatePointsBox;
+updatePointsBox = function() {
+  const now = new Date();
+  const yyyymm = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  let total = 0;
+  for (const tab of TABS) {
+    const key = tabKey('brreg_status_v1', tab.id);
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const obj = JSON.parse(raw);
+      for (const v of Object.values(obj)) {
+        if (v.status === 'solgt' && v.dato && v.dato.startsWith(yyyymm)) {
+          total += (v.poeng || 0);
+        }
+      }
+    } catch (e) { /* hopp over */ }
+  }
+  pointsLabel.textContent = monthNameShort(now);
+  pointsValue.textContent = total + 'p';
+};
+
+// Wrap render slik at fane-teller oppdateres etter hver render
+const _origRender = render;
+render = function() {
+  _origRender();
+  renderTabBar();
+};
+
+// Wrap fetchByFormal slik at den håndterer null-regex (ansatte-fanen)
+const _origFetchByFormal = fetchByFormal;
+fetchByFormal = async function(from, to) {
+  if (!FORMAL_REGEX) return [];
+  return await _origFetchByFormal(from, to);
+};
+
+// Init: bruk aktiv fane fra oppstart
+applyActiveTab(activeTab);
+renderTabBar();
+updatePointsBox();  // Re-render points nå som TABS er kjent
+render();  // Re-render for å oppdatere tabbar-teller
+
+renderReserveList();
+updatePointsBox();
+fetchCompanies();
+</script>
+
+</body>
+</html>
