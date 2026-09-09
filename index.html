@@ -9,19 +9,25 @@
 <style>
   :root {
     --bg: #000000;
-    --panel: #0d1117;
-    --panel-2: #161b22;
-    --panel-3: #1e242c;
-    --border: #2a313b;
-    --border-soft: #1a1f27;
-    --text: #e6e9ed;
+    --panel: #0a0d12;
+    --panel-2: #12161d;
+    --panel-3: #1a1f28;
+    --panel-4: #232833;
+    --border: #262c37;
+    --border-soft: #1a1f28;
+    --border-strong: #3a4150;
+    --text: #f0f2f5;
     --text-soft: #c4cad2;
     --muted: #8b949e;
     --muted-soft: #6e7681;
     --accent: #FFCC4D;
+    --accent-soft: rgba(255, 204, 77, 0.14);
     --green: #65CE79;
+    --green-soft: rgba(101, 206, 121, 0.14);
     --red: #FE6464;
+    --red-soft: rgba(254, 100, 100, 0.14);
     --blue: #60a5fa;
+    --blue-soft: rgba(96, 165, 250, 0.14);
     --cyan: #22d3ee;
     --proff: #8b3ca8;
     --reserved: #FFCC4D;
@@ -30,6 +36,14 @@
     --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
     --sidebar-w: 320px;
     --header-h: 76px;
+    --tab-bar-h: 44px;
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+    --shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25);
+    --transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   }
   * { box-sizing: border-box; }
   html, body { height:100%; }
@@ -37,6 +51,7 @@
     margin:0; background:var(--bg); color:var(--text);
     font-family:var(--sans); font-size:14px; line-height:1.55;
     -webkit-font-smoothing:antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   /* Tall får mono-font */
@@ -48,28 +63,33 @@
   header {
     height:var(--header-h);
     display:flex; align-items:center; justify-content:space-between;
-    padding:0 32px; border-bottom:1px solid var(--border);
-    background:var(--panel); position:sticky; top:0; z-index:20;
+    padding:0 36px; border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg, #0d1117 0%, #0a0d12 100%);
+    position:sticky; top:0; z-index:20;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
   }
   .brand { display:flex; align-items:center; gap:24px; }
   .brand .logo { height:50px; width:auto; display:block; flex-shrink:0; }
   .brand .title-block { display:flex; flex-direction:column; }
-  .brand h1 { margin:0; font-size:18px; font-weight:700; letter-spacing:0.2px; line-height:1.2; color:var(--text); }
+  .brand h1 { margin:0; font-size:19px; font-weight:700; letter-spacing:-0.2px; line-height:1.2; color:var(--text); }
   .brand .tagline { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.4px; margin-top:3px; font-weight:500; }
 
   /* Fane-veksler */
   .tab-bar {
-    display:flex; gap:4px; padding:0 32px; background:var(--bg);
+    display:flex; gap:2px; padding:0 36px; background:var(--bg);
     border-bottom:1px solid var(--border);
-    align-items:center;
+    align-items:stretch; height:var(--tab-bar-h);
+    position:sticky; top:var(--header-h); z-index:19;
   }
   .tab-btn {
     display:inline-flex; align-items:center; gap:8px;
-    padding:12px 20px 10px; background:transparent;
+    padding:0 18px; background:transparent;
     border:none; border-bottom:2px solid transparent;
-    color:var(--muted); font-size:14px; font-weight:600;
-    cursor:pointer; transition:all 0.15s;
+    color:var(--muted); font-size:13px; font-weight:600;
+    cursor:pointer; transition:var(--transition);
     border-radius:0; font-family:var(--sans);
+    letter-spacing:-0.1px;
+    margin-bottom:-1px;
   }
   .tab-btn:hover { color:var(--text); background:rgba(255,255,255,0.02); }
   .tab-btn.active {
@@ -77,28 +97,38 @@
     border-bottom-color:var(--accent);
     background:transparent;
   }
-  .tab-btn .tab-icon { font-size:16px; }
+  .tab-btn .tab-icon { font-size:15px; line-height:1; }
   .tab-btn .tab-count {
-    display:inline-block; background:var(--panel-2); color:var(--muted);
-    font-family:var(--mono); font-size:11px; font-weight:700;
-    padding:2px 7px; border-radius:10px; margin-left:2px;
-    min-width:22px; text-align:center;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--panel-3); color:var(--muted);
+    font-family:var(--mono); font-size:10.5px; font-weight:700;
+    padding:1px 8px; border-radius:20px; margin-left:2px;
+    min-width:22px; height:18px;
+    transition:var(--transition);
   }
   .tab-btn.active .tab-count { background:var(--accent); color:#111; }
+  .tab-btn:hover .tab-count { background:var(--panel-4); }
+  .tab-btn.active:hover .tab-count { background:var(--accent); }
 
   .header-center { display:flex; align-items:center; gap:18px; }
   .points-box {
-    display:flex; align-items:center; gap:12px;
-    background:linear-gradient(135deg, rgba(101,206,121,0.15), rgba(101,206,121,0.05));
-    border:1px solid rgba(101,206,121,0.4);
-    padding:10px 18px; border-radius:8px;
+    display:flex; align-items:center; gap:14px;
+    background:linear-gradient(135deg, rgba(101,206,121,0.16), rgba(101,206,121,0.06));
+    border:1px solid rgba(101,206,121,0.3);
+    padding:10px 20px; border-radius:var(--radius);
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.04);
+    transition:var(--transition);
+  }
+  .points-box:hover {
+    border-color:rgba(101,206,121,0.5);
+    background:linear-gradient(135deg, rgba(101,206,121,0.2), rgba(101,206,121,0.08));
   }
   .points-box .icon { font-size:20px; }
   .points-box .info { display:flex; flex-direction:column; }
   .points-box .label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
-  .points-box .points-value { font-size:18px; font-weight:700; color:var(--green); }
+  .points-box .points-value { font-size:19px; font-weight:700; color:var(--green); letter-spacing:-0.3px; }
 
-  .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
   .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
   .dot.live { background:var(--green); box-shadow:0 0 10px var(--green); animation:pulse 2s infinite; }
@@ -109,16 +139,19 @@
 
   /* ===== KNAPPER ===== */
   button {
-    background:var(--accent); color:#111; border:none; padding:8px 16px;
+    background:var(--accent); color:#111; border:none; padding:9px 18px;
     font-family:var(--sans); font-size:13px; font-weight:600;
-    border-radius:6px; cursor:pointer; transition:background 0.15s;
+    border-radius:var(--radius-sm); cursor:pointer;
+    transition:var(--transition);
+    letter-spacing:-0.1px;
   }
-  button:hover { background:#ffdc7a; }
+  button:hover { background:#ffd970; transform:translateY(-1px); box-shadow:var(--shadow-sm); }
+  button:active { transform:translateY(0); }
   button.secondary { background:transparent; color:var(--text); border:1px solid var(--border); }
   button.secondary:hover { background:var(--panel-2); border-color:var(--muted); }
-  button.danger { background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4); font-size:12px; padding:6px 12px; }
+  button.danger { background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4); font-size:12px; padding:7px 14px; }
   button.danger:hover { background:var(--red); color:#111; border-color:var(--red); }
-  button.sound-btn { background:transparent; color:var(--muted); border:1px solid var(--border); font-size:12px; padding:6px 12px; }
+  button.sound-btn { background:transparent; color:var(--muted); border:1px solid var(--border); font-size:12px; padding:7px 14px; }
   button.sound-btn:hover { background:var(--panel-2); color:var(--text); }
   button.sound-btn.active { color:var(--green); border-color:var(--green); }
 
@@ -145,18 +178,18 @@
     padding-left:4px;
   }
   .sidebar-toggle {
-    position:fixed; top:calc(var(--header-h) + 12px); left:12px;
+    position:fixed; top:calc(var(--header-h) + var(--tab-bar-h) + 16px); left:16px;
     z-index:15;
-    width:36px; height:36px; padding:0;
+    width:38px; height:38px; padding:0;
     background:var(--panel); color:var(--text);
-    border:1px solid var(--border); border-radius:8px;
+    border:1px solid var(--border); border-radius:var(--radius);
     font-size:16px; cursor:pointer; display:flex;
     align-items:center; justify-content:center;
-    transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.3);
+    transition:var(--transition); box-shadow:var(--shadow);
   }
-  .sidebar-toggle:hover { background:var(--panel-2); border-color:var(--accent); }
+  .sidebar-toggle:hover { background:var(--panel-2); border-color:var(--accent); transform:translateY(-1px); }
   .layout:not(.sidebar-collapsed) .sidebar-toggle {
-    left:calc(var(--sidebar-w) - 18px);
+    left:calc(var(--sidebar-w) - 19px);
   }
 
   /* Klikkbare statistikk-bokser */
@@ -233,8 +266,8 @@
   .sidebar {
     background:var(--panel); border-right:1px solid var(--border);
     padding:24px; overflow-y:auto;
-    position:sticky; top:var(--header-h);
-    height:calc(100vh - var(--header-h));
+    position:sticky; top:calc(var(--header-h) + var(--tab-bar-h));
+    height:calc(100vh - var(--header-h) - var(--tab-bar-h));
     transition:transform 0.25s ease;
   }
   .sidebar-section {
@@ -242,9 +275,9 @@
   }
   .sidebar-section:last-child { margin-bottom:0; }
   .sidebar-section h3 {
-    margin:0 0 12px 0; font-size:11px; font-weight:700;
-    text-transform:uppercase; letter-spacing:1.3px;
-    color:var(--muted);
+    margin:0 0 14px 0; font-size:10.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1.4px;
+    color:var(--muted-soft);
   }
 
   /* Filter-felt i sidebar */
@@ -253,26 +286,28 @@
   .filter-row label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:500; }
   input[type="date"], input[type="text"], select, textarea {
     background:var(--panel-2); border:1px solid var(--border); color:var(--text);
-    padding:8px 10px; border-radius:5px; font-family:var(--sans); font-size:13px;
-    width:100%;
+    padding:10px 12px; border-radius:var(--radius-sm); font-family:var(--sans); font-size:13px;
+    width:100%; transition:var(--transition);
   }
   input[type="date"]:focus, input[type="text"]:focus, select:focus, textarea:focus {
     outline:none; border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(255,204,77,0.12);
   }
   .toggle { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-soft); cursor:pointer; user-select:none; padding:6px 0; }
   .toggle input[type="checkbox"] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
 
   /* Statistikk i sidebar */
   .stat-grid {
-    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
   }
   .stat {
     background:var(--panel-2); border:1px solid var(--border-soft);
-    border-radius:6px; padding:10px 12px;
-    display:flex; flex-direction:column; gap:2px;
+    border-radius:var(--radius); padding:12px 14px;
+    display:flex; flex-direction:column; gap:3px;
+    transition:var(--transition);
   }
-  .stat-value { font-size:20px; font-weight:700; color:var(--accent); line-height:1.1; }
-  .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:600; }
+  .stat-value { font-size:22px; font-weight:700; color:var(--accent); line-height:1.1; letter-spacing:-0.5px; }
+  .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.1px; font-weight:600; }
   .stat.contacted .stat-value { color:var(--accent); }
   .stat.solgt .stat-value { color:var(--green); }
   .stat.ikkesvar .stat-value { color:var(--blue); }
@@ -321,78 +356,77 @@
   /* Tabell */
   table { width:100%; border-collapse:separate; border-spacing:0; }
   th {
-    text-align:left; padding:14px 16px; font-size:10px; color:var(--muted);
-    text-transform:uppercase; letter-spacing:1.2px; font-weight:700;
+    text-align:left; padding:14px 20px; font-size:10px; color:var(--muted-soft);
+    text-transform:uppercase; letter-spacing:1.3px; font-weight:700;
     border-bottom:1px solid var(--border); background:var(--panel);
-    position:sticky; top:var(--header-h); z-index:5;
+    position:sticky; top:calc(var(--header-h) + var(--tab-bar-h)); z-index:5;
   }
   td {
-    padding:18px 16px; border-bottom:1px solid var(--border-soft);
+    padding:20px; border-bottom:1px solid var(--border-soft);
     vertical-align:top;
+    transition:background 0.12s;
   }
   tr:hover td { background:var(--panel); }
 
-  /* Kontaktet (gul) og solgt (grønn) - litt dempet */
-  tr.row-contacted td { background:rgba(255, 204, 77, 0.06) !important; opacity:0.85; }
-  tr.row-contacted:hover td { opacity:1; }
-  tr.row-contacted td:first-child { border-left:3px solid var(--accent); padding-left:13px; }
-  tr.row-solgt td { background:rgba(101, 206, 121, 0.10) !important; opacity:1; }
-  tr.row-solgt:hover td { background:rgba(101, 206, 121, 0.16) !important; }
-  tr.row-solgt td:first-child { border-left:4px solid var(--green); padding-left:12px; }
+  /* Kontaktet (gul) og solgt (grønn) - subtile */
+  tr.row-contacted td { background:rgba(255, 204, 77, 0.04) !important; opacity:0.9; }
+  tr.row-contacted:hover td { opacity:1; background:rgba(255, 204, 77, 0.08) !important; }
+  tr.row-contacted td:first-child { border-left:3px solid var(--accent); padding-left:17px; }
+  tr.row-solgt td { background:rgba(101, 206, 121, 0.08) !important; opacity:1; }
+  tr.row-solgt:hover td { background:rgba(101, 206, 121, 0.13) !important; }
+  tr.row-solgt td:first-child { border-left:4px solid var(--green); padding-left:16px; }
 
-  tr.row-ikkesvar td { background:rgba(96, 165, 250, 0.08) !important; opacity:1; }
-  tr.row-ikkesvar:hover td { background:rgba(96, 165, 250, 0.14) !important; }
-  tr.row-ikkesvar td:first-child { border-left:4px solid var(--blue); padding-left:12px; }
+  tr.row-ikkesvar td { background:rgba(96, 165, 250, 0.06) !important; opacity:1; }
+  tr.row-ikkesvar:hover td { background:rgba(96, 165, 250, 0.11) !important; }
+  tr.row-ikkesvar td:first-child { border-left:4px solid var(--blue); padding-left:16px; }
 
-  /* Reservert rad: tydelig gul ramme - får ALLTID prioritet over status-rammer */
+  /* Reservert rad: tydelig gul ramme */
   tr.row-reserved td {
-    background:rgba(255, 204, 77, 0.15) !important;
+    background:rgba(255, 204, 77, 0.13) !important;
     border-top:2px solid var(--reserved) !important;
     border-bottom:2px solid var(--reserved) !important;
   }
   tr.row-reserved td:first-child {
     border-left:4px solid var(--reserved) !important;
-    padding-left:12px !important;
+    padding-left:16px !important;
   }
   tr.row-reserved td:last-child { border-right:2px solid var(--reserved) !important; }
-  tr.row-reserved:hover td { background:rgba(255, 204, 77, 0.22) !important; }
+  tr.row-reserved:hover td { background:rgba(255, 204, 77, 0.20) !important; }
 
-  /* Ny rad: gul highlight i 3 sek */
-  /* Ny rad: vedvarende lysere bakgrunn med badge til brukeren har klikket */
   tr.new-row td {
-    background:rgba(255, 204, 77, 0.10) !important;
+    background:rgba(255, 204, 77, 0.09) !important;
     border-left:0;
   }
   tr.new-row td:first-child {
     border-left:3px solid var(--accent);
-    padding-left:13px;
+    padding-left:17px;
   }
-  tr.new-row:hover td { background:rgba(255, 204, 77, 0.16) !important; }
+  tr.new-row:hover td { background:rgba(255, 204, 77, 0.14) !important; }
 
   .badge-new {
     display:inline-block; background:var(--accent); color:#111;
-    padding:2px 8px; border-radius:3px; font-size:10px;
-    font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+    padding:3px 9px; border-radius:20px; font-size:10px;
+    font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
     margin-left:8px; vertical-align:middle; line-height:1.4;
     animation:newPulse 2s ease-in-out infinite;
   }
   @keyframes newPulse {
     0%, 100% { opacity:1; }
-    50% { opacity:0.6; }
+    50% { opacity:0.55; }
   }
 
   /* Tekst-styling */
-  .company-name { font-weight:600; font-size:15px; color:var(--text); margin-bottom:4px; line-height:1.3; }
-  .company-meta { font-size:12px; color:var(--muted); margin-bottom:2px; }
+  .company-name { font-weight:600; font-size:16px; color:var(--text); margin-bottom:5px; line-height:1.3; letter-spacing:-0.2px; }
+  .company-meta { font-size:12.5px; color:var(--muted); margin-bottom:2px; }
   .orgform-tag { display:inline; font-weight:600; font-family:var(--mono); }
   .orgform-tag.nuf { color:var(--red); font-weight:700; font-size:11px; letter-spacing:0.5px; }
 
   .orgnr {
-    font-size:13px; color:var(--text);
-    background:var(--panel-2); padding:3px 7px; border-radius:4px;
-    display:inline-block; font-weight:500;
+    font-size:12.5px; color:var(--text-soft);
+    background:var(--panel-2); padding:4px 9px; border-radius:5px;
+    display:inline-block; font-weight:500; letter-spacing:0.3px;
   }
-  .nace { font-size:11px; color:var(--accent); margin-top:6px; line-height:1.4; }
+  .nace { font-size:11px; color:var(--accent); margin-top:6px; line-height:1.4; opacity:0.85; }
   .formal-text { font-size:11px; color:var(--muted); margin-top:8px; font-style:italic; line-height:1.4; max-width:480px; }
 
   .contact-block .name { font-weight:500; color:var(--text); font-size:14px; }
@@ -437,39 +471,41 @@
   .status-btn:hover { transform:scale(1.05); }
   .status-cell { width:120px; padding:14px 8px !important; vertical-align:top; }
   .status-buttons {
-    display:flex; flex-direction:column; gap:4px; align-items:stretch;
+    display:flex; flex-direction:column; gap:5px; align-items:stretch;
   }
   .status-btn-pair {
-    background:transparent; border:2px solid var(--border);
+    background:transparent; border:1.5px solid var(--border);
     color:var(--muted); cursor:pointer;
-    border-radius:5px; font-family:var(--sans);
+    border-radius:var(--radius-sm); font-family:var(--sans);
     font-size:11px; font-weight:700;
-    padding:6px 10px; line-height:1;
-    transition:all 0.15s; text-transform:uppercase; letter-spacing:0.5px;
+    padding:7px 12px; line-height:1;
+    transition:var(--transition); text-transform:uppercase; letter-spacing:0.5px;
   }
+  .status-btn-pair:hover { transform:translateY(-1px); }
+  .status-btn-pair:active { transform:translateY(0); }
   .status-btn-pair.kontaktet-btn {
-    border-color:rgba(255,204,77,0.4); color:var(--accent);
+    border-color:rgba(255,204,77,0.35); color:var(--accent);
   }
   .status-btn-pair.kontaktet-btn:hover {
-    background:var(--accent); color:#111; border-color:var(--accent);
+    background:var(--accent); color:#111; border-color:var(--accent); box-shadow:var(--shadow-sm);
   }
   .status-btn-pair.solgt-btn {
-    border-color:rgba(101,206,121,0.4); color:var(--green);
+    border-color:rgba(101,206,121,0.35); color:var(--green);
   }
   .status-btn-pair.solgt-btn:hover {
-    background:var(--green); color:#111; border-color:var(--green);
+    background:var(--green); color:#111; border-color:var(--green); box-shadow:var(--shadow-sm);
   }
   .status-btn-pair.ingenr-btn {
-    border-color:rgba(254,100,100,0.4); color:var(--red);
+    border-color:rgba(254,100,100,0.35); color:var(--red);
   }
   .status-btn-pair.ingenr-btn:hover {
-    background:var(--red); color:#111; border-color:var(--red);
+    background:var(--red); color:#111; border-color:var(--red); box-shadow:var(--shadow-sm);
   }
   .status-btn-pair.ikkesvar-btn {
-    border-color:rgba(96,165,250,0.4); color:var(--blue);
+    border-color:rgba(96,165,250,0.35); color:var(--blue);
   }
   .status-btn-pair.ikkesvar-btn:hover {
-    background:var(--blue); color:#111; border-color:var(--blue);
+    background:var(--blue); color:#111; border-color:var(--blue); box-shadow:var(--shadow-sm);
   }
   .status-btn-pair.active-ikkesvar {
     background:var(--blue); color:#111; border-color:var(--blue);
@@ -482,7 +518,7 @@
     background:var(--green); color:#111; border-color:var(--green);
   }
   .status-btn-pair.fjern-btn {
-    border-color:rgba(254,100,100,0.4); color:var(--red);
+    border-color:rgba(254,100,100,0.35); color:var(--red);
   }
   .status-btn-pair.fjern-btn:hover {
     background:var(--red); color:#111; border-color:var(--red);
@@ -613,24 +649,27 @@
 
   /* Ikke svar - kortvisning */
   .ikkesvar-cards {
-    display:grid; grid-template-columns:1fr; gap:14px;
+    display:grid; grid-template-columns:1fr; gap:12px;
   }
   .ikkesvar-card {
-    background:var(--panel-2); border:1px solid var(--border);
+    background:var(--panel-2); border:1px solid var(--border-soft);
     border-left:4px solid var(--blue);
-    border-radius:10px; padding:18px 20px;
-    display:grid; grid-template-columns:1fr auto; gap:16px;
+    border-radius:var(--radius-lg); padding:20px 24px;
+    display:grid; grid-template-columns:1fr auto; gap:20px;
     align-items:start;
-    transition:all 0.15s;
+    transition:var(--transition);
+    box-shadow:var(--shadow-sm);
   }
   .ikkesvar-card:hover {
     border-color:var(--muted-soft);
     background:var(--panel-3);
+    transform:translateY(-1px);
+    box-shadow:var(--shadow);
   }
   .ikkesvar-card-main { min-width:0; }
   .ikkesvar-card-name {
-    font-size:16px; font-weight:600; color:var(--text);
-    margin-bottom:6px; line-height:1.3;
+    font-size:17px; font-weight:600; color:var(--text);
+    margin-bottom:8px; line-height:1.3; letter-spacing:-0.2px;
   }
   .ikkesvar-card-name .orgnr {
     font-size:11px; font-weight:400; color:var(--muted); margin-left:10px;
@@ -638,35 +677,36 @@
   }
   .ikkesvar-card-phone {
     display:inline-flex; align-items:center; gap:8px;
-    font-size:16px; font-weight:700; color:var(--green);
-    font-family:var(--mono); margin-bottom:8px;
+    font-size:17px; font-weight:700; color:var(--green);
+    font-family:var(--mono); margin-bottom:8px; letter-spacing:0.3px;
   }
   .ikkesvar-card-phone a { color:inherit; text-decoration:none; }
   .ikkesvar-card-phone a:hover { text-decoration:underline; }
   .ikkesvar-card-notat {
-    margin-top:8px; padding:8px 12px;
-    background:rgba(255, 204, 77, 0.08); border-left:3px solid rgba(255, 204, 77, 0.4);
-    border-radius:5px; font-size:12px; color:var(--text-soft);
+    margin-top:10px; padding:10px 14px;
+    background:rgba(255, 204, 77, 0.06); border-left:3px solid rgba(255, 204, 77, 0.35);
+    border-radius:var(--radius-sm); font-size:12.5px; color:var(--text-soft); line-height:1.5;
   }
   .ikkesvar-card-notat .field-label {
     color:var(--muted); font-weight:600; text-transform:uppercase;
     letter-spacing:0.5px; font-size:10px; margin-right:6px;
   }
   .ikkesvar-card-meta {
-    font-size:11px; color:var(--muted); margin-top:8px;
+    font-size:11px; color:var(--muted-soft); margin-top:10px;
   }
   .ikkesvar-card-actions {
     display:flex; flex-direction:column; gap:6px; align-items:flex-end;
   }
   .ikkesvar-card-actions button {
-    min-width:110px;
-    font-size:12px; padding:8px 14px;
+    min-width:120px;
+    font-size:12px; padding:9px 16px;
     text-transform:uppercase; letter-spacing:0.5px; font-weight:700;
+    border-radius:var(--radius-sm);
   }
   .ikkesvar-card-actions .card-btn-kontaktet {
     background:var(--accent); color:#111;
   }
-  .ikkesvar-card-actions .card-btn-kontaktet:hover { background:#ffdc7a; }
+  .ikkesvar-card-actions .card-btn-kontaktet:hover { background:#ffd970; }
   .ikkesvar-card-actions .card-btn-salg {
     background:var(--green); color:#111;
   }
@@ -676,11 +716,11 @@
   }
   .ikkesvar-card-actions .card-btn-rediger:hover { background:var(--panel-2); color:var(--text); }
   .ikkesvar-card-actions .card-btn-slett {
-    background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4);
+    background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.35);
   }
   .ikkesvar-card-actions .card-btn-slett:hover { background:var(--red); color:#111; }
   .ikkesvar-empty-card {
-    text-align:center; padding:60px 20px; color:var(--muted); font-style:italic;
+    text-align:center; padding:80px 20px; color:var(--muted); font-style:italic; font-size:13px;
   }
 
   /* Toast */
@@ -695,25 +735,30 @@
   /* Modal */
   .modal-backdrop {
     position:fixed; top:0; left:0; right:0; bottom:0;
-    background:rgba(0,0,0,0.75); z-index:300;
+    background:rgba(0,0,0,0.7); z-index:300;
     display:none; align-items:center; justify-content:center;
-    padding:20px;
+    padding:20px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    animation:fadeIn 0.15s ease-out;
   }
   .modal-backdrop.show { display:flex; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideUp { from { transform:translateY(8px); opacity:0; } to { transform:translateY(0); opacity:1; } }
   .modal {
-    background:var(--panel); border:1px solid var(--border); border-radius:10px;
-    padding:28px; max-width:600px; width:100%; max-height:80vh; overflow:auto;
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:32px; max-width:600px; width:100%; max-height:82vh; overflow:auto;
+    box-shadow:var(--shadow-lg);
+    animation:slideUp 0.2s cubic-bezier(0.4,0,0.2,1);
   }
-  .modal h3 { margin:0 0 14px 0; font-size:16px; font-weight:600; }
-  .modal p { color:var(--muted); font-size:13px; margin:0 0 14px 0; }
+  .modal h3 { margin:0 0 14px 0; font-size:17px; font-weight:600; letter-spacing:-0.2px; }
+  .modal p { color:var(--muted); font-size:13px; margin:0 0 16px 0; }
   .modal textarea {
     width:100%; min-height:200px;
     background:var(--bg); border:1px solid var(--border); color:var(--text);
-    padding:10px; border-radius:6px; font-family:var(--mono); font-size:12px;
+    padding:12px; border-radius:var(--radius-sm); font-family:var(--mono); font-size:12px;
     resize:vertical;
   }
   .modal .modal-actions {
-    display:flex; gap:10px; justify-content:flex-end; margin-top:16px;
+    display:flex; gap:10px; justify-content:flex-end; margin-top:20px;
   }
 
   /* Scrollbars (Chrome/Edge) */
@@ -2840,101 +2885,4 @@ function applyActiveTab(tab) {
   // Oppdater side-tittel
   const tabObj = TABS.find(t => t.id === tab);
   if (tabObj) {
-    const titleEl = document.getElementById('pageTitle');
-    if (titleEl) titleEl.textContent = tabObj.title;
-    document.title = tabObj.title;
-  }
-}
-
-function renderTabBar() {
-  const bar = document.getElementById('tabBar');
-  if (!bar) return;
-  bar.innerHTML = TABS.map(t => {
-    let count = '';
-    if (t.id === activeTab) {
-      let n = 0;
-      for (const e of currentData) {
-        if (skjulteOrgnrs.has(e.organisasjonsnummer)) continue;
-        const s = statusMap.get(e.organisasjonsnummer);
-        if (!s) n++;
-      }
-      count = n;
-    } else {
-      count = '–';
-    }
-    const active = t.id === activeTab ? 'active' : '';
-    return `<button class="tab-btn ${active}" data-tab="${t.id}">
-      <span class="tab-icon">${t.icon}</span>
-      <span>${t.label}</span>
-      <span class="tab-count">${count}</span>
-    </button>`;
-  }).join('');
-  bar.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-  });
-}
-
-function switchTab(tabId) {
-  if (tabId === activeTab) return;
-  if (!TABS.some(t => t.id === tabId)) return;
-  activeTab = tabId;
-  saveActiveTab(tabId);
-  applyActiveTab(tabId);
-  currentData = [];
-  renderTabBar();
-  renderReserveList();
-  updatePointsBox();
-  render();
-  fetchCompanies();
-}
-
-// Wrap updatePointsBox slik at poeng-boksen viser TOTAL fra alle faner
-const _origUpdatePointsBox = updatePointsBox;
-updatePointsBox = function() {
-  const now = new Date();
-  const yyyymm = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-  let total = 0;
-  for (const tab of TABS) {
-    const key = tabKey('brreg_status_v1', tab.id);
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      const obj = JSON.parse(raw);
-      for (const v of Object.values(obj)) {
-        if (v.status === 'solgt' && v.dato && v.dato.startsWith(yyyymm)) {
-          total += (v.poeng || 0);
-        }
-      }
-    } catch (e) { /* hopp over */ }
-  }
-  pointsLabel.textContent = monthNameShort(now);
-  pointsValue.textContent = total + 'p';
-};
-
-// Wrap render slik at fane-teller oppdateres etter hver render
-const _origRender = render;
-render = function() {
-  _origRender();
-  renderTabBar();
-};
-
-// Wrap fetchByFormal slik at den håndterer null-regex (ansatte-fanen)
-const _origFetchByFormal = fetchByFormal;
-fetchByFormal = async function(from, to) {
-  if (!FORMAL_REGEX) return [];
-  return await _origFetchByFormal(from, to);
-};
-
-// Init: bruk aktiv fane fra oppstart
-applyActiveTab(activeTab);
-renderTabBar();
-updatePointsBox();  // Re-render points nå som TABS er kjent
-render();  // Re-render for å oppdatere tabbar-teller
-
-renderReserveList();
-updatePointsBox();
-fetchCompanies();
-</script>
-
-</body>
-</html>
+    const titleEl = docume
