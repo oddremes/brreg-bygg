@@ -3736,9 +3736,24 @@ async function renderSGTab() {
     });
 
     if (visible.length === 0) {
-      // Vis debug-info hvis vi ikke fant noen
+      // Vis debug-info direkte i UI-en - inkl råstruktur av første foretak
+      let rawSample = '';
+      if (all.length > 0) {
+        try {
+          // Vis første foretak med formatert JSON
+          const firstJson = JSON.stringify(all[0], null, 2);
+          rawSample = `
+            <details style="text-align:left; max-width:800px; margin:24px auto; background:var(--panel-2); padding:16px; border-radius:8px; border:1px solid var(--border);">
+              <summary style="cursor:pointer; color:var(--accent); font-weight:600; font-size:13px;">🔍 Vis rå struktur av første foretak (til debugging)</summary>
+              <pre style="font-size:11px; color:var(--text-soft); overflow:auto; max-height:400px; margin-top:12px; font-family:var(--mono); white-space:pre-wrap; word-wrap:break-word;">${escapeHtml(firstJson.slice(0, 5000))}${firstJson.length > 5000 ? '\n\n... (avkortet)' : ''}</pre>
+              <div style="margin-top:12px; font-size:11px; color:var(--muted);">Feltnavn på nivå 1: <strong>${Object.keys(all[0]).join(', ')}</strong></div>
+            </details>`;
+        } catch (e) {
+          rawSample = '<div style="color:var(--red);">Kunne ikke serialisere data</div>';
+        }
+      }
       const debugInfo = all.length > 0
-        ? `<br><br><small style="color:var(--muted);">Debug: Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} var allerede utløpt, ${tooFarCount} utløper senere enn 1 år.<br>Åpne konsollen (F12) for å se full struktur.</small>`
+        ? `<br><br><small style="color:var(--muted);">Debug: Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} var allerede utløpt, ${tooFarCount} utløper senere enn 1 år.</small>${rawSample}`
         : '';
       companiesContainer.innerHTML = `
         <div class="empty-state">
@@ -4240,40 +4255,4 @@ function createOppfolgingModal() {
       </div>
       <div style="margin:14px 0;">
         <label style="display:block; margin-bottom:6px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600;">Notat</label>
-        <textarea id="oppfolgingNotatInput" style="min-height:100px;" placeholder="F.eks. Ring tilbake om 2 uker, avtalte at jeg skulle sende tilbud, etc."></textarea>
-      </div>
-      <div class="modal-actions">
-        <button class="secondary" onclick="document.getElementById('oppfolgingModal').classList.remove('show')">Avbryt</button>
-        <button id="oppfolgingSaveBtn">Lagre oppfølging</button>
-      </div>
-    </div>`;
-  div.addEventListener('click', (e) => {
-    if (e.target === div) div.classList.remove('show');
-  });
-  document.body.appendChild(div);
-  return div;
-}
-
-// Sjekk oppfølginger i dag ved sidelasting
-function sjekkOppfolgingIDag() {
-  const allOppf = getAllOppfolginger();
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const idag = allOppf.filter(o => o.dato === todayStr);
-  const forsinket = allOppf.filter(o => o.dato < todayStr);
-
-  if (idag.length > 0 || forsinket.length > 0) {
-    setTimeout(() => {
-      let msg = '';
-      if (idag.length > 0) msg += `⏰ ${idag.length} oppfølging${idag.length===1?'':'er'} i dag`;
-      if (forsinket.length > 0) {
-        if (msg) msg += ' · ';
-        msg += `⚠️ ${forsinket.length} forsinket`;
-      }
-      showToast(msg);
-    }, 1500);
-  }
-}
-</script>
-
-</body>
-</html>
+        <textarea id="oppfolgingNotatInput" style="min-height:100px;" placeholder="F.eks. Ring tilbake om 2 uker, avtalte at jeg s
