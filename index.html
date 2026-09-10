@@ -118,6 +118,21 @@
   .tab-btn.active[data-tab="fse"] .tab-count { background:#ffb43c; color:#111; }
   .tab-btn.active[data-tab="sg"] .tab-count { background:#c580e0; color:#111; }
   .tab-btn.active[data-tab="oppfolging"] .tab-count { background:var(--green); color:#111; }
+
+  /* Varsel-prikk på fane-knapp - vises når det er nye selskaper */
+  .tab-btn { position:relative; }
+  .tab-alert-dot {
+    position:absolute; top:6px; right:4px;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px var(--accent), 0 0 14px rgba(255,204,77,0.6);
+    animation:tabDotPulse 2s ease-in-out infinite;
+    z-index:2;
+  }
+  @keyframes tabDotPulse {
+    0%, 100% { box-shadow:0 0 8px var(--accent), 0 0 14px rgba(255,204,77,0.5); transform:scale(1); }
+    50% { box-shadow:0 0 12px var(--accent), 0 0 20px rgba(255,204,77,0.7); transform:scale(1.15); }
+  }
   .tab-btn .tab-count {
     display:inline-flex; align-items:center; justify-content:center;
     background:var(--panel-3); color:var(--muted);
@@ -1752,6 +1767,17 @@ window.markerSomSett = function(orgnr) {
   });
 };
 
+// Helper: re-render riktig visning basert på aktiv fane
+function renderActive() {
+  if (activeTab === 'sg') {
+    renderSGTab();
+  } else if (activeTab === 'oppfolging') {
+    renderOppfolgingTab();
+  } else {
+    render();
+  }
+}
+
 // Marker som "ingen nr" - skjuler permanent fra dashbordet
 window.markerIngenNr = function(orgnr) {
   window.markerSomSett(orgnr);
@@ -1759,7 +1785,7 @@ window.markerIngenNr = function(orgnr) {
   saveSkjulte();
   statusMap.delete(orgnr);
   saveStatus();
-  render();
+  setTimeout(() => renderActive(), 850);
   showToast('Selskapet er slettet');
 };
 
@@ -1791,7 +1817,7 @@ ikkesvarConfirmBtn.addEventListener('click', () => {
   saveStatus();
   ikkesvarModal.classList.remove('show');
   pendingIkkesvarOrgnr = null;
-  render();
+  setTimeout(() => renderActive(), 850);
   showToast('📵 Markert som Ikke svar');
 });
 ikkesvarCancelBtn.addEventListener('click', () => {
@@ -1804,7 +1830,7 @@ ikkesvarModal.addEventListener('click', (e) => { if (e.target === ikkesvarModal)
 window.fjernIkkesvar = function(orgnr) {
   statusMap.delete(orgnr);
   saveStatus();
-  render();
+  renderActive();
   if (behandledeModal.classList.contains('show')) renderBehandledeModal();
   showToast('Slettet');
 };
@@ -1833,7 +1859,7 @@ notatConfirmBtn.addEventListener('click', () => {
   saveStatus();
   notatModal.classList.remove('show');
   pendingNotatOrgnr = null;
-  render();
+  renderActive();
   if (behandledeModal.classList.contains('show')) renderBehandledeModal();
   showToast('Notat lagret');
 });
@@ -1854,7 +1880,7 @@ window.markerKontaktet = function(orgnr) {
     if (confirm('⚠️ Vil du fjerne kontaktet-markeringen?\n\nDu mister historikken at du har kontaktet dette selskapet.')) {
       statusMap.delete(orgnr);
       saveStatus();
-      render();
+      renderActive();
       updatePointsBox();
       showToast('Markering fjernet');
     }
@@ -1868,8 +1894,8 @@ window.markerKontaktet = function(orgnr) {
   }
   statusMap.set(orgnr, { status: 'kontaktet', dato: getToday() });
   saveStatus();
-  render();
-  updatePointsBox();
+  // Vent til fading er ferdig før re-render (så lampen fader elegant først)
+  setTimeout(() => { renderActive(); updatePointsBox(); }, 850);
   showToast('Markert som kontaktet');
 };
 
@@ -1896,7 +1922,7 @@ window.markerSolgt = function(orgnr) {
       if (confirm(`⚠️ Fjerne salgsmarkeringen?\n\nDette sletter ${current.poeng} poeng.`)) {
         statusMap.delete(orgnr);
         saveStatus();
-        render();
+        renderActive();
         updatePointsBox();
         showToast('Salg fjernet');
       }
@@ -1918,9 +1944,9 @@ solgtConfirmBtn.addEventListener('click', () => {
   statusMap.set(pendingSolgtOrgnr, { status: 'solgt', poeng, dato: getToday() });
   saveStatus();
   solgtModal.classList.remove('show');
+  const orgnrRef = pendingSolgtOrgnr;
   pendingSolgtOrgnr = null;
-  render();
-  updatePointsBox();
+  setTimeout(() => { renderActive(); updatePointsBox(); }, 850);
   showToast(`💰 Salg registrert (${poeng}p)`);
 });
 solgtCancelBtn.addEventListener('click', () => {
@@ -2706,15 +2732,29 @@ async function fetchCompanies() {
       if (justAdded.size > 0) {
         playPling();
         sendNotification(justAdded.size);
-        showToast(`${justAdded.size} nye selskap!`);
+        showToast(`${justAdded.size} nye selskap i ${TABS.find(t => t.id === activeTab)?.label || 'aktive fane'}`);
+        // Lagre nye orgnr for aktive fane, slik at fane-varsel-prikken vises hvis vi bytter bort
+        try {
+          const newKey = 'brreg_tab_new_v1_' + activeTab;
+          const existingRaw = localStorage.getItem(newKey);
+          const existing = existingRaw ? JSON.parse(existingRaw) : [];
+          const combined = new Set([...(Array.isArray(existing) ? existing : []), ...justAdded]);
+          localStorage.setItem(newKey, JSON.stringify([...combined]));
+        } catch (e) {}
       }
     }
-    for (const e of merged) seenOrgnrSet.add(e.organisasjonsnummer);
-    saveSeen();
+    // MERK: seenOrgnrSet oppdateres KUN når brukeren aktivt agerer på et kort (markerSomSett),
+    // ikke ved auto-refresh. Slik får nye selskaper lampe til de faktisk blir sett.
     isFirstLoad = false;
 
     currentData = merged;
-    render();
+    // Bare re-render hovedvisningen hvis vi faktisk er på BRREG-fane
+    if (activeTab !== 'sg' && activeTab !== 'oppfolging') {
+      render();
+    } else {
+      // Vi er på SG/Oppfølging - oppdater bare fane-varsler så brukeren ser at det finnes nye
+      renderTabBar();
+    }
     setStatus('live', `Oppdatert ${new Date().toLocaleTimeString('nb-NO')}`);
     scheduleNext();
   } catch (err) {
@@ -2895,7 +2935,7 @@ function rowHtml(e) {
   const phone = e.telefon || e.mobil || '';
   const email = e.epostadresse || '';
   const web = e.hjemmeside || '';
-  const isNew = newOrgnrsSincelast.has(orgnr);
+  const isNew = !seenOrgnrSet.has(orgnr);
   const cachedPerson = personCache.get(orgnr);
 
   const reserved = matchReservation(e, cachedPerson?.navn);
@@ -2973,7 +3013,7 @@ function rowHtml(e) {
     isSolgt ? 'status-solgt' : '',
     isIkkesvar ? 'status-ikkesvar' : '',
     reserved ? 'reserved' : '',
-    isNew ? 'is-new' : ''
+    (isNew && !status) ? 'is-new' : ''  // Kun ny hvis ikke behandlet
   ].filter(Boolean).join(' ');
 
   // Avatar: første bokstav i selskapsnavn
@@ -3176,6 +3216,11 @@ function scheduleNext() {
   if (!autoRefresh) {
     document.getElementById('nextUpdate').textContent = 'AV';
     isPaused = false;
+    return;
+  }
+  // Auto-refresh kjører kun på BRREG-baserte faner (ikke SG/Oppfølging)
+  if (activeTab === 'sg' || activeTab === 'oppfolging') {
+    document.getElementById('nextUpdate').textContent = '–';
     return;
   }
   const now = new Date();
@@ -3401,7 +3446,10 @@ function renderTabBar() {
   if (!bar) return;
   bar.innerHTML = TABS.map(t => {
     let count = '';
+    let hasUnseen = false;
+
     if (t.id === activeTab) {
+      // Aktive fane: tell ubehandlede fra currentData
       let n = 0;
       for (const e of currentData) {
         if (skjulteOrgnrs.has(e.organisasjonsnummer)) continue;
@@ -3409,11 +3457,25 @@ function renderTabBar() {
         if (!s) n++;
       }
       count = n;
+      // Ingen varsel-prikk på fanen du er på (du ser jo alt nå)
+      hasUnseen = false;
     } else {
       count = '–';
+      // Sjekk om denne fanen har nye usette selskaper (lagret i tab_new_orgnr_v1)
+      try {
+        const newKey = 'brreg_tab_new_v1_' + t.id;
+        const raw = localStorage.getItem(newKey);
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.length > 0) hasUnseen = true;
+        }
+      } catch (e) {}
     }
+
     const active = t.id === activeTab ? 'active' : '';
+    const dot = hasUnseen ? '<span class="tab-alert-dot" title="Nye selskaper i denne fanen"></span>' : '';
     return `<button class="tab-btn ${active}" data-tab="${t.id}">
+      ${dot}
       <span class="tab-icon">${t.icon}</span>
       <span>${t.label}</span>
       <span class="tab-count">${count}</span>
@@ -3446,6 +3508,12 @@ function switchTab(tabId) {
   saveActiveTab(tabId);
   applyActiveTab(tabId);
   currentData = [];
+
+  // Fjern varsel-prikk for denne fanen - brukeren har nå besøkt den
+  try {
+    localStorage.removeItem('brreg_tab_new_v1_' + tabId);
+  } catch (e) {}
+
   renderTabBar();
   renderReserveList();
   updatePointsBox();
