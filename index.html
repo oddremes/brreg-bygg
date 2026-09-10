@@ -2858,4 +2858,466 @@ function rowHtml(e) {
     : `<span class="chip chip-form">${orgForm}</span>`;
   const registerChip = isForetak
     ? `<span class="chip chip-foretak" title="Registrert i Foretaksregisteret">F</span>`
-    : `<span class="chip chip-enhets" title="Kun i Enhetsregisteret">E</
+    : `<span class="chip chip-enhets" title="Kun i Enhetsregisteret">E</span>`;
+
+  // Ikke svar-detaljer (telefon + notat) - kort-versjon
+  const ikkesvarDetailCard = (status?.status === 'ikkesvar') ? `
+    <div class="card-ikkesvar-detail">
+      <div><span class="field-label">Telefon:</span><span class="phone-value"><a href="tel:${escapeHtml(status.telefon || '')}">${escapeHtml(status.telefon || '')}</a></span></div>
+      ${status.notat ? `<div style="margin-top:4px;"><span class="field-label">Notat:</span>${escapeHtml(status.notat)}</div>` : ''}
+    </div>` : '';
+
+  // Notat-visning for kontaktet/salg - kort-versjon
+  const notatDetailCard = (status && (status.status === 'kontaktet' || status.status === 'solgt') && status.notat) ? `
+    <div class="card-notat">
+      <span class="field-label">📝 Notat:</span>${escapeHtml(status.notat)}
+    </div>` : '';
+
+  return `
+    <div data-orgnr="${orgnr}" class="company-card ${cardClass}" onclick="markerSomSett('${orgnr}')">
+      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-main">
+        <div class="card-header">
+          <div class="card-name">${name}</div>
+          <div class="card-badges">
+            ${newBadge}
+            ${reservedBadge}
+            ${solgtBadge}
+            ${ikkesvarBadge}
+          </div>
+        </div>
+        <div class="card-meta-row">
+          ${orgFormChip}
+          <span class="separator">·</span>
+          <span class="chip chip-orgnr">${orgnr}</span>
+          ${sted ? `<span class="separator">·</span><span>${sted}</span>` : ''}
+          ${registerChip}
+        </div>
+        ${nace ? `<div class="card-meta-row"><span class="chip chip-nace">${nace}</span></div>` : ''}
+        ${cachedPerson ? `<div class="card-person"><span class="person-icon">👤</span><span>${escapeHtml(cachedPerson.navn)}<span style="color:var(--muted-soft); font-weight:400; margin-left:6px;">(${escapeHtml(cachedPerson.rolle)})</span></span></div>` : '<div class="card-person"><span class="person-icon">👤</span><span style="color:var(--muted-soft); font-style:italic;">Henter kontaktperson…</span></div>'}
+        ${fullAddr ? `<div class="card-meta-row"><span>📍 ${escapeHtml(fullAddr)}</span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <a href="tel:${phone}" style="color:inherit; text-decoration:none;">${formatPhone(phone)}</a></span></div>` : ''}
+        ${web ? `<div class="card-meta-row"><span>🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted);">${escapeHtml(web)}</a></span></div>` : ''}
+        ${showFormal ? `<div class="card-formal">📜 ${escapeHtml(formalText)}</div>` : ''}
+        ${ikkesvarDetailCard}
+        ${notatDetailCard}
+        <div class="card-links">${lookups}</div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+        <button class="btn-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
+        ${(isKontaktet || isSolgt) ? `<button class="btn-notat ${status?.notat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${status?.notat ? 'Rediger notat' : 'Legg til notat'}">📝 Notat</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function buildFullAddress(addr) {
+  if (!addr) return '';
+  const parts = [];
+  if (addr.adresse && addr.adresse.length > 0) {
+    const gate = addr.adresse.filter(Boolean).join(' ').trim();
+    if (gate) parts.push(gate);
+  }
+  const postpart = [addr.postnummer, addr.poststed].filter(Boolean).join(' ').trim();
+  if (postpart) parts.push(postpart);
+  return parts.join(', ');
+}
+
+window.copyField = async function(btn, value) {
+  try { await navigator.clipboard.writeText(value); }
+  catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = value;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) { showToast('Kunne ikke kopiere'); return; }
+    document.body.removeChild(ta);
+  }
+  showToast('Kopiert: ' + value);
+  btn.classList.add('copied');
+  setTimeout(() => btn.classList.remove('copied'), 1000);
+};
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 1600);
+}
+
+async function fetchKontaktperson(orgnr) {
+  try {
+    const res = await fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${orgnr}/roller`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const grupper = data.rollegrupper || [];
+    const priority = [
+      { kode: 'DAGL', label: 'Daglig leder' },
+      { kode: 'INNH', label: 'Innehaver' },
+      { kode: 'LEDE', label: 'Styreleder' },
+      { kode: 'KONT', label: 'Kontaktperson' },
+      { kode: 'FFØR', label: 'Forretningsfører' },
+      { kode: 'MEDL', label: 'Styremedlem' }
+    ];
+    for (const { kode, label } of priority) {
+      for (const g of grupper) {
+        for (const r of (g.roller || [])) {
+          if (r.type?.kode === kode && r.person?.navn) {
+            const p = r.person;
+            const navn = `${p.navn.fornavn || ''} ${p.navn.etternavn || ''}`.trim();
+            if (navn) return { navn, rolle: label };
+          }
+        }
+      }
+    }
+  } catch (e) { }
+  return null;
+}
+
+function updateRowLinks(e, personNavn) {
+  const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
+  if (!row) return;
+  const linkContainers = row.querySelectorAll('.lookup-links');
+  const newHtml = buildLookupLinks(e, personNavn);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = newHtml;
+  const newContent = tmp.firstElementChild.innerHTML;
+  linkContainers.forEach(c => { c.innerHTML = newContent; });
+}
+
+async function enrichDagligLedere(list) {
+  for (const e of list) {
+    const cached = personCache.get(e.organisasjonsnummer);
+    if (cached) {
+      updateRowLinks(e, cached.navn);
+      const newReserved = matchReservation(e, cached.navn);
+      if (newReserved) {
+        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
+        if (row && !row.classList.contains('row-reserved')) row.outerHTML = rowHtml(e);
+      }
+      continue;
+    }
+    const el = document.getElementById(`dl-${e.organisasjonsnummer}`);
+    if (!el) continue;
+    const result = await fetchKontaktperson(e.organisasjonsnummer);
+    if (result) {
+      personCache.set(e.organisasjonsnummer, result);
+      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
+      const stillRoleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
+      if (stillEl) stillEl.innerHTML = `<span>${escapeHtml(result.navn)}</span>${copyButton(result.navn, 'navn')}`;
+      if (stillRoleEl) {
+        stillRoleEl.textContent = result.rolle;
+        if (result.rolle !== 'Daglig leder') stillRoleEl.classList.add('no-dagl');
+        else stillRoleEl.classList.remove('no-dagl');
+      }
+      updateRowLinks(e, result.navn);
+      const newReserved = matchReservation(e, result.navn);
+      if (newReserved) {
+        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
+        if (row && !row.classList.contains('row-reserved')) row.outerHTML = rowHtml(e);
+      }
+    } else {
+      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
+      if (stillEl) stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
+    }
+    await new Promise(r => setTimeout(r, 100));
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function ensureHttp(u) { if (!u) return '#'; return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
+function formatPhone(p) {
+  const d = String(p).replace(/\D/g,'');
+  if (d.length === 8) return `${d.slice(0,3)} ${d.slice(3,5)} ${d.slice(5)}`;
+  return p;
+}
+
+function scheduleNext() {
+  if (refreshTimer) clearTimeout(refreshTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
+  if (!autoRefresh) {
+    document.getElementById('nextUpdate').textContent = 'AV';
+    isPaused = false;
+    return;
+  }
+  const now = new Date();
+  if (erArbeidstid(now)) {
+    isPaused = false;
+    nextRefreshAt = Date.now() + REFRESH_MS;
+    refreshTimer = setTimeout(() => {
+      if (erArbeidstid(new Date())) fetchCompanies();
+      else scheduleNext();
+    }, REFRESH_MS);
+    countdownTimer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+  } else {
+    isPaused = true;
+    const nesteStart = nesteArbeidstidStart(now);
+    const msTilStart = nesteStart - now;
+    setStatus('paused', `💤 Pauset til ${formatWaitUntil(nesteStart)}`);
+    document.getElementById('nextUpdate').textContent = 'PAUSE';
+    refreshTimer = setTimeout(() => { fetchCompanies(); }, msTilStart);
+  }
+}
+
+function updateCountdown() {
+  if (isPaused) return;
+  const ms = nextRefreshAt - Date.now();
+  if (ms <= 0) { document.getElementById('nextUpdate').textContent = '0:00'; return; }
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  document.getElementById('nextUpdate').textContent = `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+refreshBtn.addEventListener('click', fetchCompanies);
+autoBtn.addEventListener('click', () => {
+  autoRefresh = !autoRefresh;
+  autoBtn.textContent = 'Auto: ' + (autoRefresh ? 'PÅ' : 'AV');
+  if (autoRefresh) scheduleNext();
+  else {
+    clearTimeout(refreshTimer);
+    clearInterval(countdownTimer);
+    document.getElementById('nextUpdate').textContent = 'AV';
+    isPaused = false;
+  }
+});
+searchBox.addEventListener('input', render);
+fromDateEl.addEventListener('change', fetchCompanies);
+toDateEl.addEventListener('change', fetchCompanies);
+
+// ============================================================
+// ===== FANE-SYSTEM (Bolk 2) =====
+// Alt fane-relatert er samlet her, helt til slutt, for å unngå
+// at scriptet krasjer før hoved-funksjonaliteten er på plass.
+// ============================================================
+
+const TABS = [
+  { id: 'bygg', label: 'Bygg', icon: '🏗️', title: 'Nyreg Bygg & Anlegg' },
+  { id: 'ansatte', label: 'Ansatte', icon: '👥', title: 'Nyreg selskaper med ansatte' },
+  { id: 'fse', label: 'FSE', icon: '⚡', title: 'Nyreg FSE (elektro)' }
+];
+
+// NACE-koder per fane (brukes senere når vi kobler dem til)
+const NACE_BY_TAB = {
+  bygg: [
+    ['41.200','41.109'],
+    ['42.110','42.130','42.210','42.220','42.910','42.990'],
+    ['43.110','43.120','43.130'],
+    ['43.220','43.290'],  // 43.210 (elektro) fjernet - flyttet til FSE
+    ['43.310','43.320','43.330','43.341','43.342','43.390'],
+    ['43.910','43.991','43.999'],
+    ['49.410','77.320','81.300']
+  ],
+  ansatte: [
+    ['47.111','47.112','47.190'],
+    ['47.410','47.421','47.430','47.510','47.520','47.530','47.540','47.591','47.592','47.593','47.594','47.599'],
+    ['47.610','47.620','47.630','47.640','47.650','47.710','47.721','47.722','47.730','47.741','47.742','47.750','47.761','47.762','47.770','47.781','47.782','47.789','47.791','47.799'],
+    ['55.101','55.102','55.201','55.202'],
+    ['56.101','56.102','56.210','56.290','56.301','56.302'],
+    ['45.201','45.202','45.203','45.204','45.205'],
+    ['49.410','49.420'],
+    ['52.290'],
+    ['96.021','96.022','96.030','96.040','96.090'],
+    ['88.911','88.919'],
+    ['86.901','86.902','86.903','86.904','86.905','86.906','86.907','86.909'],
+    ['87.101','87.201','87.301','87.302','87.909'],
+    ['81.100','81.210','81.220','81.291','81.299'],
+    ['62.010','62.020','62.030','62.090'],
+    ['71.111','71.112','71.121','71.129','71.200'],
+    ['79.110','79.120','79.900'],
+    ['90.011','90.012','90.013','90.014','90.020','90.031','90.032','90.040'],
+    ['91.011','91.012','91.020','91.030','91.040'],
+    ['92.000'],
+    ['93.110','93.120','93.130','93.190','93.210','93.291','93.292','93.299']
+  ],
+  fse: [
+    ['43.210'],
+    ['27.110','27.120','27.200','27.310','27.320','27.330','27.400','27.510','27.520','27.900'],
+    ['33.130','33.140'],
+    ['95.110','95.120','95.210','95.220']
+  ]
+};
+
+// Formåls-ord per fane
+const FORMAL_BY_TAB = {
+  bygg: [
+    'tømrer','tomrer','tømmer','snekker',
+    'rørlegger','rorlegger','vvs','sanitær','sanitar',
+    'maler','malerarbeid','malings',
+    'betong','murer','muring',
+    'taktekker','taktekking',
+    'grunnarbeid','graving','gravearbeid',
+    'riving','rivning',
+    'isolering','isolasjon',
+    'blikkenslager',
+    'gulvleg','flisleg',
+    'ventilasjon','asfalt',
+    'tømrermester','tomrermester','byggmester','byggemester',
+    'maskinfører','maskinforer',
+    'gravemaskin','hjullaster',
+    'anleggstransport',
+    'steinarbeid','natursteinsarbeid',
+    'brønnborer','bronnborer',
+    'håndverk','handverk',
+    'entreprenør','entreprenor',
+    'bygg','anlegg','byggvirksomhet','byggearbeid','byggebransje',
+    'anleggsarbeid','anleggsvirksomhet','byggetjenester','anleggstjenester',
+    'oppføring','rehabilitering','vedlikehold av bygninger','vedlikehold av bygg',
+    'byggeprosjekt','anleggsprosjekt'
+  ],
+  ansatte: [],
+  fse: [
+    'elektriker','elektro','elektrisk','sterkstrøm','sterkstrom','svakstrøm','svakstrom',
+    'automasjon','elkontroll','elektromontør','elektromontor',
+    'elektrikertjenester','tavle','kabling','alarm','telekom','ikt-installasjon',
+    'installasjon av elektriske','elektrisk installasjon','elektroinstallasjon'
+  ]
+};
+
+// Aktiv fane huskes mellom besøk
+const ACTIVE_TAB_KEY = 'brreg_active_tab_v1';
+function loadActiveTab() {
+  try {
+    const v = localStorage.getItem(ACTIVE_TAB_KEY);
+    return TABS.some(t => t.id === v) ? v : 'bygg';
+  } catch (e) { return 'bygg'; }
+}
+function saveActiveTab(t) {
+  try { localStorage.setItem(ACTIVE_TAB_KEY, t); } catch (e) {}
+}
+let activeTab = loadActiveTab();
+
+// Storage-key builder: bygg beholder gamle nøkler for bakoverkompatibilitet
+function tabKey(base, tab) {
+  if (tab === 'bygg') return base;
+  return base.replace('_v1', '_' + tab + '_v1');
+}
+
+// Bytt aktive storage-keys og filter-data
+function applyActiveTab(tab) {
+  // Bytt lagrings-keys
+  STATUS_KEY = tabKey('brreg_status_v1', tab);
+  SEEN_KEY = tabKey('brreg_seen_orgnr_v1', tab);
+  RESERVE_KEY = tabKey('brreg_reservations_v1', tab);
+  SKJULTE_KEY = tabKey('brreg_skjulte_orgnr_v1', tab);
+
+  // Bytt NACE og formåls-ord
+  NACE_GROUPS = NACE_BY_TAB[tab];
+  FORMAL_KEYWORDS = FORMAL_BY_TAB[tab];
+  FORMAL_REGEX = FORMAL_KEYWORDS.length > 0
+    ? new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i')
+    : null;
+
+  // Reload in-memory data fra nye keys
+  statusMap = loadStatus();
+  skjulteOrgnrs = loadSkjulte();
+  seenOrgnrSet = loadSeen();
+  reservations = loadReservations();
+
+  // Oppdater side-tittel
+  const tabObj = TABS.find(t => t.id === tab);
+  if (tabObj) {
+    const titleEl = document.getElementById('pageTitle');
+    if (titleEl) titleEl.textContent = tabObj.title;
+    document.title = tabObj.title;
+  }
+}
+
+function renderTabBar() {
+  const bar = document.getElementById('tabBar');
+  if (!bar) return;
+  bar.innerHTML = TABS.map(t => {
+    let count = '';
+    if (t.id === activeTab) {
+      let n = 0;
+      for (const e of currentData) {
+        if (skjulteOrgnrs.has(e.organisasjonsnummer)) continue;
+        const s = statusMap.get(e.organisasjonsnummer);
+        if (!s) n++;
+      }
+      count = n;
+    } else {
+      count = '–';
+    }
+    const active = t.id === activeTab ? 'active' : '';
+    return `<button class="tab-btn ${active}" data-tab="${t.id}">
+      <span class="tab-icon">${t.icon}</span>
+      <span>${t.label}</span>
+      <span class="tab-count">${count}</span>
+    </button>`;
+  }).join('');
+  bar.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+}
+
+function switchTab(tabId) {
+  if (tabId === activeTab) return;
+  if (!TABS.some(t => t.id === tabId)) return;
+  activeTab = tabId;
+  saveActiveTab(tabId);
+  applyActiveTab(tabId);
+  currentData = [];
+  renderTabBar();
+  renderReserveList();
+  updatePointsBox();
+  render();
+  fetchCompanies();
+}
+
+// Wrap updatePointsBox slik at poeng-boksen viser TOTAL fra alle faner
+const _origUpdatePointsBox = updatePointsBox;
+updatePointsBox = function() {
+  const now = new Date();
+  const yyyymm = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  let total = 0;
+  for (const tab of TABS) {
+    const key = tabKey('brreg_status_v1', tab.id);
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const obj = JSON.parse(raw);
+      for (const v of Object.values(obj)) {
+        if (v.status === 'solgt' && v.dato && v.dato.startsWith(yyyymm)) {
+          total += (v.poeng || 0);
+        }
+      }
+    } catch (e) { /* hopp over */ }
+  }
+  pointsLabel.textContent = monthNameShort(now);
+  pointsValue.textContent = total + 'p';
+};
+
+// Wrap render slik at fane-teller oppdateres etter hver render
+const _origRender = render;
+render = function() {
+  _origRender();
+  renderTabBar();
+};
+
+// Wrap fetchByFormal slik at den håndterer null-regex (ansatte-fanen)
+const _origFetchByFormal = fetchByFormal;
+fetchByFormal = async function(from, to) {
+  if (!FORMAL_REGEX) return [];
+  return await _origFetchByFormal(from, to);
+};
+
+// Init: bruk aktiv fane fra oppstart
+applyActiveTab(activeTab);
+renderTabBar();
+updatePointsBox();  // Re-render points nå som TABS er kjent
+render();  // Re-render for å oppdatere tabbar-teller
+
+renderReserveList();
+updatePointsBox();
+fetchCompanies();
+</script>
+
+</body>
+</html>
