@@ -3676,25 +3676,34 @@ async function renderSGTab() {
     let tooFarCount = 0;
 
     for (const item of all) {
-      // Prøv MANGE feltnavne-varianter for utløpsdato
+      // DiBK bruker snake_case: status.approval_period_to er hovedfeltet
       let earliestExpiry = null;
 
-      // 1. På rot-nivå (v2-format har dette)
-      const rootExpiry = item.approvalPeriodEndDate || item.approvalEndDate ||
-                         item.validTo || item.validUntil || item.expiryDate ||
-                         item.gyldigTil || item.godkjenningsperiodeSluttDato;
-      if (rootExpiry) {
-        const d = new Date(rootExpiry);
-        if (!isNaN(d.getTime())) earliestExpiry = d;
+      // 1. Hovedfeltet i status-objektet
+      if (item.status) {
+        const s = item.status.approval_period_to || item.status.approvalPeriodTo;
+        if (s) {
+          const d = new Date(s);
+          if (!isNaN(d.getTime())) earliestExpiry = d;
+        }
       }
 
-      // 2. Inne i approvals/godkjenningsomrader
+      // 2. Fallback: prøv rot-nivå feltnavne
       if (!earliestExpiry) {
-        const approvals = item.approvalAreas || item.approvals || item.godkjenningsomrader ||
-                          item.approved || item.approvalArea || [];
+        const rootExpiry = item.approval_period_to || item.approvalPeriodEndDate ||
+                           item.approvalEndDate || item.validTo || item.gyldigTil;
+        if (rootExpiry) {
+          const d = new Date(rootExpiry);
+          if (!isNaN(d.getTime())) earliestExpiry = d;
+        }
+      }
+
+      // 3. Fallback: inne i approvals-array
+      if (!earliestExpiry) {
+        const approvals = item.approvals || item.approvalAreas || item.godkjenningsomrader || [];
         for (const a of (Array.isArray(approvals) ? approvals : [])) {
-          const expiryStr = a.validTo || a.validUntil || a.gyldigTil ||
-                            a.approvalPeriodEndDate || a.expiryDate || a.endDate;
+          const expiryStr = a.approval_period_to || a.approvalPeriodTo || a.validTo ||
+                            a.validUntil || a.gyldigTil || a.endDate;
           if (!expiryStr) continue;
           const expiry = new Date(expiryStr);
           if (isNaN(expiry.getTime())) continue;
@@ -3736,24 +3745,8 @@ async function renderSGTab() {
     });
 
     if (visible.length === 0) {
-      // Vis debug-info direkte i UI-en - inkl råstruktur av første foretak
-      let rawSample = '';
-      if (all.length > 0) {
-        try {
-          // Vis første foretak med formatert JSON
-          const firstJson = JSON.stringify(all[0], null, 2);
-          rawSample = `
-            <details style="text-align:left; max-width:800px; margin:24px auto; background:var(--panel-2); padding:16px; border-radius:8px; border:1px solid var(--border);">
-              <summary style="cursor:pointer; color:var(--accent); font-weight:600; font-size:13px;">🔍 Vis rå struktur av første foretak (til debugging)</summary>
-              <pre style="font-size:11px; color:var(--text-soft); overflow:auto; max-height:400px; margin-top:12px; font-family:var(--mono); white-space:pre-wrap; word-wrap:break-word;">${escapeHtml(firstJson.slice(0, 5000))}${firstJson.length > 5000 ? '\n\n... (avkortet)' : ''}</pre>
-              <div style="margin-top:12px; font-size:11px; color:var(--muted);">Feltnavn på nivå 1: <strong>${Object.keys(all[0]).join(', ')}</strong></div>
-            </details>`;
-        } catch (e) {
-          rawSample = '<div style="color:var(--red);">Kunne ikke serialisere data</div>';
-        }
-      }
       const debugInfo = all.length > 0
-        ? `<br><br><small style="color:var(--muted);">Debug: Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} var allerede utløpt, ${tooFarCount} utløper senere enn 1 år.</small>${rawSample}`
+        ? `<br><br><small style="color:var(--muted);">Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} var allerede utløpt, ${tooFarCount} utløper senere enn 1 år.</small>`
         : '';
       companiesContainer.innerHTML = `
         <div class="empty-state">
@@ -3808,18 +3801,17 @@ async function renderSGTab() {
 }
 
 function extractOrgnr(item) {
-  return item.enterpriseId || item.organizationNumber || item.orgnr ||
-         item.organisasjonsnummer || item.foretakId || item.enterpriseNumber ||
-         '';
+  return item.organizational_number || item.organizationNumber || item.orgnr ||
+         item.organisasjonsnummer || item.enterpriseId || '';
 }
 
 function extractName(item) {
-  return item.enterpriseName || item.name || item.navn ||
+  return item.name || item.enterpriseName || item.navn ||
          item.foretaksnavn || item.companyName || 'Ukjent';
 }
 
 function extractPhone(item) {
-  return item.phoneNumber || item.telefon || item.phone ||
+  return item.phone || item.phoneNumber || item.telefon ||
          item.telephone || item.telefonnummer || '';
 }
 
@@ -3829,11 +3821,13 @@ function extractEmail(item) {
 }
 
 function extractAddress(item) {
-  const a = item.address || item.forretningsadresse || item.postAddress || item.postadresse || {};
+  // DiBK bruker businessaddress med line_1, postal_code, postal_town
+  const a = item.businessaddress || item.postaladdress || item.address ||
+            item.forretningsadresse || item.postAddress || item.postadresse || {};
   return {
-    street: a.streetAddress || a.adresse || a.street || '',
-    postnr: a.postalCode || a.postnummer || a.zipCode || '',
-    city: a.city || a.poststed || a.town || ''
+    street: a.line_1 || a.streetAddress || a.adresse || a.street || '',
+    postnr: a.postal_code || a.postalCode || a.postnummer || a.zipCode || '',
+    city: a.postal_town || a.city || a.poststed || a.town || ''
   };
 }
 
@@ -3866,9 +3860,9 @@ function sgCardHtml(item) {
   const isIkkesvar = status?.status === 'ikkesvar';
   const isOppfolging = status?.status === 'oppfolging';
 
-  const approvals = item.approvalAreas || item.godkjenningsomrader || [];
+  const approvals = item.approvals || item.approvalAreas || item.godkjenningsomrader || [];
   const areasText = approvals.slice(0, 3).map(a =>
-    (a.functionName || a.function || a.funksjon || 'Godkjenningsområde')
+    (a.function || a.functionName || a.funksjon || a.name || 'Godkjenningsområde')
   ).join(', ') + (approvals.length > 3 ? ` +${approvals.length - 3} til` : '');
 
   const cardClass = [
