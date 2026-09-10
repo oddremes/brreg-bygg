@@ -1278,11 +1278,11 @@
     <div class="sidebar-section">
       <h3>📅 Periode & søk</h3>
       <div class="filter-row">
-        <label>Fra dato</label>
+        <label id="fromDateLabel">Fra dato</label>
         <input type="date" id="fromDate">
       </div>
       <div class="filter-row">
-        <label>Til dato</label>
+        <label id="toDateLabel">Til dato</label>
         <input type="date" id="toDate">
       </div>
       <div class="filter-row">
@@ -1728,25 +1728,33 @@ function saveSkjulte() {
 
 // Marker en rad som "sett" - fjerner NY-markeringen
 window.markerSomSett = function(orgnr) {
+  let changed = false;
   if (newOrgnrsSincelast.has(orgnr)) {
     newOrgnrsSincelast.delete(orgnr);
+    changed = true;
+  }
+  if (!seenOrgnrSet.has(orgnr)) {
     seenOrgnrSet.add(orgnr);
     saveSeen();
-    // Animert utfading av lampen: legg til .fading, vent, og fjern .is-new
-    const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"], tr[data-orgnr="${orgnr}"]`);
-    cards.forEach(el => {
+    changed = true;
+  }
+  // Fjern lampen visuelt (uansett om det er ny eller allerede sett)
+  const cards = document.querySelectorAll(`.company-card.is-new[data-orgnr="${orgnr}"], tr.new-row[data-orgnr="${orgnr}"]`);
+  cards.forEach(el => {
+    if (!el.classList.contains('fading')) {
       el.classList.add('fading');
       setTimeout(() => {
         el.classList.remove('new-row', 'is-new', 'fading');
         const badge = el.querySelector('.badge-new');
         if (badge) badge.remove();
-      }, 800);  // matcher CSS transition-varighet
-    });
-  }
+      }, 800);
+    }
+  });
 };
 
 // Marker som "ingen nr" - skjuler permanent fra dashbordet
 window.markerIngenNr = function(orgnr) {
+  window.markerSomSett(orgnr);
   skjulteOrgnrs.add(orgnr);
   saveSkjulte();
   statusMap.delete(orgnr);
@@ -1757,6 +1765,7 @@ window.markerIngenNr = function(orgnr) {
 
 // Marker som Ikke svar - åpner modal for telefon + notat
 window.markerIkkesvar = function(orgnr) {
+  window.markerSomSett(orgnr);
   const current = statusMap.get(orgnr);
   pendingIkkesvarOrgnr = orgnr;
   // Hvis allerede Ikke svar, forhåndsutfyll for redigering
@@ -1838,6 +1847,7 @@ notatModal.addEventListener('click', (e) => { if (e.target === notatModal) { not
 
 // Marker som kontaktet (fra Ny eller fra Solgt)
 window.markerKontaktet = function(orgnr) {
+  window.markerSomSett(orgnr);
   const current = statusMap.get(orgnr);
   if (current?.status === 'kontaktet') {
     // Klikket Kontaktet på en allerede kontaktet - betyr "fjern markering"
@@ -1865,6 +1875,7 @@ window.markerKontaktet = function(orgnr) {
 
 // Marker som solgt (fra Ny eller fra Kontaktet) - åpner poeng-modal
 window.markerSolgt = function(orgnr) {
+  window.markerSomSett(orgnr);
   const current = statusMap.get(orgnr);
   if (current?.status === 'solgt') {
     // Klikket Solgt på en allerede solgt - mulighet for å endre poeng
@@ -3210,8 +3221,14 @@ autoBtn.addEventListener('click', () => {
   }
 });
 searchBox.addEventListener('input', render);
-fromDateEl.addEventListener('change', fetchCompanies);
-toDateEl.addEventListener('change', fetchCompanies);
+fromDateEl.addEventListener('change', () => {
+  if (activeTab === 'sg') renderSGTab();
+  else fetchCompanies();
+});
+toDateEl.addEventListener('change', () => {
+  if (activeTab === 'sg') renderSGTab();
+  else fetchCompanies();
+});
 
 // ===== Kopier ved klikk (global handler) =====
 document.addEventListener('click', async (e) => {
@@ -3410,6 +3427,21 @@ function renderTabBar() {
 function switchTab(tabId) {
   if (tabId === activeTab) return;
   if (!TABS.some(t => t.id === tabId)) return;
+
+  // Reset SG-labels og datoer hvis vi bytter FRA SG til annen fane
+  const wasOnSG = activeTab === 'sg';
+  const goingToSG = tabId === 'sg';
+  if (wasOnSG && !goingToSG) {
+    const fromLabel = document.getElementById('fromDateLabel');
+    const toLabel = document.getElementById('toDateLabel');
+    if (fromLabel) fromLabel.textContent = 'Fra dato';
+    if (toLabel) toLabel.textContent = 'Til dato';
+    // Sett tilbake til i dag/i dag for BRREG-faner
+    const today = getToday();
+    fromDateEl.value = today;
+    toDateEl.value = today;
+  }
+
   activeTab = tabId;
   saveActiveTab(tabId);
   applyActiveTab(tabId);
@@ -3723,25 +3755,48 @@ async function fetchSGData() {
 }
 
 async function renderSGTab() {
+  // Sett SG-spesifikke labels og default datoer
+  const fromLabel = document.getElementById('fromDateLabel');
+  const toLabel = document.getElementById('toDateLabel');
+  if (fromLabel) fromLabel.textContent = 'Utløper fra';
+  if (toLabel) toLabel.textContent = 'Utløper til';
+
+  // Hvis datovelgere har standard "i dag/i dag" (fra Bygg-fanen), sett SG-defaults
+  const today = new Date().toISOString().slice(0,10);
+  if (fromDateEl.value === today && toDateEl.value === today) {
+    // Sett standard: fra i dag til 30 dager frem
+    fromDateEl.value = today;
+    toDateEl.value = new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10);
+  }
+
   companiesContainer.innerHTML = `
+    <div style="padding:20px 32px 0 32px;">
+      <div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+        <span style="color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-right:6px; display:flex; align-items:center;">Hurtigfilter:</span>
+        <button class="secondary sg-quick-btn" onclick="sgSetPeriode(7)">Neste 7 dager</button>
+        <button class="secondary sg-quick-btn" onclick="sgSetPeriode(30)">1 mnd</button>
+        <button class="secondary sg-quick-btn" onclick="sgSetPeriode(90)">3 mnd</button>
+        <button class="secondary sg-quick-btn" onclick="sgSetPeriode(180)">6 mnd</button>
+        <button class="secondary sg-quick-btn" onclick="sgSetPeriode(365)">1 år</button>
+      </div>
+    </div>
     <div class="empty-state">
       <div class="icon">⏳</div>
       <div class="title">Henter data fra DiBK (Sentral Godkjenning)</div>
-      <div class="subtitle">Første henting kan ta 10-30 sekunder - datasettet er stort...</div>
+      <div class="subtitle">Første gang kan ta 10-30 sekunder - deretter momentant fra cache.</div>
     </div>`;
 
   try {
     const all = await fetchSGData();
 
     console.log('[SG] Antall foretak fra DiBK:', all.length);
-    if (all.length > 0) {
-      console.log('[SG] Første foretak (full struktur):', all[0]);
-      console.log('[SG] Feltnavn på nivå 1:', Object.keys(all[0]));
-    }
 
-    // Filtrer: kun de som utløper innen 180 dager (6 mnd)
-    const today = new Date();
-    const in180 = new Date(today.getTime() + 180 * 24 * 60 * 60 * 1000);
+    // Filtrer: bruk datointervallet fra sidebar (Utløper fra / Utløper til)
+    const todayFilter = new Date(); todayFilter.setHours(0,0,0,0);
+    const fromStr = fromDateEl.value || todayFilter.toISOString().slice(0,10);
+    const toStr = toDateEl.value || new Date(todayFilter.getTime() + 30*24*60*60*1000).toISOString().slice(0,10);
+    const fromDate = new Date(fromStr); fromDate.setHours(0,0,0,0);
+    const toDate = new Date(toStr); toDate.setHours(23,59,59,999);
     const filtered = [];
     let noExpiryCount = 0;
     let alreadyExpiredCount = 0;
@@ -3786,13 +3841,13 @@ async function renderSGTab() {
       }
 
       if (!earliestExpiry) { noExpiryCount++; continue; }
-      if (earliestExpiry < today) { alreadyExpiredCount++; continue; }
-      if (earliestExpiry > in180) { tooFarCount++; continue; }
+      if (earliestExpiry < fromDate) { alreadyExpiredCount++; continue; }
+      if (earliestExpiry > toDate) { tooFarCount++; continue; }
 
       filtered.push({
         ...item,
         _expiryDate: earliestExpiry,
-        _daysToExpiry: Math.round((earliestExpiry - today) / (24 * 60 * 60 * 1000))
+        _daysToExpiry: Math.round((earliestExpiry - todayFilter) / (24 * 60 * 60 * 1000))
       });
     }
 
@@ -3818,13 +3873,13 @@ async function renderSGTab() {
 
     if (visible.length === 0) {
       const debugInfo = all.length > 0
-        ? `<br><br><small style="color:var(--muted);">Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} var allerede utløpt, ${tooFarCount} utløper senere enn 1 år.</small>`
+        ? `<br><br><small style="color:var(--muted);">Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} utløper før valgt periode, ${tooFarCount} utløper etter valgt periode.</small>`
         : '';
       companiesContainer.innerHTML = `
         <div class="empty-state">
           <div class="icon">🏆</div>
-          <div class="title">Ingen sentrale godkjenninger utløper innen 6 måneder</div>
-          <div class="subtitle">Alle SG-foretak har mer enn 180 dager igjen av godkjenningsperioden.${debugInfo}</div>
+          <div class="title">Ingen sentrale godkjenninger utløper mellom ${fromStr} og ${toStr}</div>
+          <div class="subtitle">Prøv å utvide datointervallet i sidelinjen, eller bruk hurtigfiltrene øverst.${debugInfo}</div>
         </div>`;
       return;
     }
@@ -3839,12 +3894,26 @@ async function renderSGTab() {
       return;
     }
 
+    // Bygg hurtigfilter-panel som ligger over kortene
+    const quickFilterHtml = `
+      <div style="padding:20px 32px 0 32px;">
+        <div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+          <span style="color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-right:6px; display:flex; align-items:center;">Hurtigfilter:</span>
+          <button class="secondary sg-quick-btn" onclick="sgSetPeriode(7)">Neste 7 dager</button>
+          <button class="secondary sg-quick-btn" onclick="sgSetPeriode(30)">1 mnd</button>
+          <button class="secondary sg-quick-btn" onclick="sgSetPeriode(90)">3 mnd</button>
+          <button class="secondary sg-quick-btn" onclick="sgSetPeriode(180)">6 mnd</button>
+          <button class="secondary sg-quick-btn" onclick="sgSetPeriode(365)">1 år</button>
+          <span style="color:var(--muted-soft); font-size:11px; margin-left:12px; display:flex; align-items:center;">Viser ${ubehandlede.length} av ${visible.length} totalt · ${fromStr} → ${toStr}</span>
+        </div>
+      </div>`;
+
     // Grupper etter dager til utløp
     const rod = ubehandlede.filter(x => x._daysToExpiry < 30);
     const gul = ubehandlede.filter(x => x._daysToExpiry >= 30 && x._daysToExpiry < 90);
     const gronn = ubehandlede.filter(x => x._daysToExpiry >= 90);
 
-    let html = '<div class="companies-cards">';
+    let html = quickFilterHtml + '<div class="companies-cards">';
     if (rod.length > 0) {
       html += `<div class="date-header" style="color:var(--red);">🔴 Utløper snart (mindre enn 30 dager)<span class="date-count">${rod.length}</span></div>`;
       html += rod.map(sgCardHtml).join('');
@@ -3854,7 +3923,7 @@ async function renderSGTab() {
       html += gul.map(sgCardHtml).join('');
     }
     if (gronn.length > 0) {
-      html += `<div class="date-header" style="color:var(--green);">🟢 Utløper 90-180 dager<span class="date-count">${gronn.length}</span></div>`;
+      html += `<div class="date-header" style="color:var(--green);">🟢 Utløper 90+ dager<span class="date-count">${gronn.length}</span></div>`;
       html += gronn.map(sgCardHtml).join('');
     }
     html += '</div>';
@@ -3874,6 +3943,15 @@ async function renderSGTab() {
       </div>`;
   }
 }
+
+// Hurtigfilter for SG: sett til-dato basert på antall dager frem
+window.sgSetPeriode = function(dager) {
+  const today = new Date().toISOString().slice(0, 10);
+  const til = new Date(Date.now() + dager * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  fromDateEl.value = today;
+  toDateEl.value = til;
+  renderSGTab();
+};
 
 async function enrichSGKontaktpersoner(list) {
   for (const item of list) {
@@ -3997,7 +4075,7 @@ function sgCardHtml(item) {
     isSolgt ? 'status-solgt' : '',
     isIkkesvar ? 'status-ikkesvar' : '',
     isOppfolging ? 'status-oppfolging' : '',
-    'is-new'  // SG-kort er alltid "lyse" siden det ikke er noe sett-konsept
+    (!seenOrgnrSet.has(orgnr) && !status) ? 'is-new' : ''  // Ny hvis ikke sett før og ikke behandlet
   ].filter(Boolean).join(' ');
 
   return `
@@ -4297,6 +4375,7 @@ window.oppfolgingEndreNotat = function(orgnr, fane) {
 // ===========================================================
 
 window.markerOppfolging = function(orgnr, meta) {
+  window.markerSomSett(orgnr);
   meta = meta || {};
   const fane = meta.fane || activeTab;
   const today = new Date().toISOString().slice(0, 10);
