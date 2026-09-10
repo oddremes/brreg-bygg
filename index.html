@@ -4147,7 +4147,7 @@ function sgCardHtml(item) {
   ].filter(Boolean).join(' ');
 
   return `
-    <div data-orgnr="${orgnr}" class="company-card ${cardClass}">
+    <div data-orgnr="${orgnr}" class="company-card ${cardClass}" onclick="markerSomSett('${orgnr}')">
       <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
       <div class="card-main">
         <div class="card-header">
