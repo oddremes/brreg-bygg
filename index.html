@@ -588,30 +588,33 @@
   }
 
   /* Oppslag-knapper */
-  .lookup-links { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:6px; }
-  .lookup-links a {
+  .lookup-links, .card-links { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:6px; }
+  .lookup-links a, .card-links a {
     display:inline-block; padding:4px 9px; background:var(--panel-2);
     border:1px solid var(--border); border-radius:4px; color:var(--text);
     text-decoration:none; font-size:11px; transition:all 0.15s; font-weight:500;
   }
-  .lookup-links a:hover { background:var(--panel-3); }
+  .lookup-links a:hover, .card-links a:hover { background:var(--panel-3); }
   /* Google = grønn */
-  .lookup-links a.google { border-color:rgba(101,206,121,0.5); color:var(--green); }
-  .lookup-links a.google:hover { background:var(--green); color:#111; border-color:var(--green); }
+  .lookup-links a.google, .card-links a.google { border-color:rgba(101,206,121,0.5); color:var(--green); }
+  .lookup-links a.google:hover, .card-links a.google:hover { background:var(--green); color:#111; border-color:var(--green); }
   /* 1881 = mørkeblå */
-  .lookup-links a.person-search { border-color:rgba(0,90,156,0.6); color:#5b9bd5; }
-  .lookup-links a.person-search:hover { background:#005A9C; color:#fff; border-color:#005A9C; }
+  .lookup-links a.person-search, .card-links a.person-search { border-color:rgba(0,90,156,0.6); color:#5b9bd5; }
+  .lookup-links a.person-search:hover, .card-links a.person-search:hover { background:#005A9C; color:#fff; border-color:#005A9C; }
   /* Proff = lilla */
-  .lookup-links a.proff { border-color:rgba(139,60,168,0.6); color:#c580e0; }
-  .lookup-links a.proff:hover { background:var(--proff); color:#fff; border-color:var(--proff); }
+  .lookup-links a.proff, .card-links a.proff { border-color:rgba(139,60,168,0.6); color:#c580e0; }
+  .lookup-links a.proff:hover, .card-links a.proff:hover { background:var(--proff); color:#fff; border-color:var(--proff); }
   /* BRREG = gul */
-  .lookup-links a.brreg { border-color:rgba(255,204,77,0.5); color:var(--accent); }
-  .lookup-links a.brreg:hover { background:var(--accent); color:#111; border-color:var(--accent); }
-  .lookup-links a.gulesider { border-color:rgba(255,180,60,0.5); color:#ffb43c; }
-  .lookup-links a.gulesider:hover { background:#ffb43c; color:#111; border-color:#ffb43c; }
-  .lookup-links a.epost { border-color:rgba(96,165,250,0.5); color:var(--blue); }
-  .lookup-links a.epost:hover { background:var(--blue); color:#111; border-color:var(--blue); }
-  .lookup-links a.pending { opacity:0.5; cursor:wait; }
+  .lookup-links a.brreg, .card-links a.brreg { border-color:rgba(255,204,77,0.5); color:var(--accent); }
+  .lookup-links a.brreg:hover, .card-links a.brreg:hover { background:var(--accent); color:#111; border-color:var(--accent); }
+  .lookup-links a.gulesider, .card-links a.gulesider { border-color:rgba(255,180,60,0.5); color:#ffb43c; }
+  .lookup-links a.gulesider:hover, .card-links a.gulesider:hover { background:#ffb43c; color:#111; border-color:#ffb43c; }
+  .lookup-links a.epost, .card-links a.epost { border-color:rgba(96,165,250,0.5); color:var(--blue); }
+  .lookup-links a.epost:hover, .card-links a.epost:hover { background:var(--blue); color:#111; border-color:var(--blue); }
+  /* DiBK = lilla */
+  .lookup-links a.dibk, .card-links a.dibk { border-color:rgba(197,128,224,0.5); color:#c580e0; }
+  .lookup-links a.dibk:hover, .card-links a.dibk:hover { background:#c580e0; color:#111; border-color:#c580e0; }
+  .lookup-links a.pending, .card-links a.pending { opacity:0.5; cursor:wait; }
 
   /* Empty/error/footer */
   .empty { padding:80px; text-align:center; color:var(--muted); font-size:14px; }
@@ -836,19 +839,43 @@
     box-shadow:var(--shadow);
   }
 
-  /* NYE ubehandlede - LYS bakgrunn, tydelige */
+  /* NYE ubehandlede - INGEN lys bakgrunn, kun glødende lampe på venstre */
   .company-card.is-new {
-    background:var(--panel-4);
-    border-left-color:var(--text-soft);
+    background:var(--panel);
   }
   .company-card.is-new:hover {
-    background:rgba(255,255,255,0.08);
+    background:var(--panel-2);
+  }
+  .company-card.is-new::before {
+    content:''; position:absolute; top:50%; left:-8px;
+    transform:translateY(-50%);
+    width:14px; height:14px; border-radius:50%;
+    background:radial-gradient(circle, #ffde7a 0%, var(--accent) 55%, rgba(255,204,77,0) 100%);
+    box-shadow:0 0 12px var(--accent), 0 0 24px rgba(255,204,77,0.5);
+    animation:newLamp 2.5s ease-in-out infinite;
+    z-index:2;
+    transition:opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+  .company-card.is-new.fading::before {
+    opacity:0;
+    transform:translateY(-50%) scale(0.3);
   }
   .company-card.is-new::after {
-    content:''; position:absolute; top:0; right:0; width:8px; height:8px;
-    background:var(--accent); border-radius:50%; margin:12px;
-    box-shadow:0 0 8px var(--accent);
+    content:none;  /* Fjern den lille gule prikken i høyre hjørne */
   }
+  @keyframes newLamp {
+    0%, 100% {
+      box-shadow:0 0 12px var(--accent), 0 0 24px rgba(255,204,77,0.5);
+      transform:translateY(-50%) scale(1);
+    }
+    50% {
+      box-shadow:0 0 18px var(--accent), 0 0 36px rgba(255,204,77,0.7);
+      transform:translateY(-50%) scale(1.15);
+    }
+  }
+  /* Ekstra luft til venstre så lampen får plass */
+  .companies-cards { padding-left:24px; }
+  .company-card { margin-left:6px; }
 
   /* Behandlede kort - mørk bakgrunn, farget venstre-kant, skarp tekst */
   .company-card.status-kontaktet {
@@ -1705,12 +1732,15 @@ window.markerSomSett = function(orgnr) {
     newOrgnrsSincelast.delete(orgnr);
     seenOrgnrSet.add(orgnr);
     saveSeen();
-    // Fjern visuell markering fra kortet uten å re-rendre alt
+    // Animert utfading av lampen: legg til .fading, vent, og fjern .is-new
     const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"], tr[data-orgnr="${orgnr}"]`);
     cards.forEach(el => {
-      el.classList.remove('new-row', 'is-new');
-      const badge = el.querySelector('.badge-new');
-      if (badge) badge.remove();
+      el.classList.add('fading');
+      setTimeout(() => {
+        el.classList.remove('new-row', 'is-new', 'fading');
+        const badge = el.querySelector('.badge-new');
+        if (badge) badge.remove();
+      }, 800);  // matcher CSS transition-varighet
     });
   }
 };
@@ -2879,7 +2909,7 @@ function rowHtml(e) {
   const reservedBadge = reserved ? `<span class="badge-reserved">🔒 RESERVERT AV ${escapeHtml(reserved.by.toUpperCase())}</span>` : '';
   const solgtBadge = (status?.status === 'solgt') ? `<span class="badge-solgt">💰 SALG (${status.poeng}p)</span>` : '';
   const ikkesvarBadge = (status?.status === 'ikkesvar') ? `<span class="badge-ikkesvar">📵 IKKE SVAR</span>` : '';
-  const newBadge = isNew ? `<span class="badge-new">NY</span>` : '';
+  const newBadge = '';  // NY-badge fjernet - lampen på venstre siden indikerer nå ny
   const isForetak = e.registrertIForetaksregisteret === true;
   const registerTag = isForetak
     ? `<span class="register-tag foretak" title="Foretaksregisteret">F</span>`
@@ -3450,7 +3480,7 @@ updatePointsBox();
 // ===========================================================
 let sgData = null;  // cached SG data
 let sgLastFetch = 0;
-const SG_CACHE_MS = 60 * 60 * 1000; // 1 time cache
+const SG_CACHE_MS = 6 * 60 * 60 * 1000; // 6 timer cache (data endres sjelden)
 
 // Init: hopp over fetchCompanies for spesielle faner
 if (activeTab === 'sg') {
@@ -3633,7 +3663,22 @@ function renderSalgsOversikt() {
 
 async function fetchSGData() {
   const now = Date.now();
+  // In-memory cache først
   if (sgData && (now - sgLastFetch) < SG_CACHE_MS) return sgData;
+
+  // Sjekk localStorage cache
+  try {
+    const raw = localStorage.getItem('sg_data_cache_v1');
+    if (raw) {
+      const cached = JSON.parse(raw);
+      if (cached.timestamp && (now - cached.timestamp) < SG_CACHE_MS && Array.isArray(cached.data)) {
+        sgData = cached.data;
+        sgLastFetch = cached.timestamp;
+        console.log('[SG] Bruker cachet data (' + Math.round((now - cached.timestamp) / 60000) + ' min gammel)');
+        return sgData;
+      }
+    }
+  } catch (e) { /* ignorer cache-feil */ }
 
   try {
     const resp = await fetch('https://sgregister.dibk.no/api/enterprises.json', {
@@ -3643,6 +3688,33 @@ async function fetchSGData() {
     const data = await resp.json();
     sgData = Array.isArray(data) ? data : (data.enterprises || []);
     sgLastFetch = now;
+
+    // Lagre i localStorage - obs på størrelse, komprimer ved å bare beholde det vi trenger
+    try {
+      // Beholder kun felt vi faktisk bruker for å redusere størrelse
+      const slim = sgData.map(item => ({
+        organizational_number: item.organizational_number,
+        name: item.name,
+        phone: item.phone,
+        email: item.email,
+        www: item.www,
+        status: item.status ? {
+          approval_period_to: item.status.approval_period_to,
+          approved: item.status.approved
+        } : null,
+        businessaddress: item.businessaddress,
+        approvals: (item.approvals || []).slice(0, 5).map(a => ({ function: a.function || a.name }))
+      }));
+      localStorage.setItem('sg_data_cache_v1', JSON.stringify({
+        timestamp: now,
+        data: slim
+      }));
+      console.log('[SG] Cachet ' + slim.length + ' foretak i localStorage');
+    } catch (e) {
+      // localStorage full - ignorer
+      console.warn('[SG] Kunne ikke cache i localStorage:', e.message);
+    }
+
     return sgData;
   } catch (e) {
     console.error('SG-fetch feilet:', e);
@@ -3667,9 +3739,9 @@ async function renderSGTab() {
       console.log('[SG] Feltnavn på nivå 1:', Object.keys(all[0]));
     }
 
-    // Filtrer: kun de som utløper innen 365 dager
+    // Filtrer: kun de som utløper innen 180 dager (6 mnd)
     const today = new Date();
-    const in365 = new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const in180 = new Date(today.getTime() + 180 * 24 * 60 * 60 * 1000);
     const filtered = [];
     let noExpiryCount = 0;
     let alreadyExpiredCount = 0;
@@ -3715,7 +3787,7 @@ async function renderSGTab() {
 
       if (!earliestExpiry) { noExpiryCount++; continue; }
       if (earliestExpiry < today) { alreadyExpiredCount++; continue; }
-      if (earliestExpiry > in365) { tooFarCount++; continue; }
+      if (earliestExpiry > in180) { tooFarCount++; continue; }
 
       filtered.push({
         ...item,
@@ -3751,8 +3823,8 @@ async function renderSGTab() {
       companiesContainer.innerHTML = `
         <div class="empty-state">
           <div class="icon">🏆</div>
-          <div class="title">Ingen sentrale godkjenninger utløper innen 1 år</div>
-          <div class="subtitle">Alle SG-foretak har mer enn 365 dager igjen av godkjenningsperioden.${debugInfo}</div>
+          <div class="title">Ingen sentrale godkjenninger utløper innen 6 måneder</div>
+          <div class="subtitle">Alle SG-foretak har mer enn 180 dager igjen av godkjenningsperioden.${debugInfo}</div>
         </div>`;
       return;
     }
@@ -3782,12 +3854,15 @@ async function renderSGTab() {
       html += gul.map(sgCardHtml).join('');
     }
     if (gronn.length > 0) {
-      html += `<div class="date-header" style="color:var(--green);">🟢 Utløper 90-365 dager<span class="date-count">${gronn.length}</span></div>`;
+      html += `<div class="date-header" style="color:var(--green);">🟢 Utløper 90-180 dager<span class="date-count">${gronn.length}</span></div>`;
       html += gronn.map(sgCardHtml).join('');
     }
     html += '</div>';
 
     companiesContainer.innerHTML = html;
+
+    // Hent kontaktperson fra BRREG for hvert SG-kort (asynkront, ikke-blokkerende)
+    enrichSGKontaktpersoner(ubehandlede);
 
   } catch (e) {
     console.error('[SG] Feil:', e);
@@ -3798,6 +3873,58 @@ async function renderSGTab() {
         <div class="subtitle">Feil: ${escapeHtml(e.message)}<br><br>DiBK-APIet kan være nede eller ha endret format. Åpne konsollen (F12) for detaljer.</div>
       </div>`;
   }
+}
+
+async function enrichSGKontaktpersoner(list) {
+  for (const item of list) {
+    const orgnr = String(extractOrgnr(item));
+    if (!orgnr) continue;
+
+    // Sjekk om kortet fortsatt er i DOM
+    const cardEl = document.querySelector(`.company-card[data-orgnr="${orgnr}"]`);
+    if (!cardEl) continue;
+
+    // Bruk eksisterende cache hvis vi allerede har hentet
+    let cached = personCache.get(orgnr);
+    if (!cached) {
+      try {
+        cached = await fetchKontaktperson(orgnr);
+        if (cached) personCache.set(orgnr, cached);
+      } catch (e) { continue; }
+      await new Promise(r => setTimeout(r, 80));
+    }
+
+    if (!cached) continue;
+
+    // Legg til kontaktperson-blokk i kortet (etter card-meta-row med orgnr)
+    const stillCard = document.querySelector(`.company-card[data-orgnr="${orgnr}"]`);
+    if (!stillCard) continue;
+
+    // Sjekk om den allerede er lagt til
+    if (stillCard.querySelector('.card-person')) continue;
+
+    const cardMain = stillCard.querySelector('.card-main');
+    if (!cardMain) continue;
+
+    // Finn utløps-baren (den røde/gule/grønne) og sett person over den
+    const expiryRow = cardMain.querySelector('div[style*="border-left:3px solid"]');
+    const personDiv = document.createElement('div');
+    personDiv.className = 'card-person';
+    personDiv.innerHTML = `<span class="person-icon">👤</span><span class="copyable" data-copy="${escapeHtml(cached.navn)}" title="Klikk for å kopiere navn" style="padding:2px 6px; border-radius:4px;">${escapeHtml(cached.navn)}</span><span style="color:var(--muted-soft); font-weight:400; margin-left:6px;">(${escapeHtml(cached.rolle)})</span>`;
+
+    if (expiryRow) {
+      cardMain.insertBefore(personDiv, expiryRow);
+    } else {
+      cardMain.appendChild(personDiv);
+    }
+  }
+}
+
+function dagerTekst(dager) {
+  if (dager === 0) return 'utløper i dag';
+  if (dager === 1) return 'om 1 dag';
+  if (dager < 0) return `utløpt for ${Math.abs(dager)} ${Math.abs(dager) === 1 ? 'dag' : 'dager'} siden`;
+  return `om ${dager} dager`;
 }
 
 function extractOrgnr(item) {
@@ -3885,7 +4012,7 @@ function sgCardHtml(item) {
           ${sted ? `<span class="separator">·</span><span>${escapeHtml(sted)}</span>` : ''}
         </div>
         <div class="card-meta-row" style="background:${expiryBg}; padding:8px 12px; border-radius:6px; border-left:3px solid ${expiryColor}; margin-top:6px;">
-          <span style="color:${expiryColor}; font-weight:700;">⏰ Utløper ${expiryDate} - om ${dager} dager</span>
+          <span style="color:${expiryColor}; font-weight:700;">⏰ Utløper ${expiryDate} - ${dagerTekst(dager)}</span>
         </div>
         ${areasText ? `<div class="card-meta-row"><span class="chip chip-nace">${escapeHtml(areasText)}</span></div>` : ''}
         ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${phone}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
@@ -3895,7 +4022,7 @@ function sgCardHtml(item) {
           <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(navn)}" target="_blank" rel="noopener">1881</a>
           <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(navn)}" target="_blank" rel="noopener">Gule Sider</a>
           <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
-          <a class="brreg" href="https://sgregister.dibk.no/enterprises/${orgnr}" target="_blank" rel="noopener" style="border-color:rgba(197,128,224,0.5); color:#c580e0;">DiBK</a>
+          <a class="dibk" href="https://sgregister.dibk.no/enterprises/${orgnr}" target="_blank" rel="noopener">DiBK</a>
         </div>
       </div>
       <div class="card-actions">
