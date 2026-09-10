@@ -69,10 +69,17 @@
     backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
   }
   .brand { display:flex; align-items:center; gap:24px; }
-  .brand .logo { height:50px; width:auto; display:block; flex-shrink:0; }
+  .brand .logo { height:68px; width:auto; display:block; flex-shrink:0; }
   .brand .title-block { display:flex; flex-direction:column; }
   .brand h1 { margin:0; font-size:19px; font-weight:700; letter-spacing:-0.2px; line-height:1.2; color:var(--text); }
   .brand .tagline { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.4px; margin-top:3px; font-weight:500; }
+
+  /* Sentrer poeng-boksen absolutt midt i header */
+  .header-center {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%, -50%);
+    display:flex; align-items:center; gap:18px;
+  }
 
   /* Fane-veksler */
   .tab-bar {
@@ -97,7 +104,20 @@
     border-bottom-color:var(--accent);
     background:transparent;
   }
-  .tab-btn .tab-icon { font-size:15px; line-height:1; }
+  .tab-btn .tab-icon { font-size:17px; line-height:1; }
+  .tab-btn[data-tab="bygg"] .tab-icon { filter:hue-rotate(0deg); }
+  .tab-btn[data-tab="ansatte"] .tab-icon { filter:hue-rotate(0deg); }
+  .tab-btn[data-tab="fse"] .tab-icon { filter:hue-rotate(0deg); }
+  .tab-btn.active[data-tab="bygg"] { border-bottom-color:var(--accent); }
+  .tab-btn.active[data-tab="ansatte"] { border-bottom-color:var(--blue); }
+  .tab-btn.active[data-tab="fse"] { border-bottom-color:#ffb43c; }
+  .tab-btn.active[data-tab="sg"] { border-bottom-color:#c580e0; }
+  .tab-btn.active[data-tab="oppfolging"] { border-bottom-color:var(--green); }
+  .tab-btn.active[data-tab="bygg"] .tab-count { background:var(--accent); color:#111; }
+  .tab-btn.active[data-tab="ansatte"] .tab-count { background:var(--blue); color:#111; }
+  .tab-btn.active[data-tab="fse"] .tab-count { background:#ffb43c; color:#111; }
+  .tab-btn.active[data-tab="sg"] .tab-count { background:#c580e0; color:#111; }
+  .tab-btn.active[data-tab="oppfolging"] .tab-count { background:var(--green); color:#111; }
   .tab-btn .tab-count {
     display:inline-flex; align-items:center; justify-content:center;
     background:var(--panel-3); color:var(--muted);
@@ -110,23 +130,24 @@
   .tab-btn:hover .tab-count { background:var(--panel-4); }
   .tab-btn.active:hover .tab-count { background:var(--accent); }
 
-  .header-center { display:flex; align-items:center; gap:18px; }
   .points-box {
-    display:flex; align-items:center; gap:14px;
-    background:linear-gradient(135deg, rgba(101,206,121,0.16), rgba(101,206,121,0.06));
-    border:1px solid rgba(101,206,121,0.3);
-    padding:10px 20px; border-radius:var(--radius);
-    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.04);
+    display:flex; align-items:center; gap:16px;
+    background:linear-gradient(135deg, rgba(101,206,121,0.2), rgba(101,206,121,0.06));
+    border:1px solid rgba(101,206,121,0.35);
+    padding:12px 24px; border-radius:var(--radius);
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.06);
     transition:var(--transition);
+    cursor:default;
   }
   .points-box:hover {
-    border-color:rgba(101,206,121,0.5);
-    background:linear-gradient(135deg, rgba(101,206,121,0.2), rgba(101,206,121,0.08));
+    border-color:rgba(101,206,121,0.55);
+    background:linear-gradient(135deg, rgba(101,206,121,0.28), rgba(101,206,121,0.1));
+    transform:translateY(-1px);
   }
-  .points-box .icon { font-size:20px; }
+  .points-box .icon { font-size:22px; }
   .points-box .info { display:flex; flex-direction:column; }
-  .points-box .label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
-  .points-box .points-value { font-size:19px; font-weight:700; color:var(--green); letter-spacing:-0.3px; }
+  .points-box .label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.3px; font-weight:700; }
+  .points-box .points-value { font-size:24px; font-weight:800; color:var(--green); letter-spacing:-0.6px; line-height:1.1; }
 
   .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .status { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
@@ -178,18 +199,19 @@
     padding-left:4px;
   }
   .sidebar-toggle {
-    position:fixed; top:calc(var(--header-h) + var(--tab-bar-h) + 16px); left:16px;
+    position:fixed; top:calc(var(--header-h) + var(--tab-bar-h) + 20px);
+    left:calc(var(--sidebar-w) + 8px);
     z-index:15;
-    width:38px; height:38px; padding:0;
-    background:var(--panel); color:var(--text);
-    border:1px solid var(--border); border-radius:var(--radius);
-    font-size:16px; cursor:pointer; display:flex;
+    width:28px; height:28px; padding:0;
+    background:rgba(30, 36, 44, 0.6); color:var(--muted);
+    border:1px solid var(--border-soft); border-radius:6px;
+    font-size:11px; cursor:pointer; display:flex;
     align-items:center; justify-content:center;
-    transition:var(--transition); box-shadow:var(--shadow);
+    transition:var(--transition); opacity:0.5;
   }
-  .sidebar-toggle:hover { background:var(--panel-2); border-color:var(--accent); transform:translateY(-1px); }
-  .layout:not(.sidebar-collapsed) .sidebar-toggle {
-    left:calc(var(--sidebar-w) - 19px);
+  .sidebar-toggle:hover { opacity:1; background:var(--panel-2); color:var(--text); border-color:var(--border); }
+  .layout.sidebar-collapsed .sidebar-toggle {
+    left:8px;
   }
 
   /* Klikkbare statistikk-bokser */
@@ -313,6 +335,40 @@
   .stat.ikkesvar .stat-value { color:var(--blue); }
   .stat.gjenstaar .stat-value { color:var(--text); }
 
+  /* Klikkbar stat med tooltip over */
+  .stat.clickable { cursor:pointer; position:relative; }
+  .stat.clickable[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position:absolute; bottom:calc(100% + 8px); left:50%;
+    transform:translateX(-50%);
+    background:var(--panel-4); color:var(--text);
+    padding:6px 10px; border-radius:6px; font-size:11px;
+    white-space:nowrap; font-weight:500;
+    box-shadow:var(--shadow); border:1px solid var(--border);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.15s;
+    z-index:100;
+  }
+  .stat.clickable[data-tooltip]::after {
+    content: '';
+    position:absolute; bottom:calc(100% + 3px); left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent;
+    border-top-color:var(--panel-4);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.15s;
+    z-index:100;
+  }
+  .stat.clickable:hover::before,
+  .stat.clickable:hover::after {
+    opacity:1;
+  }
+  .stat.clickable:hover {
+    border-color:var(--muted-soft);
+    transform:translateY(-1px);
+    box-shadow:var(--shadow-sm);
+  }
+
   /* Reservasjon-panel i sidebar */
   .reserve-form { display:flex; flex-direction:column; gap:8px; }
   .reserve-form input[type="text"] { font-size:12px; }
@@ -321,20 +377,27 @@
   .reserve-form button:hover { background:#ffdc7a; }
   .reserve-form button.export { background:transparent; color:var(--reserved); border:1px solid var(--reserved); }
   .reserve-form button.export:hover { background:var(--reserved); color:#111; }
-  .reserve-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; }
+  .reserve-list { margin-top:12px; display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; }
   .reserve-chip {
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    background:rgba(255, 204, 77, 0.15); border:1px solid rgba(255, 204, 77, 0.5);
-    border-radius:5px; padding:6px 10px; font-size:11px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:rgba(255, 204, 77, 0.10); border:1px solid rgba(255, 204, 77, 0.35);
+    border-radius:var(--radius); padding:10px 12px; font-size:12px;
+    transition:var(--transition);
   }
-  .reserve-chip .chip-info { display:flex; flex-direction:column; min-width:0; flex:1; }
-  .reserve-chip .term { color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .reserve-chip .by { color:var(--muted); font-weight:400; font-size:10px; }
+  .reserve-chip:hover {
+    background:rgba(255, 204, 77, 0.15);
+    border-color:rgba(255, 204, 77, 0.5);
+  }
+  .reserve-chip .chip-info { display:flex; flex-direction:column; min-width:0; flex:1; gap:2px; }
+  .reserve-chip .term { color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; letter-spacing:-0.1px; }
+  .reserve-chip .by { color:var(--muted-soft); font-weight:400; font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; }
   .reserve-chip .remove-btn {
-    background:transparent; border:none; color:var(--red); cursor:pointer;
-    font-size:14px; padding:0; margin:0; font-weight:700; line-height:1; flex-shrink:0;
+    background:transparent; border:none; color:var(--muted-soft); cursor:pointer;
+    font-size:16px; padding:4px; margin:0; font-weight:400; line-height:1; flex-shrink:0;
+    border-radius:4px; transition:var(--transition);
+    width:24px; height:24px; display:flex; align-items:center; justify-content:center;
   }
-  .reserve-chip .remove-btn:hover { color:#ffaaaa; }
+  .reserve-chip .remove-btn:hover { color:var(--red); background:rgba(254,100,100,0.1); }
 
   /* ===== HOVEDINNHOLD ===== */
   .main {
@@ -359,7 +422,6 @@
     text-align:left; padding:14px 20px; font-size:10px; color:var(--muted-soft);
     text-transform:uppercase; letter-spacing:1.3px; font-weight:700;
     border-bottom:1px solid var(--border); background:var(--panel);
-    position:sticky; top:calc(var(--header-h) + var(--tab-bar-h)); z-index:5;
   }
   td {
     padding:20px; border-bottom:1px solid var(--border-soft);
@@ -394,21 +456,21 @@
   tr.row-reserved:hover td { background:rgba(255, 204, 77, 0.20) !important; }
 
   tr.new-row td {
-    background:rgba(255, 204, 77, 0.09) !important;
+    background:rgba(255, 255, 255, 0.03) !important;
     border-left:0;
   }
   tr.new-row td:first-child {
-    border-left:3px solid var(--accent);
+    border-left:3px solid rgba(255,255,255,0.25);
     padding-left:17px;
   }
-  tr.new-row:hover td { background:rgba(255, 204, 77, 0.14) !important; }
+  tr.new-row:hover td { background:rgba(255, 255, 255, 0.06) !important; }
 
   .badge-new {
-    display:inline-block; background:var(--accent); color:#111;
-    padding:3px 9px; border-radius:20px; font-size:10px;
-    font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
+    display:inline-block; background:rgba(255,255,255,0.08); color:var(--text-soft);
+    padding:2px 8px; border-radius:20px; font-size:10px;
+    font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
     margin-left:8px; vertical-align:middle; line-height:1.4;
-    animation:newPulse 2s ease-in-out infinite;
+    border:1px solid rgba(255,255,255,0.12);
   }
   @keyframes newPulse {
     0%, 100% { opacity:1; }
@@ -544,6 +606,10 @@
   /* BRREG = gul */
   .lookup-links a.brreg { border-color:rgba(255,204,77,0.5); color:var(--accent); }
   .lookup-links a.brreg:hover { background:var(--accent); color:#111; border-color:var(--accent); }
+  .lookup-links a.gulesider { border-color:rgba(255,180,60,0.5); color:#ffb43c; }
+  .lookup-links a.gulesider:hover { background:#ffb43c; color:#111; border-color:#ffb43c; }
+  .lookup-links a.epost { border-color:rgba(96,165,250,0.5); color:var(--blue); }
+  .lookup-links a.epost:hover { background:var(--blue); color:#111; border-color:var(--blue); }
   .lookup-links a.pending { opacity:0.5; cursor:wait; }
 
   /* Empty/error/footer */
@@ -723,14 +789,350 @@
     text-align:center; padding:80px 20px; color:var(--muted); font-style:italic; font-size:13px;
   }
 
+  /* ========================================
+     HOVEDKORT - kort-basert layout for alle selskaper
+     ======================================== */
+  .companies-cards {
+    display:flex; flex-direction:column; gap:14px;
+    padding:24px 32px;
+  }
+  .date-header {
+    display:flex; align-items:center; gap:12px;
+    margin:20px 0 4px 0; padding:0 4px;
+    font-size:11px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:1.6px;
+  }
+  .date-header:first-child { margin-top:0; }
+  .date-header::after {
+    content:''; flex:1; height:1px; background:var(--border-soft);
+  }
+  .date-header .date-count {
+    font-family:var(--mono); color:var(--muted-soft); font-weight:600;
+    padding:2px 10px; background:var(--panel-2);
+    border-radius:20px; font-size:11px; letter-spacing:0.4px;
+  }
+  .company-card {
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:4px solid var(--border);
+    border-radius:var(--radius-lg); padding:20px 24px;
+    display:grid; grid-template-columns:52px 1fr auto; gap:18px;
+    align-items:start;
+    transition:var(--transition);
+    box-shadow:var(--shadow-sm);
+    position:relative;
+    animation:slideInUp 0.25s cubic-bezier(0.4,0,0.2,1);
+    opacity:0.65;
+  }
+  @keyframes slideInUp {
+    from { opacity:0; transform:translateY(6px); }
+    to { opacity:0.65; transform:translateY(0); }
+  }
+  /* Sette kort som ikke er ny men uten status - forblir mørke */
+  .company-card:hover {
+    opacity:1;
+    border-color:var(--muted-soft);
+    background:var(--panel-2);
+    transform:translateY(-1px);
+    box-shadow:var(--shadow);
+  }
+
+  /* NYE ubehandlede - LYSE og tydelige */
+  .company-card.is-new {
+    background:var(--panel-4);
+    border-left-color:var(--text-soft);
+    opacity:1;
+  }
+  .company-card.is-new:hover {
+    background:rgba(255,255,255,0.08);
+  }
+  .company-card.is-new::after {
+    content:''; position:absolute; top:0; right:0; width:8px; height:8px;
+    background:var(--accent); border-radius:50%; margin:12px;
+    box-shadow:0 0 8px var(--accent);
+  }
+
+  /* Behandlede kort - dempet */
+  .company-card.status-kontaktet {
+    border-left-color:var(--accent);
+    opacity:0.55;
+  }
+  .company-card.status-kontaktet:hover { opacity:1; }
+  .company-card.status-solgt {
+    border-left-color:var(--green);
+    opacity:0.6;
+  }
+  .company-card.status-solgt:hover { opacity:1; }
+  .company-card.status-ikkesvar {
+    border-left-color:var(--blue);
+    opacity:0.6;
+  }
+  .company-card.status-ikkesvar:hover { opacity:1; }
+
+  /* Reservert - alltid tydelig */
+  .company-card.reserved {
+    border-color:var(--reserved) !important;
+    background:rgba(255,204,77,0.09) !important;
+    border-left-color:var(--reserved) !important;
+    box-shadow:0 0 0 1px var(--reserved), var(--shadow-sm);
+    opacity:1 !important;
+  }
+
+  /* Avatar - første bokstav i selskapsnavn */
+  .company-avatar {
+    width:52px; height:52px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:700; color:var(--text);
+    letter-spacing:-0.5px; line-height:1;
+    background:linear-gradient(135deg, var(--panel-3), var(--panel-4));
+    border:1px solid var(--border);
+    flex-shrink:0;
+    text-transform:uppercase;
+  }
+  .company-avatar.bg-1 { background:linear-gradient(135deg, #3b1e5e, #6b2d8a); color:#e2c7ff; }
+  .company-avatar.bg-2 { background:linear-gradient(135deg, #1e3a5e, #2d5e8a); color:#a8d1ff; }
+  .company-avatar.bg-3 { background:linear-gradient(135deg, #1e5e3a, #2d8a5e); color:#a8ffd1; }
+  .company-avatar.bg-4 { background:linear-gradient(135deg, #5e3a1e, #8a5e2d); color:#ffd1a8; }
+  .company-avatar.bg-5 { background:linear-gradient(135deg, #5e1e3a, #8a2d5e); color:#ffa8d1; }
+  .company-avatar.bg-6 { background:linear-gradient(135deg, #3a5e1e, #5e8a2d); color:#d1ffa8; }
+  .company-avatar.bg-7 { background:linear-gradient(135deg, #1e5e5e, #2d8a8a); color:#a8ffff; }
+  .company-avatar.bg-8 { background:linear-gradient(135deg, #5e5e1e, #8a8a2d); color:#ffffa8; }
+
+  /* Kort-hovedinnhold */
+  .card-main { min-width:0; display:flex; flex-direction:column; gap:8px; }
+
+  .card-header {
+    display:flex; align-items:baseline; flex-wrap:wrap; gap:8px;
+  }
+  .card-name {
+    font-size:18px; font-weight:600; color:var(--text);
+    line-height:1.25; letter-spacing:-0.3px;
+  }
+  .card-badges { display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; }
+
+  /* Chips */
+  .chip {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 10px; border-radius:20px; font-size:11px;
+    font-weight:600; line-height:1.4;
+    background:var(--panel-3); color:var(--muted);
+    border:1px solid var(--border-soft);
+    letter-spacing:0.2px;
+  }
+  .chip.chip-orgnr { font-family:var(--mono); font-size:11.5px; }
+  .chip.chip-nace { color:var(--accent); border-color:rgba(255,204,77,0.25); background:rgba(255,204,77,0.06); }
+  .chip.chip-nuf { color:var(--red); border-color:rgba(254,100,100,0.4); background:rgba(254,100,100,0.08); font-weight:700; }
+  .chip.chip-foretak { color:var(--blue); border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.06); }
+  .chip.chip-enhets { color:var(--cyan); border-color:rgba(34,211,238,0.3); background:rgba(34,211,238,0.06); }
+  .chip.chip-form { color:var(--text-soft); font-weight:700; letter-spacing:0.5px; }
+
+  /* Kort meta-informasjon */
+  .card-meta-row {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    font-size:12.5px; color:var(--muted);
+  }
+  .card-meta-row .separator { color:var(--muted-soft); }
+
+  .card-person {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:13px; color:var(--text-soft);
+  }
+  .card-person .person-icon { font-size:14px; opacity:0.7; }
+
+  .card-formal {
+    font-size:12.5px; color:var(--muted); line-height:1.55;
+    padding:8px 12px; background:rgba(255,204,77,0.04);
+    border-left:2px solid rgba(255,204,77,0.25);
+    border-radius:var(--radius-sm);
+    margin-top:2px;
+  }
+
+  .card-notat, .card-ikkesvar-detail {
+    margin-top:2px; padding:10px 14px;
+    background:rgba(255,204,77,0.05); border-left:3px solid rgba(255,204,77,0.35);
+    border-radius:var(--radius-sm); font-size:12.5px;
+    color:var(--text-soft); line-height:1.5;
+  }
+  .card-ikkesvar-detail {
+    background:rgba(96,165,250,0.05);
+    border-left-color:rgba(96,165,250,0.35);
+  }
+  .card-notat .field-label,
+  .card-ikkesvar-detail .field-label {
+    color:var(--muted); font-weight:600; text-transform:uppercase;
+    letter-spacing:0.5px; font-size:10px; margin-right:8px;
+  }
+  .card-ikkesvar-detail .phone-value {
+    color:var(--green); font-family:var(--mono); font-weight:700;
+  }
+  .card-ikkesvar-detail .phone-value a { color:inherit; text-decoration:none; }
+  .card-ikkesvar-detail .phone-value a:hover { text-decoration:underline; }
+
+  /* Lookup-lenker inne i kort */
+  .card-links {
+    display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;
+  }
+
+  /* Kort høyre kolonne: status-knapper */
+  .card-actions {
+    display:flex; flex-direction:column; gap:6px; align-items:stretch;
+    min-width:130px;
+  }
+  .card-actions button {
+    font-size:11px; padding:8px 14px;
+    text-transform:uppercase; letter-spacing:0.5px; font-weight:700;
+    border-radius:var(--radius-sm); font-family:var(--sans);
+    cursor:pointer; transition:var(--transition);
+    border:1.5px solid transparent;
+    display:flex; align-items:center; justify-content:center; gap:4px;
+  }
+  .card-actions .btn-kontaktet {
+    background:transparent; color:var(--accent);
+    border-color:rgba(255,204,77,0.35);
+  }
+  .card-actions .btn-kontaktet:hover { background:var(--accent); color:#111; border-color:var(--accent); }
+  .card-actions .btn-kontaktet.active { background:var(--accent); color:#111; border-color:var(--accent); }
+  .card-actions .btn-salg {
+    background:transparent; color:var(--green);
+    border-color:rgba(101,206,121,0.35);
+  }
+  .card-actions .btn-salg:hover { background:var(--green); color:#111; border-color:var(--green); }
+  .card-actions .btn-salg.active { background:var(--green); color:#111; border-color:var(--green); }
+  .card-actions .btn-ikkesvar {
+    background:transparent; color:var(--blue);
+    border-color:rgba(96,165,250,0.35);
+  }
+  .card-actions .btn-ikkesvar:hover { background:var(--blue); color:#111; border-color:var(--blue); }
+  .card-actions .btn-ikkesvar.active { background:var(--blue); color:#111; border-color:var(--blue); }
+  .card-actions .btn-slett {
+    background:transparent; color:var(--red);
+    border-color:rgba(254,100,100,0.3);
+  }
+  .card-actions .btn-slett:hover { background:var(--red); color:#111; border-color:var(--red); }
+  .card-actions .btn-notat {
+    background:transparent; color:var(--muted);
+    border-color:var(--border); font-size:10px; padding:6px 10px;
+  }
+  .card-actions .btn-notat:hover { color:var(--accent); border-color:var(--accent); }
+  .card-actions .btn-notat.has-notat { color:var(--accent); border-color:rgba(255,204,77,0.5); }
+
+  .card-actions .btn-oppfolging {
+    background:transparent; color:var(--green);
+    border-color:rgba(101,206,121,0.35);
+  }
+  .card-actions .btn-oppfolging:hover { background:var(--green); color:#111; border-color:var(--green); }
+  .card-actions .btn-oppfolging.active { background:var(--green); color:#111; border-color:var(--green); }
+  .company-card.status-oppfolging { border-left-color:var(--green); opacity:0.6; }
+  .company-card.status-oppfolging:hover { opacity:1; }
+
+  /* ===== KALENDER ===== */
+  .calendar-grid {
+    display:grid; grid-template-columns:repeat(7, 1fr);
+    gap:6px; background:var(--panel); padding:16px;
+    border-radius:var(--radius-lg); border:1px solid var(--border);
+  }
+  .cal-day-name {
+    text-align:center; font-size:11px; font-weight:700;
+    color:var(--muted); text-transform:uppercase; letter-spacing:1px;
+    padding:8px 4px; border-bottom:1px solid var(--border);
+  }
+  .cal-day {
+    aspect-ratio:1; padding:8px; border-radius:8px;
+    background:var(--panel-2); border:1px solid var(--border-soft);
+    cursor:pointer; transition:var(--transition);
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between;
+    position:relative; min-height:70px;
+  }
+  .cal-day:hover { background:var(--panel-3); border-color:var(--muted-soft); transform:translateY(-1px); }
+  .cal-day.empty { background:transparent; border:none; cursor:default; }
+  .cal-day.empty:hover { transform:none; background:transparent; }
+  .cal-day-num { font-size:14px; font-weight:600; color:var(--text-soft); }
+  .cal-day.today { border-color:var(--accent); background:rgba(255,204,77,0.08); }
+  .cal-day.today .cal-day-num { color:var(--accent); font-weight:700; }
+  .cal-day.has-urgent { background:rgba(254,100,100,0.15); border-color:var(--red); }
+  .cal-day.has-soon { background:rgba(255,204,77,0.15); border-color:var(--accent); }
+  .cal-day.has-later { background:rgba(101,206,121,0.12); border-color:var(--green); }
+  .cal-badge {
+    position:absolute; top:6px; right:6px;
+    background:var(--text); color:#111;
+    font-family:var(--mono); font-size:11px; font-weight:700;
+    padding:2px 7px; border-radius:20px; min-width:22px; text-align:center;
+    line-height:1.3;
+  }
+  .cal-day.has-urgent .cal-badge { background:var(--red); color:#fff; }
+  .cal-day.has-soon .cal-badge { background:var(--accent); color:#111; }
+  .cal-day.has-later .cal-badge { background:var(--green); color:#111; }
+
+  /* Kort-badges */
+  .badge-status {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:2px 9px; border-radius:20px;
+    font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.6px;
+    vertical-align:middle;
+  }
+  .badge-status.b-salg { background:var(--green); color:#111; }
+  .badge-status.b-ikkesvar { background:var(--blue); color:#111; }
+  .badge-status.b-reservert { background:var(--reserved); color:#111; }
+  .badge-status.b-new {
+    background:rgba(255,255,255,0.08); color:var(--text-soft);
+    border:1px solid rgba(255,255,255,0.12);
+  }
+
+  /* Empty states */
+  .empty-state {
+    text-align:center; padding:80px 20px; color:var(--muted);
+  }
+  .empty-state .icon {
+    font-size:56px; margin-bottom:16px; opacity:0.5;
+  }
+  .empty-state .title {
+    font-size:16px; font-weight:600; color:var(--text-soft); margin-bottom:8px;
+  }
+  .empty-state .subtitle {
+    font-size:13px; color:var(--muted-soft); max-width:400px; margin:0 auto;
+  }
+
+  /* ===== Klikkbar for å kopiere ===== */
+  .copyable {
+    cursor:pointer !important;
+    transition:var(--transition);
+    position:relative;
+  }
+  .copyable:hover {
+    background:rgba(255,255,255,0.08) !important;
+    color:var(--text) !important;
+  }
+  .copyable::after {
+    content:'📋'; opacity:0; margin-left:6px;
+    font-size:0.85em; transition:opacity 0.15s;
+    pointer-events:none;
+  }
+  .copyable:hover::after { opacity:0.6; }
+  .copyable.copied {
+    background:var(--green) !important;
+    color:#111 !important;
+    animation:copyFlash 0.6s ease-out;
+  }
+  @keyframes copyFlash {
+    0% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+    100% { transform:scale(1); }
+  }
+
   /* Toast */
   .toast {
-    position:fixed; bottom:24px; right:24px; background:var(--green); color:#111;
-    padding:12px 18px; border-radius:8px; font-size:13px;
-    font-weight:600; box-shadow:0 8px 28px rgba(0,0,0,0.5);
-    opacity:0; transform:translateY(10px); transition:all 0.2s; pointer-events:none; z-index:200;
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:linear-gradient(135deg, var(--panel-3), var(--panel-4));
+    color:var(--text); border:1px solid var(--border-strong);
+    padding:14px 22px; border-radius:var(--radius); font-size:13px;
+    font-weight:600; box-shadow:var(--shadow-lg);
+    opacity:0; transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+    pointer-events:none; z-index:200;
+    display:flex; align-items:center; gap:10px;
+    max-width:400px; letter-spacing:-0.1px;
   }
-  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   /* Modal */
   .modal-backdrop {
@@ -816,8 +1218,7 @@
   </g>
 </svg>
     <div class="title-block">
-      <h1 id="pageTitle">Nyreg Bygg & Anlegg</h1>
-      <span class="tagline">Prospekteringsverktøy</span>
+      <h1 id="pageTitle" style="display:none;">Nyreg</h1>
     </div>
   </div>
 
@@ -871,9 +1272,9 @@
       <div class="stat-grid">
         <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Totalt</div></div>
         <div class="stat gjenstaar"><div class="stat-value" id="pendingCount">–</div><div class="stat-label">Gjenstår</div></div>
-        <div class="stat contacted clickable" data-filter="kontaktet" title="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
-        <div class="stat solgt clickable" data-filter="solgt" title="Klikk for å se salg"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Salg</div></div>
-        <div class="stat ikkesvar clickable" data-filter="ikkesvar" title="Klikk for å se ikke svar"><div class="stat-value" id="ikkesvarCount">–</div><div class="stat-label">Ikke svar</div></div>
+        <div class="stat contacted clickable" data-filter="kontaktet" data-tooltip="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
+        <div class="stat solgt clickable" data-filter="solgt" data-tooltip="Klikk for å se salg"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Salg</div></div>
+        <div class="stat ikkesvar clickable" data-filter="ikkesvar" data-tooltip="Klikk for å se ikke svar"><div class="stat-value" id="ikkesvarCount">–</div><div class="stat-label">Ikke svar</div></div>
       </div>
       <button class="secondary" id="backupExportBtn" style="width:100%; margin-top:12px; font-size:12px;">📤 Eksporter backup</button>
       <button class="secondary" id="backupImportBtn" style="width:100%; margin-top:6px; font-size:12px;">📥 Importer backup</button>
@@ -903,21 +1304,13 @@
 
     <div id="errorBox"></div>
 
-    <table>
-      <thead>
-        <tr>
-          <th style="width:80px">Status</th>
-          <th style="width:32%">Selskap</th>
-          <th style="width:14%">Org.nr</th>
-          <th style="width:20%">Kontaktperson</th>
-          <th style="width:24%">Telefon / oppslag</th>
-          <th style="width:10%">Registrert</th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <tr><td colspan="6" class="empty">Laster data fra Brønnøysundregistrene…</td></tr>
-      </tbody>
-    </table>
+    <div id="companiesContainer">
+      <div class="empty-state">
+        <div class="icon">⏳</div>
+        <div class="title">Laster data fra Brønnøysundregistrene</div>
+        <div class="subtitle">Henter nyeste registrerte selskaper i valgt periode...</div>
+      </div>
+    </div>
 
     <div class="main-footer">
       Kilde: data.brreg.no (Enhetsregisteret åpne data, NLOD). Markeringer lagres lokalt i nettleseren. Auto-oppdatering hvert 5. minutt man–fre 08:00–16:00.
@@ -1015,22 +1408,7 @@
       <div class="behandlede-summary" id="behandledeSummary">–</div>
     </div>
     <div class="behandlede-modal-body">
-      <table id="behandledeTable">
-        <thead>
-          <tr>
-            <th style="width:80px">Status</th>
-            <th style="width:32%">Selskap</th>
-            <th style="width:14%">Org.nr</th>
-            <th style="width:20%">Kontaktperson</th>
-            <th style="width:24%">Telefon / oppslag</th>
-            <th style="width:10%">Registrert</th>
-          </tr>
-        </thead>
-        <tbody id="behandledeTbody">
-          <tr><td colspan="6" class="empty">Ingen behandlede enda</td></tr>
-        </tbody>
-      </table>
-      <div id="behandledeCards" style="display:none; padding:20px;"></div>
+      <div id="behandledeCards" style="padding:20px;"></div>
     </div>
   </div>
 </div>
@@ -1194,7 +1572,7 @@ let isFirstLoad = true;
 let pendingSolgtOrgnr = null;
 
 // DOM
-const tbody = document.getElementById('tbody');
+const companiesContainer = document.getElementById('companiesContainer');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const errorBox = document.getElementById('errorBox');
@@ -1241,7 +1619,7 @@ const layoutEl = document.getElementById('layout');
 const behandledeModal = document.getElementById('behandledeModal');
 const behandledeModalTitle = document.getElementById('behandledeModalTitle');
 const behandledeCloseBtn = document.getElementById('behandledeCloseBtn');
-const behandledeTbody = document.getElementById('behandledeTbody');
+const behandledeCards = document.getElementById('behandledeCards');
 const behandledePeriod = document.getElementById('behandledePeriod');
 const behandledeSummary = document.getElementById('behandledeSummary');
 const backupExportBtn = document.getElementById('backupExportBtn');
@@ -1283,12 +1661,16 @@ function loadSeen() {
     const raw = localStorage.getItem(SEEN_KEY);
     if (!raw) return new Set();
     const obj = JSON.parse(raw);
-    if (obj.date === getToday() && Array.isArray(obj.orgnrs)) return new Set(obj.orgnrs);
+    // Nytt format: array direkte (permanent)
+    if (Array.isArray(obj)) return new Set(obj);
+    // Gammelt format: {date, orgnrs} - migrere til permanent uansett dato
+    if (obj.orgnrs && Array.isArray(obj.orgnrs)) return new Set(obj.orgnrs);
     return new Set();
   } catch (e) { return new Set(); }
 }
 function saveSeen() {
-  try { localStorage.setItem(SEEN_KEY, JSON.stringify({ date: getToday(), orgnrs: [...seenOrgnrSet] })); }
+  // Lagres som array direkte (uten dato) - orgnr huskes for alltid
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify([...seenOrgnrSet])); }
   catch (e) { console.error(e); }
 }
 function loadSoundPref() { try { return localStorage.getItem(SOUND_KEY) === 'true'; } catch (e) { return false; } }
@@ -1324,11 +1706,13 @@ function saveSkjulte() {
 window.markerSomSett = function(orgnr) {
   if (newOrgnrsSincelast.has(orgnr)) {
     newOrgnrsSincelast.delete(orgnr);
-    // Fjern visuell markering fra raden uten å re-rendre alt
-    const rows = document.querySelectorAll(`tr[data-orgnr="${orgnr}"]`);
-    rows.forEach(row => {
-      row.classList.remove('new-row');
-      const badge = row.querySelector('.badge-new');
+    seenOrgnrSet.add(orgnr);
+    saveSeen();
+    // Fjern visuell markering fra kortet uten å re-rendre alt
+    const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"], tr[data-orgnr="${orgnr}"]`);
+    cards.forEach(el => {
+      el.classList.remove('new-row', 'is-new');
+      const badge = el.querySelector('.badge-new');
       if (badge) badge.remove();
     });
   }
@@ -1633,69 +2017,37 @@ function renderBehandledeModal() {
     behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> salg (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
   }
 
-  const table = document.getElementById('behandledeTable');
   const cards = document.getElementById('behandledeCards');
-
-  if (behandledeFilter === 'ikkesvar') {
-    // Kortvisning for Ikke svar
-    table.style.display = 'none';
-    cards.style.display = 'block';
-
-    if (list.length === 0) {
-      cards.innerHTML = `<div class="ikkesvar-empty-card">Ingen Ikke svar-oppføringer</div>`;
-      return;
-    }
-
-    // Sortér på dato: eldst først (så du prøver dem først som har ventet lengst)
-    list.sort((a, b) => {
-      const da = statusMap.get(a.organisasjonsnummer)?.dato || '';
-      const db = statusMap.get(b.organisasjonsnummer)?.dato || '';
-      return da.localeCompare(db);
-    });
-
-    cards.innerHTML = '<div class="ikkesvar-cards">' + list.map(e => {
-      const orgnr = e.organisasjonsnummer;
-      const s = statusMap.get(orgnr) || {};
-      const telefon = escapeHtml(s.telefon || '');
-      const notat = s.notat ? `<div class="ikkesvar-card-notat"><span class="field-label">📝 Notat:</span>${escapeHtml(s.notat)}</div>` : '';
-      const navn = escapeHtml(e.navn || '(uten navn)');
-      const datoDisplay = s.dato ? `Registrert: ${s.dato}` : '';
-      return `
-        <div class="ikkesvar-card">
-          <div class="ikkesvar-card-main">
-            <div class="ikkesvar-card-name">${navn}<span class="orgnr">${orgnr}</span></div>
-            <div class="ikkesvar-card-phone">📞 <a href="tel:${telefon}">${telefon}</a></div>
-            ${notat}
-            <div class="ikkesvar-card-meta">${datoDisplay}</div>
-          </div>
-          <div class="ikkesvar-card-actions">
-            <button class="card-btn-kontaktet" onclick="markerKontaktet('${orgnr}')">✓ Kontaktet</button>
-            <button class="card-btn-salg" onclick="markerSolgt('${orgnr}')">💰 Salg</button>
-            <button class="card-btn-rediger" onclick="markerIkkesvar('${orgnr}')">✏️ Rediger</button>
-            <button class="card-btn-slett" onclick="fjernIkkesvar('${orgnr}')">🗑 Slett</button>
-          </div>
-        </div>`;
-    }).join('') + '</div>';
-    return;
-  }
-
-  // Tabellvisning for kontaktet/salg/alle
-  table.style.display = '';
-  cards.style.display = 'none';
 
   if (list.length === 0) {
     const periodLabel = periodLabelFor(behandledePeriodValue);
     const msg = behandledeFilter === 'kontaktet' ? `Ingen kontaktede ${periodLabel}`
       : behandledeFilter === 'solgt' ? `Ingen salg ${periodLabel}`
+      : behandledeFilter === 'ikkesvar' ? `Ingen Ikke svar-oppføringer`
       : `Ingen behandlede ${periodLabel}`;
-    behandledeTbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
+    cards.innerHTML = `<div class="empty-state"><div class="icon">📭</div><div class="title">${msg}</div></div>`;
     return;
   }
 
-  behandledeTbody.innerHTML = list.map(e => {
-    if (e._isBackup) return rowHtmlBackup(e);
-    return rowHtml(e);
-  }).join('');
+  // Sortér: Ikke svar - eldst først (mest presserende), andre - nyest først
+  if (behandledeFilter === 'ikkesvar') {
+    list.sort((a, b) => {
+      const da = statusMap.get(a.organisasjonsnummer)?.dato || '';
+      const db = statusMap.get(b.organisasjonsnummer)?.dato || '';
+      return da.localeCompare(db);
+    });
+  } else {
+    list.sort((a, b) => {
+      const da = statusMap.get(a.organisasjonsnummer)?.dato || '';
+      const db = statusMap.get(b.organisasjonsnummer)?.dato || '';
+      return db.localeCompare(da);
+    });
+  }
+
+  // Bruk samme kortvisning som hovedlisten
+  cards.innerHTML = '<div class="companies-cards" style="padding:0;">' +
+    list.map(e => e._isBackup ? cardHtmlBackup(e) : rowHtml(e)).join('') +
+    '</div>';
 
   // Hent personnavn også for behandlede-rader (kun for de som er i currentData)
   enrichDagligLedere(list.filter(e => !e._isBackup));
@@ -1703,50 +2055,74 @@ function renderBehandledeModal() {
 
 // Forenklet rad for selskaper som ikke er i nåværende BRREG-henting
 function rowHtmlBackup(e) {
+  // Alias for cardHtmlBackup (behold navn for bakoverkompatibilitet)
+  return cardHtmlBackup(e);
+}
+
+function cardHtmlBackup(e) {
   const orgnr = e.organisasjonsnummer;
   const status = statusMap.get(orgnr);
   const isIkkesvar = status.status === 'ikkesvar';
-  const buttonsHtml = `
-    <div class="status-buttons">
-      <button class="status-btn-pair kontaktet-btn ${status.status === 'kontaktet' ? 'active-kontaktet' : ''}" onclick="markerKontaktet('${orgnr}')" title="${status.status === 'kontaktet' ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${status.status === 'kontaktet' ? '✓ Kontaktet' : 'Kontaktet'}</button>
-      <button class="status-btn-pair solgt-btn ${status.status === 'solgt' ? 'active-solgt' : ''}" onclick="markerSolgt('${orgnr}')" title="${status.status === 'solgt' ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${status.status === 'solgt' ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
-      <button class="status-btn-pair ikkesvar-btn ${isIkkesvar ? 'active-ikkesvar' : ''}" onclick="markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-      ${isIkkesvar ? `<button class="status-btn-pair ingenr-btn" onclick="fjernIkkesvar('${orgnr}')" title="Slett fra Ikke svar-listen">Slett</button>` : ''}
-    </div>`;
+  const isKontaktet = status.status === 'kontaktet';
+  const isSolgt = status.status === 'solgt';
+  const hasNotat = status.notat ? true : false;
 
-  const detailBlock = isIkkesvar ? `
-    <div class="ikkesvar-detail">
-      <div class="field">
-        <span class="field-label">Telefon:</span>
-        <span class="field-value phone">${escapeHtml(status.telefon || '')}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">Notat:</span>
-        <span class="field-value">${escapeHtml(status.notat || '')}</span>
-      </div>
+  // Avatar
+  const cleanName = (e.navn || '?').replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '');
+  const avatarLetter = (cleanName[0] || '?').toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < orgnr.length; i++) hash = ((hash << 5) - hash + orgnr.charCodeAt(i)) | 0;
+  const avatarBg = 'bg-' + (Math.abs(hash) % 8 + 1);
+
+  const cardClass = [
+    isKontaktet ? 'status-kontaktet' : '',
+    isSolgt ? 'status-solgt' : '',
+    isIkkesvar ? 'status-ikkesvar' : '',
+  ].filter(Boolean).join(' ');
+
+  const solgtBadge = isSolgt ? `<span class="badge-status b-salg">💰 SALG (${status.poeng}p)</span>` : '';
+  const ikkesvarBadge = isIkkesvar ? `<span class="badge-status b-ikkesvar">📵 IKKE SVAR</span>` : '';
+
+  const ikkesvarDetailCard = isIkkesvar ? `
+    <div class="card-ikkesvar-detail">
+      <div><span class="field-label">Telefon:</span><span class="phone-value copyable" data-copy="${escapeHtml(status.telefon || '')}" title="Klikk for å kopiere">${escapeHtml(status.telefon || '')}</span></div>
+      ${status.notat ? `<div style="margin-top:4px;"><span class="field-label">Notat:</span>${escapeHtml(status.notat)}</div>` : ''}
     </div>` : '';
 
-  const rowClass = status.status === 'solgt' ? 'row-solgt'
-    : status.status === 'ikkesvar' ? 'row-ikkesvar'
-    : 'row-contacted';
-
-  const phoneCell = isIkkesvar
-    ? `<div class="phone-direct"><a href="tel:${escapeHtml(status.telefon || '')}">${escapeHtml(status.telefon || '')}</a></div>`
-    : '<span class="company-meta">–</span>';
+  const notatDetailCard = (status.notat && !isIkkesvar) ? `
+    <div class="card-notat">
+      <span class="field-label">📝 Notat:</span>${escapeHtml(status.notat)}
+    </div>` : '';
 
   return `
-    <tr data-orgnr="${orgnr}" class="${rowClass}">
-      <td class="status-cell">${buttonsHtml}</td>
-      <td>
-        <div class="company-name">${escapeHtml(e.navn)}</div>
-        <div class="company-meta">Registrert utenfor n\u00e5v\u00e6rende periode</div>
-        ${detailBlock}
-      </td>
-      <td><span class="orgnr">${orgnr}</span></td>
-      <td><a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener" style="color:var(--blue); font-size:12px">Se i BRREG</a></td>
-      <td>${phoneCell}</td>
-      <td><span class="time-ago">${status.dato || ''}</span></td>
-    </tr>`;
+    <div data-orgnr="${orgnr}" class="company-card ${cardClass}">
+      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-main">
+        <div class="card-header">
+          <div class="card-name">${escapeHtml(e.navn || '—')}</div>
+          <div class="card-badges">${solgtBadge}${ikkesvarBadge}</div>
+        </div>
+        <div class="card-meta-row">
+          <span class="chip chip-orgnr copyable" data-copy="${orgnr}" title="Klikk for å kopiere">${orgnr}</span>
+          <span class="separator">·</span>
+          <span style="font-style:italic; color:var(--muted-soft);">Registrert utenfor nåværende periode</span>
+        </div>
+        <div class="card-meta-row">
+          <span>📅 Behandlet: ${status.dato || '–'}</span>
+          <span class="separator">·</span>
+          <a href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener" style="color:var(--blue); font-size:12px;">Se i BRREG →</a>
+        </div>
+        ${ikkesvarDetailCard}
+        ${notatDetailCard}
+      </div>
+      <div class="card-actions">
+        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+        <button class="btn-slett" onclick="event.stopPropagation();${isIkkesvar ? `fjernIkkesvar('${orgnr}')` : `markerIngenNr('${orgnr}')`}">Slett</button>
+        ${(isKontaktet || isSolgt) ? `<button class="btn-notat ${hasNotat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')">📝 Notat</button>` : ''}
+      </div>
+    </div>`;
 }
 
 // ===== Periode-helpers =====
@@ -2364,15 +2740,26 @@ function render() {
   document.getElementById('ikkesvarCount').textContent = totalIkkesvar;
   resultsHeader.textContent = `${pendingInView} ${pendingInView === 1 ? 'selskap' : 'selskaper'} å kontakte`;
 
-  // Render hovedtabellen (kun ubehandlede)
+  // Render hovedvisning (kun ubehandlede)
   if (ubehandlede.length === 0) {
     const behandlet = contactedInView + solgtInView + ikkesvarInView;
-    const msg = behandlet > 0
-      ? `Alle ${behandlet} treff er behandlet. Klikk på en av statusboksene i sidelinjen for å se dem.`
-      : 'Ingen treff i perioden. Prøv å utvide datointervallet.';
-    tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
+    if (behandlet > 0) {
+      companiesContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🎯</div>
+          <div class="title">Alle ${behandlet} treff er behandlet</div>
+          <div class="subtitle">Klikk på en av statusboksene i sidelinjen for å se dem – Kontaktet, Salg, eller Ikke svar.</div>
+        </div>`;
+    } else {
+      companiesContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📭</div>
+          <div class="title">Ingen treff i perioden</div>
+          <div class="subtitle">Prøv å utvide datointervallet eller velg en annen fane.</div>
+        </div>`;
+    }
   } else {
-    tbody.innerHTML = renderRowsGrouped(ubehandlede);
+    companiesContainer.innerHTML = renderRowsGrouped(ubehandlede);
   }
 
   // Hvis behandlede-modal er åpen, oppdater den også
@@ -2399,10 +2786,10 @@ function renderRowsGrouped(list) {
     if (seenDates.has(d)) continue;
     seenDates.add(d);
     const group = byDate.get(d);
-    rowsHtml.push(`<tr><td colspan="6" class="date-header">📅 Registrert ${formatDateHeader(d)} (${group.length})</td></tr>`);
+    rowsHtml.push(`<div class="date-header">📅 Registrert ${formatDateHeader(d)}<span class="date-count">${group.length}</span></div>`);
     for (const item of group) rowsHtml.push(rowHtml(item));
   }
-  return rowsHtml.join('');
+  return `<div class="companies-cards">${rowsHtml.join('')}</div>`;
 }
 
 function formatDateHeader(d) {
@@ -2445,11 +2832,15 @@ function buildLookupLinks(e, personNavn) {
     ? `title="Søker etter: ${escapeHtml(personSearchQuery)}"`
     : `title="Henter kontaktperson…"`;
 
+  const emailLink = e.epostadresse ? `<a class="epost" href="mailto:${encodeURIComponent(e.epostadresse)}" title="Send e-post: ${escapeHtml(e.epostadresse)}">✉️ E-post</a>` : '';
+
   return `
     <div class="lookup-links" data-orgnr="${orgnr}">
       <a class="google ${pendingAttr}" href="https://www.google.com/search?q=${encodeURIComponent(googleQuery)}" target="_blank" rel="noopener" ${personTooltip}>Google</a>
       <a class="person-search ${pendingAttr}" href="https://www.1881.no/?query=${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" ${personTooltip}>1881</a>
+      <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(personSearchQuery)}" target="_blank" rel="noopener" title="Søk på Gule Sider">Gule Sider</a>
       <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
+      ${emailLink}
     </div>`;
 }
 
@@ -2491,7 +2882,7 @@ function rowHtml(e) {
   const reservedBadge = reserved ? `<span class="badge-reserved">🔒 RESERVERT AV ${escapeHtml(reserved.by.toUpperCase())}</span>` : '';
   const solgtBadge = (status?.status === 'solgt') ? `<span class="badge-solgt">💰 SALG (${status.poeng}p)</span>` : '';
   const ikkesvarBadge = (status?.status === 'ikkesvar') ? `<span class="badge-ikkesvar">📵 IKKE SVAR</span>` : '';
-  const newBadge = isNew ? `<span class="badge-new">🆕 NY</span>` : '';
+  const newBadge = isNew ? `<span class="badge-new">NY</span>` : '';
   const isForetak = e.registrertIForetaksregisteret === true;
   const registerTag = isForetak
     ? `<span class="register-tag foretak" title="Foretaksregisteret">F</span>`
@@ -2537,42 +2928,84 @@ function rowHtml(e) {
   const isSolgt = status?.status === 'solgt';
   const isIkkesvar = status?.status === 'ikkesvar';
   const hasNotat = status?.notat ? true : false;
-  const notatBtn = (isKontaktet || isSolgt) ?
-    `<button class="notat-icon-btn ${hasNotat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${hasNotat ? 'Rediger notat' : 'Legg til notat'}">📝</button>` : '';
-  const buttonsHtml = `
-    <div class="status-buttons">
-      <button class="status-btn-pair kontaktet-btn ${isKontaktet ? 'active-kontaktet' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
-      <button class="status-btn-pair solgt-btn ${isSolgt ? 'active-solgt' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre eller fjerne' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
-      <button class="status-btn-pair ikkesvar-btn ${isIkkesvar ? 'active-ikkesvar' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-      <button class="status-btn-pair ingenr-btn" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
-      ${notatBtn}
-    </div>`;
 
-  const rowClass = [
-    status?.status === 'kontaktet' ? 'row-contacted' : '',
-    status?.status === 'solgt' ? 'row-solgt' : '',
-    status?.status === 'ikkesvar' ? 'row-ikkesvar' : '',
-    reserved ? 'row-reserved' : '',
-    isNew ? 'new-row' : ''
+  // ===== Nye kort-varianter =====
+  const cardClass = [
+    isKontaktet ? 'status-kontaktet' : '',
+    isSolgt ? 'status-solgt' : '',
+    isIkkesvar ? 'status-ikkesvar' : '',
+    reserved ? 'reserved' : '',
+    isNew ? 'is-new' : ''
   ].filter(Boolean).join(' ');
 
+  // Avatar: første bokstav i selskapsnavn
+  const cleanName = (e.navn || '?').replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '');
+  const avatarLetter = (cleanName[0] || '?').toUpperCase();
+  // Farge basert på hash av orgnr - gir stabil farge per selskap
+  let hash = 0;
+  for (let i = 0; i < orgnr.length; i++) hash = ((hash << 5) - hash + orgnr.charCodeAt(i)) | 0;
+  const avatarBg = 'bg-' + (Math.abs(hash) % 8 + 1);
+
+  // Chips (kompakte "pill"-visninger for meta)
+  const orgFormChip = isNuf
+    ? `<span class="chip chip-nuf">NUF ⚠</span>`
+    : `<span class="chip chip-form">${orgForm}</span>`;
+  const registerChip = isForetak
+    ? `<span class="chip chip-foretak" title="Registrert i Foretaksregisteret">F</span>`
+    : `<span class="chip chip-enhets" title="Kun i Enhetsregisteret">E</span>`;
+
+  // Ikke svar-detaljer (telefon + notat) - kort-versjon
+  const ikkesvarDetailCard = (status?.status === 'ikkesvar') ? `
+    <div class="card-ikkesvar-detail">
+      <div><span class="field-label">Telefon:</span><span class="phone-value copyable" data-copy="${escapeHtml(status.telefon || '')}" title="Klikk for å kopiere">${escapeHtml(status.telefon || '')}</span></div>
+      ${status.notat ? `<div style="margin-top:4px;"><span class="field-label">Notat:</span>${escapeHtml(status.notat)}</div>` : ''}
+    </div>` : '';
+
+  // Notat-visning for kontaktet/salg - kort-versjon
+  const notatDetailCard = (status && (status.status === 'kontaktet' || status.status === 'solgt') && status.notat) ? `
+    <div class="card-notat">
+      <span class="field-label">📝 Notat:</span>${escapeHtml(status.notat)}
+    </div>` : '';
+
   return `
-    <tr data-orgnr="${orgnr}" class="${rowClass}" onclick="markerSomSett('${orgnr}')">
-      <td class="status-cell">${buttonsHtml}</td>
-      <td>
-        <div class="company-name">${name}${registerTag}${newBadge}${reservedBadge}${solgtBadge}${ikkesvarBadge}</div>
-        <div class="company-meta">${orgFormHtml} · ${sted}</div>
-        <div class="nace">${nace}</div>
-        ${web ? `<div class="company-meta" style="margin-top:4px">🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted)">${escapeHtml(web)}</a></div>` : ''}
-        ${showFormal ? `<div class="formal-text">📜 ${escapeHtml(formalText)}</div>` : ''}
-        ${ikkesvarDetail}
-        ${notatDetail}
-      </td>
-      <td>${orgnrCell}</td>
-      <td>${contactBlock}</td>
-      <td>${phoneBlock}</td>
-      <td><span class="time-ago">${e.registreringsdatoEnhetsregisteret || ''}</span></td>
-    </tr>`;
+    <div data-orgnr="${orgnr}" class="company-card ${cardClass}" onclick="markerSomSett('${orgnr}')">
+      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-main">
+        <div class="card-header">
+          <div class="card-name">${name}</div>
+          <div class="card-badges">
+            ${newBadge}
+            ${reservedBadge}
+            ${solgtBadge}
+            ${ikkesvarBadge}
+          </div>
+        </div>
+        <div class="card-meta-row">
+          ${orgFormChip}
+          <span class="separator">·</span>
+          <span class="chip chip-orgnr copyable" data-copy="${orgnr}" title="Klikk for å kopiere">${orgnr}</span>
+          ${sted ? `<span class="separator">·</span><span>${sted}</span>` : ''}
+          ${registerChip}
+        </div>
+        ${nace ? `<div class="card-meta-row"><span class="chip chip-nace">${nace}</span></div>` : ''}
+        ${cachedPerson ? `<div class="card-person"><span class="person-icon">👤</span><span class="copyable" data-copy="${escapeHtml(cachedPerson.navn)}" title="Klikk for å kopiere navn" style="padding:2px 6px; border-radius:4px;">${escapeHtml(cachedPerson.navn)}</span><span style="color:var(--muted-soft); font-weight:400; margin-left:6px;">(${escapeHtml(cachedPerson.rolle)})</span></div>` : '<div class="card-person"><span class="person-icon">👤</span><span style="color:var(--muted-soft); font-style:italic;">Henter kontaktperson…</span></div>'}
+        ${fullAddr ? `<div class="card-meta-row"><span>📍 ${escapeHtml(fullAddr)}</span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${phone}" title="Klikk for å kopiere telefon" style="padding:2px 6px; border-radius:4px;">${formatPhone(phone)}</span></span></div>` : ''}
+        ${web ? `<div class="card-meta-row"><span>🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted);">${escapeHtml(web)}</a></span></div>` : ''}
+        ${showFormal ? `<div class="card-formal">📜 ${escapeHtml(formalText)}</div>` : ''}
+        ${ikkesvarDetailCard}
+        ${notatDetailCard}
+        <div class="card-links">${lookups}</div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+        <button class="btn-oppfolging ${status?.status === 'oppfolging' ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(e.navn || '').replace(/'/g, '&#39;')}', telefon: '${phone}'})" title="${status?.status === 'oppfolging' ? 'Endre oppfølging' : 'Sett oppfølging'}">${status?.status === 'oppfolging' ? '📅 ' + (status.oppfolgingsDato || '') : '📅 Oppfølging'}</button>
+        <button class="btn-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
+        ${(isKontaktet || isSolgt) ? `<button class="btn-notat ${status?.notat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${status?.notat ? 'Rediger notat' : 'Legg til notat'}">📝 Notat</button>` : ''}
+      </div>
+    </div>`;
 }
 
 function buildFullAddress(addr) {
@@ -2657,33 +3090,33 @@ async function enrichDagligLedere(list) {
       updateRowLinks(e, cached.navn);
       const newReserved = matchReservation(e, cached.navn);
       if (newReserved) {
-        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
-        if (row && !row.classList.contains('row-reserved')) row.outerHTML = rowHtml(e);
+        const card = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+        if (card && !card.classList.contains('reserved')) card.outerHTML = rowHtml(e);
       }
       continue;
     }
-    const el = document.getElementById(`dl-${e.organisasjonsnummer}`);
-    if (!el) continue;
+    // Sjekk om kortet fortsatt finnes i DOM før vi henter
+    const cardEl = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+    if (!cardEl) continue;
+
     const result = await fetchKontaktperson(e.organisasjonsnummer);
     if (result) {
       personCache.set(e.organisasjonsnummer, result);
-      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
-      const stillRoleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
-      if (stillEl) stillEl.innerHTML = `<span>${escapeHtml(result.navn)}</span>${copyButton(result.navn, 'navn')}`;
-      if (stillRoleEl) {
-        stillRoleEl.textContent = result.rolle;
-        if (result.rolle !== 'Daglig leder') stillRoleEl.classList.add('no-dagl');
-        else stillRoleEl.classList.remove('no-dagl');
+      // Re-render dette kortet med den nye person-informasjonen
+      const stillCard = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+      if (stillCard) {
+        stillCard.outerHTML = rowHtml(e);
       }
       updateRowLinks(e, result.navn);
-      const newReserved = matchReservation(e, result.navn);
-      if (newReserved) {
-        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
-        if (row && !row.classList.contains('row-reserved')) row.outerHTML = rowHtml(e);
-      }
     } else {
-      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
-      if (stillEl) stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
+      // Ingen person funnet - oppdater teksten på kortet
+      const stillCard = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+      if (stillCard) {
+        const personEl = stillCard.querySelector('.card-person');
+        if (personEl) {
+          personEl.innerHTML = '<span class="person-icon">👤</span><span style="color:var(--muted-soft); font-style:italic;">Ingen kontaktperson registrert</span>';
+        }
+      }
     }
     await new Promise(r => setTimeout(r, 100));
   }
@@ -2753,6 +3186,33 @@ searchBox.addEventListener('input', render);
 fromDateEl.addEventListener('change', fetchCompanies);
 toDateEl.addEventListener('change', fetchCompanies);
 
+// ===== Kopier ved klikk (global handler) =====
+document.addEventListener('click', async (e) => {
+  const target = e.target.closest('.copyable');
+  if (!target) return;
+  const value = target.dataset.copy || target.textContent.trim();
+  if (!value) return;
+  e.stopPropagation();
+  e.preventDefault();
+  try {
+    await navigator.clipboard.writeText(value);
+  } catch (err) {
+    // Fallback for eldre nettlesere
+    const ta = document.createElement('textarea');
+    ta.value = value;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  // Visuell feedback
+  target.classList.add('copied');
+  setTimeout(() => target.classList.remove('copied'), 500);
+  // Toast
+  const displayValue = value.length > 40 ? value.slice(0, 40) + '…' : value;
+  showToast(`📋 Kopiert: ${displayValue}`);
+});
+
 // ============================================================
 // ===== FANE-SYSTEM (Bolk 2) =====
 // Alt fane-relatert er samlet her, helt til slutt, for å unngå
@@ -2762,7 +3222,9 @@ toDateEl.addEventListener('change', fetchCompanies);
 const TABS = [
   { id: 'bygg', label: 'Bygg', icon: '🏗️', title: 'Nyreg Bygg & Anlegg' },
   { id: 'ansatte', label: 'Ansatte', icon: '👥', title: 'Nyreg selskaper med ansatte' },
-  { id: 'fse', label: 'FSE', icon: '⚡', title: 'Nyreg FSE (elektro)' }
+  { id: 'fse', label: 'FSE', icon: '⚡', title: 'Nyreg FSE (elektro)' },
+  { id: 'sg', label: 'SG', icon: '🏆', title: 'Sentral godkjenning - fornyelser' },
+  { id: 'oppfolging', label: 'Oppfølging', icon: '📅', title: 'Planlagte oppfølginger' }
 ];
 
 // NACE-koder per fane (brukes senere når vi kobler dem til)
@@ -2799,10 +3261,7 @@ const NACE_BY_TAB = {
     ['93.110','93.120','93.130','93.190','93.210','93.291','93.292','93.299']
   ],
   fse: [
-    ['43.210'],
-    ['27.110','27.120','27.200','27.310','27.320','27.330','27.400','27.510','27.520','27.900'],
-    ['33.130','33.140'],
-    ['95.110','95.120','95.210','95.220']
+    ['43.210']  // Elektrisk installasjonsarbeid - eneste sikre elektro-NACE
   ]
 };
 
@@ -2835,10 +3294,10 @@ const FORMAL_BY_TAB = {
   ],
   ansatte: [],
   fse: [
-    'elektriker','elektro','elektrisk','sterkstrøm','sterkstrom','svakstrøm','svakstrom',
-    'automasjon','elkontroll','elektromontør','elektromontor',
-    'elektrikertjenester','tavle','kabling','alarm','telekom','ikt-installasjon',
-    'installasjon av elektriske','elektrisk installasjon','elektroinstallasjon'
+    'elektriker','elektromontør','elektromontor','elektrikertjenester',
+    'elektrisk installasjon','elektroinstallasjon','installasjon av elektriske',
+    'sterkstrøm','sterkstrom','svakstrøm','svakstrom',
+    'elkontroll','tavle'
   ]
 };
 
@@ -2869,12 +3328,14 @@ function applyActiveTab(tab) {
   RESERVE_KEY = tabKey('brreg_reservations_v1', tab);
   SKJULTE_KEY = tabKey('brreg_skjulte_orgnr_v1', tab);
 
-  // Bytt NACE og formåls-ord
-  NACE_GROUPS = NACE_BY_TAB[tab];
-  FORMAL_KEYWORDS = FORMAL_BY_TAB[tab];
-  FORMAL_REGEX = FORMAL_KEYWORDS.length > 0
-    ? new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i')
-    : null;
+  // Bytt NACE og formåls-ord (kun for BRREG-baserte faner)
+  if (NACE_BY_TAB[tab]) {
+    NACE_GROUPS = NACE_BY_TAB[tab];
+    FORMAL_KEYWORDS = FORMAL_BY_TAB[tab] || [];
+    FORMAL_REGEX = FORMAL_KEYWORDS.length > 0
+      ? new RegExp('\\b(' + FORMAL_KEYWORDS.join('|') + ')', 'i')
+      : null;
+  }
 
   // Reload in-memory data fra nye keys
   statusMap = loadStatus();
@@ -2929,8 +3390,16 @@ function switchTab(tabId) {
   renderTabBar();
   renderReserveList();
   updatePointsBox();
-  render();
-  fetchCompanies();
+
+  // Spesielle faner bruker egen render-logikk
+  if (tabId === 'sg') {
+    renderSGTab();
+  } else if (tabId === 'oppfolging') {
+    renderOppfolgingTab();
+  } else {
+    render();
+    fetchCompanies();
+  }
 }
 
 // Wrap updatePointsBox slik at poeng-boksen viser TOTAL fra alle faner
@@ -2978,7 +3447,607 @@ render();  // Re-render for å oppdatere tabbar-teller
 
 renderReserveList();
 updatePointsBox();
-fetchCompanies();
+// Init: hopp over fetchCompanies for spesielle faner
+if (activeTab === 'sg') {
+  renderSGTab();
+} else if (activeTab === 'oppfolging') {
+  renderOppfolgingTab();
+} else {
+  fetchCompanies();
+}
+
+// Sjekk oppfølginger i dag ved sidelasting
+setTimeout(sjekkOppfolgingIDag, 2000);
+
+// ===========================================================
+// SENTRAL GODKJENNING - fetches from DiBK
+// ===========================================================
+
+let sgData = null;  // cached SG data
+let sgLastFetch = 0;
+const SG_CACHE_MS = 60 * 60 * 1000; // 1 time cache
+
+async function fetchSGData() {
+  const now = Date.now();
+  if (sgData && (now - sgLastFetch) < SG_CACHE_MS) return sgData;
+
+  try {
+    const resp = await fetch('https://sgregister.dibk.no/api/enterprises.json', {
+      headers: { 'Accept': 'application/vnd.sgpub.v2' }
+    });
+    if (!resp.ok) throw new Error('DiBK API returnerte ' + resp.status);
+    const data = await resp.json();
+    sgData = Array.isArray(data) ? data : (data.enterprises || []);
+    sgLastFetch = now;
+    return sgData;
+  } catch (e) {
+    console.error('SG-fetch feilet:', e);
+    throw e;
+  }
+}
+
+async function renderSGTab() {
+  companiesContainer.innerHTML = `
+    <div class="empty-state">
+      <div class="icon">⏳</div>
+      <div class="title">Henter data fra DiBK (Sentral Godkjenning)</div>
+      <div class="subtitle">Første henting kan ta 10-30 sekunder - datasettet er stort...</div>
+    </div>`;
+
+  try {
+    const all = await fetchSGData();
+
+    // Filtrer: kun de som utløper innen 365 dager
+    const today = new Date();
+    const in365 = new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const filtered = [];
+
+    for (const item of all) {
+      // Finn tidligste utløpsdato blant godkjenningsområder
+      const approvals = item.approvalAreas || item.godkjenningsomrader || [];
+      let earliestExpiry = null;
+      for (const a of approvals) {
+        const expiryStr = a.validTo || a.validUntil || a.gyldigTil;
+        if (!expiryStr) continue;
+        const expiry = new Date(expiryStr);
+        if (isNaN(expiry.getTime())) continue;
+        if (!earliestExpiry || expiry < earliestExpiry) {
+          earliestExpiry = expiry;
+        }
+      }
+      if (!earliestExpiry) continue;
+      if (earliestExpiry < today) continue;  // allerede utløpt
+      if (earliestExpiry > in365) continue;  // mer enn 1 år unna
+
+      filtered.push({
+        ...item,
+        _expiryDate: earliestExpiry,
+        _daysToExpiry: Math.round((earliestExpiry - today) / (24 * 60 * 60 * 1000))
+      });
+    }
+
+    // Sorter: tidligst utløp øverst
+    filtered.sort((a, b) => a._expiryDate - b._expiryDate);
+
+    // Filtrer bort skjulte
+    const visible = filtered.filter(item => {
+      const orgnr = item.organizationNumber || item.orgnr || item.enterpriseId;
+      return !skjulteOrgnrs.has(String(orgnr));
+    });
+
+    // Del i ubehandlede / behandlede
+    const ubehandlede = visible.filter(item => {
+      const orgnr = String(item.organizationNumber || item.orgnr || item.enterpriseId);
+      const s = statusMap.get(orgnr);
+      return !s || (!s.status);
+    });
+
+    if (visible.length === 0) {
+      companiesContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🏆</div>
+          <div class="title">Ingen sentrale godkjenninger utløper innen 1 år</div>
+          <div class="subtitle">Alle SG-foretak har mer enn 365 dager igjen av godkjenningsperioden.</div>
+        </div>`;
+      return;
+    }
+
+    if (ubehandlede.length === 0) {
+      companiesContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🎯</div>
+          <div class="title">Alle ${visible.length} SG-foretak er behandlet</div>
+          <div class="subtitle">Klikk på en av statusboksene i sidelinjen for å se dem.</div>
+        </div>`;
+      return;
+    }
+
+    // Grupper etter dager til utløp
+    const rod = ubehandlede.filter(x => x._daysToExpiry < 30);
+    const gul = ubehandlede.filter(x => x._daysToExpiry >= 30 && x._daysToExpiry < 90);
+    const gronn = ubehandlede.filter(x => x._daysToExpiry >= 90);
+
+    let html = '<div class="companies-cards">';
+    if (rod.length > 0) {
+      html += `<div class="date-header" style="color:var(--red);">🔴 Utløper snart (mindre enn 30 dager)<span class="date-count">${rod.length}</span></div>`;
+      html += rod.map(sgCardHtml).join('');
+    }
+    if (gul.length > 0) {
+      html += `<div class="date-header" style="color:var(--accent);">🟡 Utløper innen 90 dager<span class="date-count">${gul.length}</span></div>`;
+      html += gul.map(sgCardHtml).join('');
+    }
+    if (gronn.length > 0) {
+      html += `<div class="date-header" style="color:var(--green);">🟢 Utløper 90-365 dager<span class="date-count">${gronn.length}</span></div>`;
+      html += gronn.map(sgCardHtml).join('');
+    }
+    html += '</div>';
+
+    companiesContainer.innerHTML = html;
+
+  } catch (e) {
+    companiesContainer.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">⚠️</div>
+        <div class="title">Kunne ikke hente SG-data</div>
+        <div class="subtitle">Feil: ${escapeHtml(e.message)}<br><br>DiBK-APIet kan være nede eller ha endret format. Prøv igjen om litt.</div>
+      </div>`;
+  }
+}
+
+function sgCardHtml(item) {
+  const orgnr = String(item.organizationNumber || item.orgnr || item.enterpriseId || '');
+  const navn = item.enterpriseName || item.navn || item.name || 'Ukjent';
+  const address = item.address || item.forretningsadresse || {};
+  const gate = address.streetAddress || address.adresse || '';
+  const postnr = address.postalCode || address.postnummer || '';
+  const poststed = address.city || address.poststed || '';
+  const sted = [postnr, poststed].filter(Boolean).join(' ').trim();
+  const phone = item.phoneNumber || item.telefon || '';
+  const email = item.email || item.epost || '';
+
+  const dager = item._daysToExpiry;
+  const expiryDate = item._expiryDate.toISOString().slice(0, 10);
+
+  let expiryColor = 'var(--green)';
+  let expiryBg = 'rgba(101,206,121,0.1)';
+  if (dager < 30) { expiryColor = 'var(--red)'; expiryBg = 'rgba(254,100,100,0.15)'; }
+  else if (dager < 90) { expiryColor = 'var(--accent)'; expiryBg = 'rgba(255,204,77,0.12)'; }
+
+  // Avatar
+  const cleanName = navn.replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '');
+  const avatarLetter = (cleanName[0] || '?').toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < orgnr.length; i++) hash = ((hash << 5) - hash + orgnr.charCodeAt(i)) | 0;
+  const avatarBg = 'bg-' + (Math.abs(hash) % 8 + 1);
+
+  const status = statusMap.get(orgnr);
+  const isKontaktet = status?.status === 'kontaktet';
+  const isSolgt = status?.status === 'solgt';
+  const isIkkesvar = status?.status === 'ikkesvar';
+  const isOppfolging = status?.status === 'oppfolging';
+
+  const approvals = item.approvalAreas || item.godkjenningsomrader || [];
+  const areasText = approvals.slice(0, 3).map(a =>
+    (a.functionName || a.function || a.funksjon || 'Godkjenningsområde')
+  ).join(', ') + (approvals.length > 3 ? ` +${approvals.length - 3} til` : '');
+
+  const cardClass = [
+    isKontaktet ? 'status-kontaktet' : '',
+    isSolgt ? 'status-solgt' : '',
+    isIkkesvar ? 'status-ikkesvar' : '',
+    isOppfolging ? 'status-oppfolging' : '',
+    'is-new'  // SG-kort er alltid "lyse" siden det ikke er noe sett-konsept
+  ].filter(Boolean).join(' ');
+
+  return `
+    <div data-orgnr="${orgnr}" class="company-card ${cardClass}">
+      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-main">
+        <div class="card-header">
+          <div class="card-name">${escapeHtml(navn)}</div>
+        </div>
+        <div class="card-meta-row">
+          <span class="chip chip-orgnr copyable" data-copy="${orgnr}" title="Klikk for å kopiere">${orgnr}</span>
+          ${sted ? `<span class="separator">·</span><span>${escapeHtml(sted)}</span>` : ''}
+        </div>
+        <div class="card-meta-row" style="background:${expiryBg}; padding:8px 12px; border-radius:6px; border-left:3px solid ${expiryColor}; margin-top:6px;">
+          <span style="color:${expiryColor}; font-weight:700;">⏰ Utløper ${expiryDate} - om ${dager} dager</span>
+        </div>
+        ${areasText ? `<div class="card-meta-row"><span class="chip chip-nace">${escapeHtml(areasText)}</span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${phone}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
+        ${email ? `<div class="card-meta-row"><span>✉️ <a href="mailto:${email}" style="color:var(--blue);">${escapeHtml(email)}</a></span></div>` : ''}
+        <div class="card-links">
+          <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(navn + ' telefon')}" target="_blank" rel="noopener">Google</a>
+          <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(navn)}" target="_blank" rel="noopener">1881</a>
+          <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(navn)}" target="_blank" rel="noopener">Gule Sider</a>
+          <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
+          <a class="brreg" href="https://sgregister.dibk.no/enterprises/${orgnr}" target="_blank" rel="noopener" style="border-color:rgba(197,128,224,0.5); color:#c580e0;">DiBK</a>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+        <button class="btn-oppfolging ${isOppfolging ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(navn).replace(/'/g, '&#39;')}', telefon: '${phone}', fane: 'sg'})">${isOppfolging ? '📅 ' + (status.oppfolgingsDato || '') : '📅 Oppfølging'}</button>
+        <button class="btn-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')">Slett</button>
+      </div>
+    </div>`;
+}
+
+// ===========================================================
+// OPPFØLGING - felles kalender for alle faner
+// ===========================================================
+
+let oppfolgingViewDate = new Date();
+
+function getAllOppfolginger() {
+  // Samler oppfølginger fra alle faner
+  const allOppf = [];
+  for (const tab of TABS) {
+    if (tab.id === 'oppfolging') continue;
+    const key = tabKey('brreg_status_v1', tab.id);
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const obj = JSON.parse(raw);
+      for (const [orgnr, v] of Object.entries(obj)) {
+        if (v.status === 'oppfolging' && v.oppfolgingsDato) {
+          allOppf.push({
+            orgnr,
+            dato: v.oppfolgingsDato,
+            notat: v.notat || '',
+            navn: v.navn || 'Ukjent',
+            telefon: v.telefon || '',
+            fane: tab.id,
+            faneLabel: tab.label
+          });
+        }
+      }
+    } catch (e) { /* skip */ }
+  }
+  return allOppf;
+}
+
+function renderOppfolgingTab() {
+  const allOppf = getAllOppfolginger();
+  const year = oppfolgingViewDate.getFullYear();
+  const month = oppfolgingViewDate.getMonth();
+
+  const monthNames = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
+  const dayNames = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDay = (firstDay.getDay() + 6) % 7; // Man=0
+
+  // Bygg dager
+  const days = [];
+  for (let i = 0; i < startDay; i++) days.push(null);
+  for (let d = 1; d <= lastDay.getDate(); d++) days.push(d);
+
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+
+  // Grupper oppfølginger per dato
+  const byDate = new Map();
+  for (const o of allOppf) {
+    if (!byDate.has(o.dato)) byDate.set(o.dato, []);
+    byDate.get(o.dato).push(o);
+  }
+
+  let calendarHtml = `
+    <div style="padding:24px 32px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <button class="secondary" onclick="oppfolgingChangeMonth(-1)">‹ Forrige</button>
+          <h2 style="margin:0; font-size:20px; letter-spacing:-0.3px;">${monthNames[month]} ${year}</h2>
+          <button class="secondary" onclick="oppfolgingChangeMonth(1)">Neste ›</button>
+        </div>
+        <button class="secondary" onclick="oppfolgingGoToday()">📍 I dag</button>
+      </div>
+      <div class="calendar-grid">
+        ${dayNames.map(d => `<div class="cal-day-name">${d}</div>`).join('')}
+        ${days.map(d => {
+          if (d === null) return '<div class="cal-day empty"></div>';
+          const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          const items = byDate.get(dateStr) || [];
+          const isToday = dateStr === todayStr;
+          const isPast = dateStr < todayStr;
+          let dayClass = 'cal-day';
+          if (isToday) dayClass += ' today';
+          if (items.length > 0) {
+            if (isToday || isPast) dayClass += ' has-urgent';
+            else {
+              const daysAway = Math.round((new Date(dateStr) - today) / (24*60*60*1000));
+              if (daysAway <= 7) dayClass += ' has-soon';
+              else dayClass += ' has-later';
+            }
+          }
+          const badge = items.length > 0 ? `<span class="cal-badge">${items.length}</span>` : '';
+          return `<div class="${dayClass}" onclick="oppfolgingShowDay('${dateStr}')">
+            <div class="cal-day-num">${d}</div>
+            ${badge}
+          </div>`;
+        }).join('')}
+      </div>
+      <div id="oppfolgingDayList" style="margin-top:24px;"></div>
+    </div>`;
+
+  companiesContainer.innerHTML = calendarHtml;
+
+  // Vis dagens oppfølginger automatisk hvis vi er på inneværende måned
+  if (today.getFullYear() === year && today.getMonth() === month) {
+    oppfolgingShowDay(todayStr);
+  } else if (allOppf.length === 0) {
+    document.getElementById('oppfolgingDayList').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📅</div>
+        <div class="title">Ingen oppfølginger planlagt</div>
+        <div class="subtitle">Marker et selskap med "📅 Oppfølging"-knappen for å legge det til her.</div>
+      </div>`;
+  }
+}
+
+window.oppfolgingChangeMonth = function(delta) {
+  oppfolgingViewDate.setMonth(oppfolgingViewDate.getMonth() + delta);
+  renderOppfolgingTab();
+};
+
+window.oppfolgingGoToday = function() {
+  oppfolgingViewDate = new Date();
+  renderOppfolgingTab();
+};
+
+window.oppfolgingShowDay = function(dateStr) {
+  const allOppf = getAllOppfolginger();
+  const items = allOppf.filter(o => o.dato === dateStr).sort((a,b) => a.navn.localeCompare(b.navn));
+  const listEl = document.getElementById('oppfolgingDayList');
+  if (!listEl) return;
+
+  if (items.length === 0) {
+    listEl.innerHTML = `
+      <div class="empty-state" style="padding:40px 20px;">
+        <div class="icon">✨</div>
+        <div class="title">Ingen oppfølginger ${dateStr}</div>
+      </div>`;
+    return;
+  }
+
+  const dateDisplay = formatDateHeader(dateStr);
+  let html = `<div class="date-header">📅 Oppfølginger ${dateDisplay}<span class="date-count">${items.length}</span></div>`;
+  html += '<div class="companies-cards">';
+  html += items.map(o => oppfolgingCardHtml(o)).join('');
+  html += '</div>';
+  listEl.innerHTML = html;
+};
+
+function oppfolgingCardHtml(o) {
+  const cleanName = (o.navn || '?').replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '');
+  const avatarLetter = (cleanName[0] || '?').toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < o.orgnr.length; i++) hash = ((hash << 5) - hash + o.orgnr.charCodeAt(i)) | 0;
+  const avatarBg = 'bg-' + (Math.abs(hash) % 8 + 1);
+
+  const faneIkon = {bygg:'🏗️', ansatte:'👥', fse:'⚡', sg:'🏆'}[o.fane] || '';
+
+  return `
+    <div class="company-card is-new" data-orgnr="${o.orgnr}">
+      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-main">
+        <div class="card-header">
+          <div class="card-name">${escapeHtml(o.navn)}</div>
+          <span class="chip chip-form">${faneIkon} ${o.faneLabel}</span>
+        </div>
+        <div class="card-meta-row">
+          <span class="chip chip-orgnr copyable" data-copy="${o.orgnr}" title="Klikk for å kopiere">${o.orgnr}</span>
+          ${o.telefon ? `<span class="separator">·</span><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${o.telefon}">${formatPhone(o.telefon)}</span></span>` : ''}
+        </div>
+        ${o.notat ? `<div class="card-notat"><span class="field-label">📝 Notat:</span>${escapeHtml(o.notat)}</div>` : ''}
+        <div class="card-links">
+          <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(o.navn + ' telefon')}" target="_blank" rel="noopener">Google</a>
+          <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(o.navn)}" target="_blank" rel="noopener">1881</a>
+          <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${o.orgnr}" target="_blank" rel="noopener">BRREG</a>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-salg" onclick="oppfolgingFullforSalg('${o.orgnr}', '${o.fane}')">💰 Salg</button>
+        <button class="btn-kontaktet" onclick="oppfolgingEndreDato('${o.orgnr}', '${o.fane}')">📅 Endre dato</button>
+        <button class="btn-notat" onclick="oppfolgingEndreNotat('${o.orgnr}', '${o.fane}')">✏️ Notat</button>
+        <button style="background:var(--green); color:#111;" onclick="oppfolgingFullfor('${o.orgnr}', '${o.fane}')">✅ Fullført</button>
+        <button class="btn-slett" onclick="oppfolgingSlett('${o.orgnr}', '${o.fane}')">🗑 Slett</button>
+      </div>
+    </div>`;
+}
+
+window.oppfolgingFullfor = function(orgnr, fane) {
+  const key = tabKey('brreg_status_v1', fane);
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      const obj = JSON.parse(raw);
+      delete obj[orgnr];
+      localStorage.setItem(key, JSON.stringify(obj));
+    }
+    showToast('✅ Oppfølging fullført');
+    renderOppfolgingTab();
+    updatePointsBox();
+  } catch (e) { console.error(e); }
+};
+
+window.oppfolgingSlett = function(orgnr, fane) {
+  oppfolgingFullfor(orgnr, fane);
+};
+
+window.oppfolgingFullforSalg = function(orgnr, fane) {
+  const poeng = prompt('Hvor mange salgspoeng?', '');
+  if (poeng === null) return;
+  const p = parseInt(poeng);
+  if (isNaN(p) || p < 0) { showToast('Ugyldig antall poeng'); return; }
+  const key = tabKey('brreg_status_v1', fane);
+  try {
+    const raw = localStorage.getItem(key);
+    const obj = raw ? JSON.parse(raw) : {};
+    const existing = obj[orgnr] || {};
+    obj[orgnr] = {
+      ...existing,
+      status: 'solgt',
+      poeng: p,
+      dato: new Date().toISOString().slice(0, 10)
+    };
+    localStorage.setItem(key, JSON.stringify(obj));
+    showToast(`💰 Salg registrert (${p}p)`);
+    renderOppfolgingTab();
+    updatePointsBox();
+  } catch (e) { console.error(e); }
+};
+
+window.oppfolgingEndreDato = function(orgnr, fane) {
+  const nyDato = prompt('Ny oppfølgingsdato (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
+  if (!nyDato || !/^\d{4}-\d{2}-\d{2}$/.test(nyDato)) { showToast('Ugyldig dato'); return; }
+  const key = tabKey('brreg_status_v1', fane);
+  try {
+    const raw = localStorage.getItem(key);
+    const obj = raw ? JSON.parse(raw) : {};
+    if (!obj[orgnr]) return;
+    obj[orgnr].oppfolgingsDato = nyDato;
+    localStorage.setItem(key, JSON.stringify(obj));
+    showToast('📅 Dato oppdatert');
+    renderOppfolgingTab();
+  } catch (e) { console.error(e); }
+};
+
+window.oppfolgingEndreNotat = function(orgnr, fane) {
+  const key = tabKey('brreg_status_v1', fane);
+  try {
+    const raw = localStorage.getItem(key);
+    const obj = raw ? JSON.parse(raw) : {};
+    if (!obj[orgnr]) return;
+    const nyNotat = prompt('Rediger notat:', obj[orgnr].notat || '');
+    if (nyNotat === null) return;
+    obj[orgnr].notat = nyNotat.trim();
+    localStorage.setItem(key, JSON.stringify(obj));
+    showToast('✏️ Notat oppdatert');
+    renderOppfolgingTab();
+  } catch (e) { console.error(e); }
+};
+
+// ===========================================================
+// MARKER OPPFØLGING - felles funksjon som lagrer i aktiv fane
+// ===========================================================
+
+window.markerOppfolging = function(orgnr, meta) {
+  meta = meta || {};
+  const fane = meta.fane || activeTab;
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Modal
+  showOppfolgingModal(orgnr, meta, fane, today);
+};
+
+function showOppfolgingModal(orgnr, meta, fane, defaultDate) {
+  // Bygg modal on-the-fly
+  const backdrop = document.getElementById('oppfolgingModal') || createOppfolgingModal();
+  const dateInput = backdrop.querySelector('#oppfolgingDatoInput');
+  const notatInput = backdrop.querySelector('#oppfolgingNotatInput');
+  const gjemNavn = backdrop.querySelector('#oppfolgingNavn');
+  const saveBtn = backdrop.querySelector('#oppfolgingSaveBtn');
+
+  // Sett standard dato: 7 dager frem
+  const in7 = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  // Hent eksisterende data hvis finnes
+  const key = tabKey('brreg_status_v1', fane);
+  let existingData = {};
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) existingData = JSON.parse(raw)[orgnr] || {};
+  } catch (e) {}
+
+  dateInput.value = existingData.oppfolgingsDato || in7;
+  notatInput.value = existingData.notat || '';
+  gjemNavn.textContent = meta.navn || existingData.navn || orgnr;
+
+  saveBtn.onclick = () => {
+    const dato = dateInput.value;
+    const notat = notatInput.value.trim();
+    if (!dato) { showToast('Velg en dato'); return; }
+
+    try {
+      const raw = localStorage.getItem(key);
+      const obj = raw ? JSON.parse(raw) : {};
+      obj[orgnr] = {
+        ...(obj[orgnr] || {}),
+        status: 'oppfolging',
+        dato: new Date().toISOString().slice(0, 10),
+        oppfolgingsDato: dato,
+        notat: notat,
+        navn: meta.navn || existingData.navn || orgnr,
+        telefon: meta.telefon || existingData.telefon || ''
+      };
+      localStorage.setItem(key, JSON.stringify(obj));
+
+      // Reload statusMap hvis vi er på samme fane
+      if (fane === activeTab) {
+        statusMap = loadStatus();
+        if (activeTab === 'sg') renderSGTab();
+        else if (activeTab === 'oppfolging') renderOppfolgingTab();
+        else render();
+      }
+      showToast(`📅 Oppfølging satt til ${dato}`);
+      backdrop.classList.remove('show');
+    } catch (e) { console.error(e); showToast('Feil ved lagring'); }
+  };
+
+  backdrop.classList.add('show');
+}
+
+function createOppfolgingModal() {
+  const div = document.createElement('div');
+  div.className = 'modal-backdrop';
+  div.id = 'oppfolgingModal';
+  div.innerHTML = `
+    <div class="modal">
+      <h3>📅 Sett oppfølging</h3>
+      <p>For: <strong id="oppfolgingNavn"></strong></p>
+      <div style="margin:14px 0;">
+        <label style="display:block; margin-bottom:6px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600;">Dato for oppfølging</label>
+        <input type="date" id="oppfolgingDatoInput" style="width:100%;">
+      </div>
+      <div style="margin:14px 0;">
+        <label style="display:block; margin-bottom:6px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600;">Notat</label>
+        <textarea id="oppfolgingNotatInput" style="min-height:100px;" placeholder="F.eks. Ring tilbake om 2 uker, avtalte at jeg skulle sende tilbud, etc."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="secondary" onclick="document.getElementById('oppfolgingModal').classList.remove('show')">Avbryt</button>
+        <button id="oppfolgingSaveBtn">Lagre oppfølging</button>
+      </div>
+    </div>`;
+  div.addEventListener('click', (e) => {
+    if (e.target === div) div.classList.remove('show');
+  });
+  document.body.appendChild(div);
+  return div;
+}
+
+// Sjekk oppfølginger i dag ved sidelasting
+function sjekkOppfolgingIDag() {
+  const allOppf = getAllOppfolginger();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const idag = allOppf.filter(o => o.dato === todayStr);
+  const forsinket = allOppf.filter(o => o.dato < todayStr);
+
+  if (idag.length > 0 || forsinket.length > 0) {
+    setTimeout(() => {
+      let msg = '';
+      if (idag.length > 0) msg += `⏰ ${idag.length} oppfølging${idag.length===1?'':'er'} i dag`;
+      if (forsinket.length > 0) {
+        if (msg) msg += ' · ';
+        msg += `⚠️ ${forsinket.length} forsinket`;
+      }
+      showToast(msg);
+    }, 1500);
+  }
+}
 </script>
 
 </body>
