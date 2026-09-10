@@ -4255,4 +4255,40 @@ function createOppfolgingModal() {
       </div>
       <div style="margin:14px 0;">
         <label style="display:block; margin-bottom:6px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; font-weight:600;">Notat</label>
-        <textarea id="oppfolgingNotatInput" style="min-height:100px;" placeholder="F.eks. Ring tilbake om 2 uker, avtalte at jeg s
+        <textarea id="oppfolgingNotatInput" style="min-height:100px;" placeholder="F.eks. Ring tilbake om 2 uker, avtalte at jeg skulle sende tilbud, etc."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="secondary" onclick="document.getElementById('oppfolgingModal').classList.remove('show')">Avbryt</button>
+        <button id="oppfolgingSaveBtn">Lagre oppfølging</button>
+      </div>
+    </div>`;
+  div.addEventListener('click', (e) => {
+    if (e.target === div) div.classList.remove('show');
+  });
+  document.body.appendChild(div);
+  return div;
+}
+
+// Sjekk oppfølginger i dag ved sidelasting
+function sjekkOppfolgingIDag() {
+  const allOppf = getAllOppfolginger();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const idag = allOppf.filter(o => o.dato === todayStr);
+  const forsinket = allOppf.filter(o => o.dato < todayStr);
+
+  if (idag.length > 0 || forsinket.length > 0) {
+    setTimeout(() => {
+      let msg = '';
+      if (idag.length > 0) msg += `⏰ ${idag.length} oppfølging${idag.length===1?'':'er'} i dag`;
+      if (forsinket.length > 0) {
+        if (msg) msg += ' · ';
+        msg += `⚠️ ${forsinket.length} forsinket`;
+      }
+      showToast(msg);
+    }, 1500);
+  }
+}
+</script>
+
+</body>
+</html>
