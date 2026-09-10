@@ -407,6 +407,7 @@
   .main-header {
     display:flex; align-items:center; justify-content:space-between;
     margin-bottom:20px; flex-wrap:wrap; gap:12px;
+    padding-left:44px;  /* Plass til sidebar-toggle-pilen */
   }
   .main-header h2 {
     margin:0; font-size:14px; font-weight:600; color:var(--muted);
@@ -822,26 +823,23 @@
     box-shadow:var(--shadow-sm);
     position:relative;
     animation:slideInUp 0.25s cubic-bezier(0.4,0,0.2,1);
-    opacity:0.65;
   }
   @keyframes slideInUp {
     from { opacity:0; transform:translateY(6px); }
-    to { opacity:0.65; transform:translateY(0); }
+    to { opacity:1; transform:translateY(0); }
   }
-  /* Sette kort som ikke er ny men uten status - forblir mørke */
+  /* Sette kort som ikke er ny men uten status - MØRK bakgrunn men skarp tekst */
   .company-card:hover {
-    opacity:1;
     border-color:var(--muted-soft);
     background:var(--panel-2);
     transform:translateY(-1px);
     box-shadow:var(--shadow);
   }
 
-  /* NYE ubehandlede - LYSE og tydelige */
+  /* NYE ubehandlede - LYS bakgrunn, tydelige */
   .company-card.is-new {
     background:var(--panel-4);
     border-left-color:var(--text-soft);
-    opacity:1;
   }
   .company-card.is-new:hover {
     background:rgba(255,255,255,0.08);
@@ -852,22 +850,22 @@
     box-shadow:0 0 8px var(--accent);
   }
 
-  /* Behandlede kort - dempet */
+  /* Behandlede kort - mørk bakgrunn, farget venstre-kant, skarp tekst */
   .company-card.status-kontaktet {
     border-left-color:var(--accent);
-    opacity:0.55;
+    background:var(--panel);
   }
-  .company-card.status-kontaktet:hover { opacity:1; }
+  .company-card.status-kontaktet:hover { background:var(--panel-2); }
   .company-card.status-solgt {
     border-left-color:var(--green);
-    opacity:0.6;
+    background:var(--panel);
   }
-  .company-card.status-solgt:hover { opacity:1; }
+  .company-card.status-solgt:hover { background:var(--panel-2); }
   .company-card.status-ikkesvar {
     border-left-color:var(--blue);
-    opacity:0.6;
+    background:var(--panel);
   }
-  .company-card.status-ikkesvar:hover { opacity:1; }
+  .company-card.status-ikkesvar:hover { background:var(--panel-2); }
 
   /* Reservert - alltid tydelig */
   .company-card.reserved {
@@ -875,7 +873,6 @@
     background:rgba(255,204,77,0.09) !important;
     border-left-color:var(--reserved) !important;
     box-shadow:0 0 0 1px var(--reserved), var(--shadow-sm);
-    opacity:1 !important;
   }
 
   /* Avatar - første bokstav i selskapsnavn */
@@ -1022,8 +1019,8 @@
   }
   .card-actions .btn-oppfolging:hover { background:var(--green); color:#111; border-color:var(--green); }
   .card-actions .btn-oppfolging.active { background:var(--green); color:#111; border-color:var(--green); }
-  .company-card.status-oppfolging { border-left-color:var(--green); opacity:0.6; }
-  .company-card.status-oppfolging:hover { opacity:1; }
+  .company-card.status-oppfolging { border-left-color:var(--green); background:var(--panel); }
+  .company-card.status-oppfolging:hover { background:var(--panel-2); }
 
   /* ===== KALENDER ===== */
   .calendar-grid {
@@ -1223,7 +1220,7 @@
   </div>
 
   <div class="header-center">
-    <div class="points-box">
+    <div class="points-box" onclick="showSalgsOversikt()" title="Klikk for å se salg fordelt per fane" style="cursor:pointer;">
       <span class="icon">💰</span>
       <div class="info">
         <span class="label" id="pointsLabel">Apr 2026</span>
@@ -3447,6 +3444,14 @@ render();  // Re-render for å oppdatere tabbar-teller
 
 renderReserveList();
 updatePointsBox();
+
+// ===========================================================
+// SENTRAL GODKJENNING - cache-variabler MÅ deklareres før init
+// ===========================================================
+let sgData = null;  // cached SG data
+let sgLastFetch = 0;
+const SG_CACHE_MS = 60 * 60 * 1000; // 1 time cache
+
 // Init: hopp over fetchCompanies for spesielle faner
 if (activeTab === 'sg') {
   renderSGTab();
@@ -3460,12 +3465,171 @@ if (activeTab === 'sg') {
 setTimeout(sjekkOppfolgingIDag, 2000);
 
 // ===========================================================
-// SENTRAL GODKJENNING - fetches from DiBK
+// TOTAL SALGS-OVERSIKT PÅ TVERS AV FANER
 // ===========================================================
 
-let sgData = null;  // cached SG data
-let sgLastFetch = 0;
-const SG_CACHE_MS = 60 * 60 * 1000; // 1 time cache
+let salgsOversiktPeriode = 'month';  // month | week | year | all
+
+window.showSalgsOversikt = function() {
+  let modal = document.getElementById('salgsOversiktModal');
+  if (!modal) modal = createSalgsOversiktModal();
+  renderSalgsOversikt();
+  modal.classList.add('show');
+};
+
+function createSalgsOversiktModal() {
+  const div = document.createElement('div');
+  div.className = 'modal-backdrop';
+  div.id = 'salgsOversiktModal';
+  div.innerHTML = `
+    <div class="modal" style="max-width:700px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <h3 style="margin:0;">💰 Salg fordelt per fane</h3>
+        <button onclick="document.getElementById('salgsOversiktModal').classList.remove('show')" style="background:transparent; color:var(--muted); font-size:20px; padding:4px 10px; border:none;">✕</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:20px;">
+        <button class="secondary salgs-period-btn" data-period="week" onclick="salgsOversiktSetPeriode('week')">Denne uken</button>
+        <button class="secondary salgs-period-btn" data-period="month" onclick="salgsOversiktSetPeriode('month')">Denne måneden</button>
+        <button class="secondary salgs-period-btn" data-period="year" onclick="salgsOversiktSetPeriode('year')">I år</button>
+        <button class="secondary salgs-period-btn" data-period="all" onclick="salgsOversiktSetPeriode('all')">Alle tider</button>
+      </div>
+      <div id="salgsOversiktBody"></div>
+    </div>`;
+  div.addEventListener('click', (e) => {
+    if (e.target === div) div.classList.remove('show');
+  });
+  document.body.appendChild(div);
+  return div;
+}
+
+window.salgsOversiktSetPeriode = function(periode) {
+  salgsOversiktPeriode = periode;
+  renderSalgsOversikt();
+};
+
+function renderSalgsOversikt() {
+  const body = document.getElementById('salgsOversiktBody');
+  if (!body) return;
+
+  // Marker aktiv periode-knapp
+  document.querySelectorAll('.salgs-period-btn').forEach(btn => {
+    if (btn.dataset.period === salgsOversiktPeriode) {
+      btn.style.background = 'var(--accent)';
+      btn.style.color = '#111';
+      btn.style.borderColor = 'var(--accent)';
+    } else {
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }
+  });
+
+  // Beregn periode-filter
+  const now = new Date();
+  let filterFn = () => true;
+  let periodeLabel = '';
+
+  if (salgsOversiktPeriode === 'month') {
+    const yyyymm = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    filterFn = (dato) => dato && dato.startsWith(yyyymm);
+    const monthNames = ['januar','februar','mars','april','mai','juni','juli','august','september','oktober','november','desember'];
+    periodeLabel = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+  } else if (salgsOversiktPeriode === 'year') {
+    const yyyy = String(now.getFullYear());
+    filterFn = (dato) => dato && dato.startsWith(yyyy);
+    periodeLabel = String(now.getFullYear());
+  } else if (salgsOversiktPeriode === 'week') {
+    // Denne uken (mandag-søndag)
+    const day = (now.getDay() + 6) % 7;
+    const monday = new Date(now); monday.setDate(now.getDate() - day); monday.setHours(0,0,0,0);
+    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999);
+    filterFn = (dato) => {
+      if (!dato) return false;
+      const d = new Date(dato);
+      return d >= monday && d <= sunday;
+    };
+    periodeLabel = `${monday.toISOString().slice(0,10)} - ${sunday.toISOString().slice(0,10)}`;
+  } else {
+    periodeLabel = 'Alle tider';
+  }
+
+  // Samle salg per fane
+  const perFane = [];
+  let totalSalg = 0;
+  let totalPoeng = 0;
+
+  for (const tab of TABS) {
+    if (tab.id === 'oppfolging') continue;
+    const key = tabKey('brreg_status_v1', tab.id);
+    let salgCount = 0;
+    let poengSum = 0;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const obj = JSON.parse(raw);
+        for (const v of Object.values(obj)) {
+          if (v.status === 'solgt' && filterFn(v.dato)) {
+            salgCount++;
+            poengSum += (v.poeng || 0);
+          }
+        }
+      }
+    } catch (e) { /* skip */ }
+    perFane.push({ tab, salg: salgCount, poeng: poengSum });
+    totalSalg += salgCount;
+    totalPoeng += poengSum;
+  }
+
+  // Sortér etter poeng (høyest først)
+  perFane.sort((a, b) => b.poeng - a.poeng);
+
+  // Bygg HTML
+  let html = `
+    <div style="text-align:center; padding:16px; background:var(--panel-2); border-radius:var(--radius); margin-bottom:16px;">
+      <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:600;">Total ${escapeHtml(periodeLabel)}</div>
+      <div style="font-size:32px; font-weight:800; color:var(--green); letter-spacing:-0.6px; line-height:1.1; margin-top:4px;">${totalPoeng}p</div>
+      <div style="font-size:13px; color:var(--muted-soft); margin-top:2px;">${totalSalg} salg totalt</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+  `;
+
+  const faneFarger = { bygg:'var(--accent)', ansatte:'var(--blue)', fse:'#ffb43c', sg:'#c580e0' };
+
+  if (totalPoeng === 0) {
+    html += `<div class="empty-state" style="padding:40px 20px;">
+      <div class="icon">📭</div>
+      <div class="title">Ingen salg registrert ${escapeHtml(periodeLabel).toLowerCase()}</div>
+    </div>`;
+  } else {
+    for (const f of perFane) {
+      const farge = faneFarger[f.tab.id] || 'var(--muted)';
+      const pct = totalPoeng > 0 ? (f.poeng / totalPoeng * 100) : 0;
+      html += `
+        <div style="background:var(--panel-2); border:1px solid var(--border-soft); border-left:4px solid ${farge}; border-radius:var(--radius); padding:14px 18px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:18px;">${f.tab.icon}</span>
+              <span style="font-size:15px; font-weight:600; color:var(--text);">${f.tab.label}</span>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:18px; font-weight:700; color:${farge};">${f.poeng}p</div>
+              <div style="font-size:11px; color:var(--muted);">${f.salg} salg · ${pct.toFixed(0)}%</div>
+            </div>
+          </div>
+          <div style="background:var(--panel); height:6px; border-radius:3px; overflow:hidden;">
+            <div style="background:${farge}; height:100%; width:${pct}%; transition:width 0.4s;"></div>
+          </div>
+        </div>`;
+    }
+  }
+  html += '</div>';
+
+  body.innerHTML = html;
+}
+
+// ===========================================================
+// SENTRAL GODKJENNING - fetches from DiBK
+// ===========================================================
 
 async function fetchSGData() {
   const now = Date.now();
@@ -3497,27 +3661,52 @@ async function renderSGTab() {
   try {
     const all = await fetchSGData();
 
+    console.log('[SG] Antall foretak fra DiBK:', all.length);
+    if (all.length > 0) {
+      console.log('[SG] Første foretak (full struktur):', all[0]);
+      console.log('[SG] Feltnavn på nivå 1:', Object.keys(all[0]));
+    }
+
     // Filtrer: kun de som utløper innen 365 dager
     const today = new Date();
     const in365 = new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000);
     const filtered = [];
+    let noExpiryCount = 0;
+    let alreadyExpiredCount = 0;
+    let tooFarCount = 0;
 
     for (const item of all) {
-      // Finn tidligste utløpsdato blant godkjenningsområder
-      const approvals = item.approvalAreas || item.godkjenningsomrader || [];
+      // Prøv MANGE feltnavne-varianter for utløpsdato
       let earliestExpiry = null;
-      for (const a of approvals) {
-        const expiryStr = a.validTo || a.validUntil || a.gyldigTil;
-        if (!expiryStr) continue;
-        const expiry = new Date(expiryStr);
-        if (isNaN(expiry.getTime())) continue;
-        if (!earliestExpiry || expiry < earliestExpiry) {
-          earliestExpiry = expiry;
+
+      // 1. På rot-nivå (v2-format har dette)
+      const rootExpiry = item.approvalPeriodEndDate || item.approvalEndDate ||
+                         item.validTo || item.validUntil || item.expiryDate ||
+                         item.gyldigTil || item.godkjenningsperiodeSluttDato;
+      if (rootExpiry) {
+        const d = new Date(rootExpiry);
+        if (!isNaN(d.getTime())) earliestExpiry = d;
+      }
+
+      // 2. Inne i approvals/godkjenningsomrader
+      if (!earliestExpiry) {
+        const approvals = item.approvalAreas || item.approvals || item.godkjenningsomrader ||
+                          item.approved || item.approvalArea || [];
+        for (const a of (Array.isArray(approvals) ? approvals : [])) {
+          const expiryStr = a.validTo || a.validUntil || a.gyldigTil ||
+                            a.approvalPeriodEndDate || a.expiryDate || a.endDate;
+          if (!expiryStr) continue;
+          const expiry = new Date(expiryStr);
+          if (isNaN(expiry.getTime())) continue;
+          if (!earliestExpiry || expiry < earliestExpiry) {
+            earliestExpiry = expiry;
+          }
         }
       }
-      if (!earliestExpiry) continue;
-      if (earliestExpiry < today) continue;  // allerede utløpt
-      if (earliestExpiry > in365) continue;  // mer enn 1 år unna
+
+      if (!earliestExpiry) { noExpiryCount++; continue; }
+      if (earliestExpiry < today) { alreadyExpiredCount++; continue; }
+      if (earliestExpiry > in365) { tooFarCount++; continue; }
 
       filtered.push({
         ...item,
@@ -3526,28 +3715,36 @@ async function renderSGTab() {
       });
     }
 
+    console.log('[SG] Filtreringsresultat:',
+      { totalt: all.length, uten_utløpsdato: noExpiryCount, allerede_utløpt: alreadyExpiredCount,
+        mer_enn_1år_unna: tooFarCount, treffer_kriterier: filtered.length });
+
     // Sorter: tidligst utløp øverst
     filtered.sort((a, b) => a._expiryDate - b._expiryDate);
 
     // Filtrer bort skjulte
     const visible = filtered.filter(item => {
-      const orgnr = item.organizationNumber || item.orgnr || item.enterpriseId;
+      const orgnr = extractOrgnr(item);
       return !skjulteOrgnrs.has(String(orgnr));
     });
 
     // Del i ubehandlede / behandlede
     const ubehandlede = visible.filter(item => {
-      const orgnr = String(item.organizationNumber || item.orgnr || item.enterpriseId);
+      const orgnr = String(extractOrgnr(item));
       const s = statusMap.get(orgnr);
       return !s || (!s.status);
     });
 
     if (visible.length === 0) {
+      // Vis debug-info hvis vi ikke fant noen
+      const debugInfo = all.length > 0
+        ? `<br><br><small style="color:var(--muted);">Debug: Hentet ${all.length} foretak fra DiBK. ${noExpiryCount} manglet utløpsdato, ${alreadyExpiredCount} var allerede utløpt, ${tooFarCount} utløper senere enn 1 år.<br>Åpne konsollen (F12) for å se full struktur.</small>`
+        : '';
       companiesContainer.innerHTML = `
         <div class="empty-state">
           <div class="icon">🏆</div>
           <div class="title">Ingen sentrale godkjenninger utløper innen 1 år</div>
-          <div class="subtitle">Alle SG-foretak har mer enn 365 dager igjen av godkjenningsperioden.</div>
+          <div class="subtitle">Alle SG-foretak har mer enn 365 dager igjen av godkjenningsperioden.${debugInfo}</div>
         </div>`;
       return;
     }
@@ -3585,25 +3782,53 @@ async function renderSGTab() {
     companiesContainer.innerHTML = html;
 
   } catch (e) {
+    console.error('[SG] Feil:', e);
     companiesContainer.innerHTML = `
       <div class="empty-state">
         <div class="icon">⚠️</div>
         <div class="title">Kunne ikke hente SG-data</div>
-        <div class="subtitle">Feil: ${escapeHtml(e.message)}<br><br>DiBK-APIet kan være nede eller ha endret format. Prøv igjen om litt.</div>
+        <div class="subtitle">Feil: ${escapeHtml(e.message)}<br><br>DiBK-APIet kan være nede eller ha endret format. Åpne konsollen (F12) for detaljer.</div>
       </div>`;
   }
 }
 
+function extractOrgnr(item) {
+  return item.enterpriseId || item.organizationNumber || item.orgnr ||
+         item.organisasjonsnummer || item.foretakId || item.enterpriseNumber ||
+         '';
+}
+
+function extractName(item) {
+  return item.enterpriseName || item.name || item.navn ||
+         item.foretaksnavn || item.companyName || 'Ukjent';
+}
+
+function extractPhone(item) {
+  return item.phoneNumber || item.telefon || item.phone ||
+         item.telephone || item.telefonnummer || '';
+}
+
+function extractEmail(item) {
+  return item.email || item.epost || item.emailAddress ||
+         item.epostadresse || '';
+}
+
+function extractAddress(item) {
+  const a = item.address || item.forretningsadresse || item.postAddress || item.postadresse || {};
+  return {
+    street: a.streetAddress || a.adresse || a.street || '',
+    postnr: a.postalCode || a.postnummer || a.zipCode || '',
+    city: a.city || a.poststed || a.town || ''
+  };
+}
+
 function sgCardHtml(item) {
-  const orgnr = String(item.organizationNumber || item.orgnr || item.enterpriseId || '');
-  const navn = item.enterpriseName || item.navn || item.name || 'Ukjent';
-  const address = item.address || item.forretningsadresse || {};
-  const gate = address.streetAddress || address.adresse || '';
-  const postnr = address.postalCode || address.postnummer || '';
-  const poststed = address.city || address.poststed || '';
-  const sted = [postnr, poststed].filter(Boolean).join(' ').trim();
-  const phone = item.phoneNumber || item.telefon || '';
-  const email = item.email || item.epost || '';
+  const orgnr = String(extractOrgnr(item));
+  const navn = extractName(item);
+  const address = extractAddress(item);
+  const sted = [address.postnr, address.city].filter(Boolean).join(' ').trim();
+  const phone = extractPhone(item);
+  const email = extractEmail(item);
 
   const dager = item._daysToExpiry;
   const expiryDate = item._expiryDate.toISOString().slice(0, 10);
