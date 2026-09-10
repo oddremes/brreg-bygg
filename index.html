@@ -69,10 +69,17 @@
     backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
   }
   .brand { display:flex; align-items:center; gap:24px; }
-  .brand .logo { height:50px; width:auto; display:block; flex-shrink:0; }
+  .brand .logo { height:68px; width:auto; display:block; flex-shrink:0; }
   .brand .title-block { display:flex; flex-direction:column; }
   .brand h1 { margin:0; font-size:19px; font-weight:700; letter-spacing:-0.2px; line-height:1.2; color:var(--text); }
   .brand .tagline { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.4px; margin-top:3px; font-weight:500; }
+
+  /* Sentrer poeng-boksen absolutt midt i header */
+  .header-center {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%, -50%);
+    display:flex; align-items:center; gap:18px;
+  }
 
   /* Fane-veksler */
   .tab-bar {
@@ -119,7 +126,6 @@
   .tab-btn:hover .tab-count { background:var(--panel-4); }
   .tab-btn.active:hover .tab-count { background:var(--accent); }
 
-  .header-center { display:flex; align-items:center; gap:18px; }
   .points-box {
     display:flex; align-items:center; gap:16px;
     background:linear-gradient(135deg, rgba(101,206,121,0.2), rgba(101,206,121,0.06));
@@ -189,7 +195,8 @@
     padding-left:4px;
   }
   .sidebar-toggle {
-    position:fixed; top:calc(var(--header-h) + var(--tab-bar-h) + 20px); left:12px;
+    position:fixed; top:calc(var(--header-h) + var(--tab-bar-h) + 20px);
+    left:calc(var(--sidebar-w) + 8px);
     z-index:15;
     width:28px; height:28px; padding:0;
     background:rgba(30, 36, 44, 0.6); color:var(--muted);
@@ -199,8 +206,8 @@
     transition:var(--transition); opacity:0.5;
   }
   .sidebar-toggle:hover { opacity:1; background:var(--panel-2); color:var(--text); border-color:var(--border); }
-  .layout:not(.sidebar-collapsed) .sidebar-toggle {
-    left:calc(var(--sidebar-w) - 14px);
+  .layout.sidebar-collapsed .sidebar-toggle {
+    left:8px;
   }
 
   /* Klikkbare statistikk-bokser */
@@ -801,8 +808,8 @@
     border-radius:20px; font-size:11px; letter-spacing:0.4px;
   }
   .company-card {
-    background:var(--panel-2); border:1px solid var(--border-soft);
-    border-left:4px solid var(--border);
+    background:var(--panel-3); border:1px solid var(--border);
+    border-left:4px solid var(--muted-soft);
     border-radius:var(--radius-lg); padding:20px 24px;
     display:grid; grid-template-columns:52px 1fr auto; gap:18px;
     align-items:start;
@@ -817,22 +824,44 @@
   }
   .company-card:hover {
     border-color:var(--muted-soft);
-    background:var(--panel-3);
+    background:var(--panel-4);
     transform:translateY(-1px);
     box-shadow:var(--shadow);
   }
-  /* Fargekodede kantlinjer per status */
-  .company-card.status-kontaktet { border-left-color:var(--accent); background:rgba(255,204,77,0.03); }
-  .company-card.status-solgt { border-left-color:var(--green); background:rgba(101,206,121,0.05); }
-  .company-card.status-ikkesvar { border-left-color:var(--blue); background:rgba(96,165,250,0.04); }
+  /* Behandlede kort - dempet (mørkere og mindre synlig) */
+  .company-card.status-kontaktet {
+    border-left-color:var(--accent);
+    background:var(--panel);
+    opacity:0.75;
+  }
+  .company-card.status-kontaktet:hover { opacity:1; background:var(--panel-2); }
+  .company-card.status-solgt {
+    border-left-color:var(--green);
+    background:var(--panel);
+    opacity:0.8;
+  }
+  .company-card.status-solgt:hover { opacity:1; background:var(--panel-2); }
+  .company-card.status-ikkesvar {
+    border-left-color:var(--blue);
+    background:var(--panel);
+    opacity:0.75;
+  }
+  .company-card.status-ikkesvar:hover { opacity:1; background:var(--panel-2); }
+  /* Reservert - fortsatt tydelig */
   .company-card.reserved {
     border-color:var(--reserved) !important;
     background:rgba(255,204,77,0.09) !important;
     border-left-color:var(--reserved) !important;
     box-shadow:0 0 0 1px var(--reserved), var(--shadow-sm);
+    opacity:1 !important;
   }
+  /* Nye ubehandlede - EKSTRA lys så de popper */
   .company-card.is-new {
-    background:rgba(255,255,255,0.03);
+    background:var(--panel-4);
+    border-left-color:var(--text-soft);
+  }
+  .company-card.is-new:hover {
+    background:rgba(255,255,255,0.06);
   }
 
   /* Avatar - første bokstav i selskapsnavn */
@@ -2995,33 +3024,33 @@ async function enrichDagligLedere(list) {
       updateRowLinks(e, cached.navn);
       const newReserved = matchReservation(e, cached.navn);
       if (newReserved) {
-        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
-        if (row && !row.classList.contains('row-reserved')) row.outerHTML = rowHtml(e);
+        const card = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+        if (card && !card.classList.contains('reserved')) card.outerHTML = rowHtml(e);
       }
       continue;
     }
-    const el = document.getElementById(`dl-${e.organisasjonsnummer}`);
-    if (!el) continue;
+    // Sjekk om kortet fortsatt finnes i DOM før vi henter
+    const cardEl = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+    if (!cardEl) continue;
+
     const result = await fetchKontaktperson(e.organisasjonsnummer);
     if (result) {
       personCache.set(e.organisasjonsnummer, result);
-      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
-      const stillRoleEl = document.getElementById(`dl-role-${e.organisasjonsnummer}`);
-      if (stillEl) stillEl.innerHTML = `<span>${escapeHtml(result.navn)}</span>${copyButton(result.navn, 'navn')}`;
-      if (stillRoleEl) {
-        stillRoleEl.textContent = result.rolle;
-        if (result.rolle !== 'Daglig leder') stillRoleEl.classList.add('no-dagl');
-        else stillRoleEl.classList.remove('no-dagl');
+      // Re-render dette kortet med den nye person-informasjonen
+      const stillCard = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+      if (stillCard) {
+        stillCard.outerHTML = rowHtml(e);
       }
       updateRowLinks(e, result.navn);
-      const newReserved = matchReservation(e, result.navn);
-      if (newReserved) {
-        const row = document.querySelector(`tr[data-orgnr="${e.organisasjonsnummer}"]`);
-        if (row && !row.classList.contains('row-reserved')) row.outerHTML = rowHtml(e);
-      }
     } else {
-      const stillEl = document.getElementById(`dl-${e.organisasjonsnummer}`);
-      if (stillEl) stillEl.innerHTML = '<span class="company-meta">Ikke registrert</span>';
+      // Ingen person funnet - oppdater teksten på kortet
+      const stillCard = document.querySelector(`.company-card[data-orgnr="${e.organisasjonsnummer}"]`);
+      if (stillCard) {
+        const personEl = stillCard.querySelector('.card-person');
+        if (personEl) {
+          personEl.innerHTML = '<span class="person-icon">👤</span><span style="color:var(--muted-soft); font-style:italic;">Ingen kontaktperson registrert</span>';
+        }
+      }
     }
     await new Promise(r => setTimeout(r, 100));
   }
@@ -3137,10 +3166,7 @@ const NACE_BY_TAB = {
     ['93.110','93.120','93.130','93.190','93.210','93.291','93.292','93.299']
   ],
   fse: [
-    ['43.210'],
-    ['27.110','27.120','27.200','27.310','27.320','27.330','27.400','27.510','27.520','27.900'],
-    ['33.130','33.140'],
-    ['95.110','95.120','95.210','95.220']
+    ['43.210']  // Elektrisk installasjonsarbeid - eneste sikre elektro-NACE
   ]
 };
 
@@ -3173,10 +3199,10 @@ const FORMAL_BY_TAB = {
   ],
   ansatte: [],
   fse: [
-    'elektriker','elektro','elektrisk','sterkstrøm','sterkstrom','svakstrøm','svakstrom',
-    'automasjon','elkontroll','elektromontør','elektromontor',
-    'elektrikertjenester','tavle','kabling','alarm','telekom','ikt-installasjon',
-    'installasjon av elektriske','elektrisk installasjon','elektroinstallasjon'
+    'elektriker','elektromontør','elektromontor','elektrikertjenester',
+    'elektrisk installasjon','elektroinstallasjon','installasjon av elektriske',
+    'sterkstrøm','sterkstrom','svakstrøm','svakstrom',
+    'elkontroll','tavle'
   ]
 };
 
