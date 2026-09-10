@@ -126,12 +126,7 @@
     width:9px; height:9px; border-radius:50%;
     background:var(--accent);
     box-shadow:0 0 8px var(--accent), 0 0 14px rgba(255,204,77,0.6);
-    animation:tabDotPulse 2s ease-in-out infinite;
     z-index:2;
-  }
-  @keyframes tabDotPulse {
-    0%, 100% { box-shadow:0 0 8px var(--accent), 0 0 14px rgba(255,204,77,0.5); transform:scale(1); }
-    50% { box-shadow:0 0 12px var(--accent), 0 0 20px rgba(255,204,77,0.7); transform:scale(1.15); }
   }
   .tab-btn .tab-count {
     display:inline-flex; align-items:center; justify-content:center;
@@ -348,6 +343,7 @@
   .stat.contacted .stat-value { color:var(--accent); }
   .stat.solgt .stat-value { color:var(--green); }
   .stat.ikkesvar .stat-value { color:var(--blue); }
+  .stat.oppfolging .stat-value { color:var(--green); }
   .stat.gjenstaar .stat-value { color:var(--text); }
 
   /* Klikkbar stat med tooltip over */
@@ -842,6 +838,8 @@
     position:relative;
     animation:slideInUp 0.25s cubic-bezier(0.4,0,0.2,1);
   }
+  /* Ved mange kort - dropp animasjoner for ytelse */
+  .companies-cards.heavy-list .company-card { animation:none; }
   @keyframes slideInUp {
     from { opacity:0; transform:translateY(6px); }
     to { opacity:1; transform:translateY(0); }
@@ -867,7 +865,6 @@
     width:14px; height:14px; border-radius:50%;
     background:radial-gradient(circle, #ffde7a 0%, var(--accent) 55%, rgba(255,204,77,0) 100%);
     box-shadow:0 0 12px var(--accent), 0 0 24px rgba(255,204,77,0.5);
-    animation:newLamp 2.5s ease-in-out infinite;
     z-index:2;
     transition:opacity 0.8s ease-out, transform 0.8s ease-out;
   }
@@ -877,16 +874,6 @@
   }
   .company-card.is-new::after {
     content:none;  /* Fjern den lille gule prikken i høyre hjørne */
-  }
-  @keyframes newLamp {
-    0%, 100% {
-      box-shadow:0 0 12px var(--accent), 0 0 24px rgba(255,204,77,0.5);
-      transform:translateY(-50%) scale(1);
-    }
-    50% {
-      box-shadow:0 0 18px var(--accent), 0 0 36px rgba(255,204,77,0.7);
-      transform:translateY(-50%) scale(1.15);
-    }
   }
   /* Ekstra luft til venstre så lampen får plass */
   .companies-cards { padding-left:24px; }
@@ -1332,6 +1319,7 @@
         <div class="stat contacted clickable" data-filter="kontaktet" data-tooltip="Klikk for å se kontaktede"><div class="stat-value" id="contactedCount">–</div><div class="stat-label">Kontaktet</div></div>
         <div class="stat solgt clickable" data-filter="solgt" data-tooltip="Klikk for å se salg"><div class="stat-value" id="solgtCount">–</div><div class="stat-label">Salg</div></div>
         <div class="stat ikkesvar clickable" data-filter="ikkesvar" data-tooltip="Klikk for å se ikke svar"><div class="stat-value" id="ikkesvarCount">–</div><div class="stat-label">Ikke svar</div></div>
+        <div class="stat oppfolging clickable" data-filter="oppfolging" data-tooltip="Klikk for å se oppfølginger"><div class="stat-value" id="oppfolgingCount">–</div><div class="stat-label">Oppfølging</div></div>
       </div>
       <button class="secondary" id="backupExportBtn" style="width:100%; margin-top:12px; font-size:12px;">📤 Eksporter backup</button>
       <button class="secondary" id="backupImportBtn" style="width:100%; margin-top:6px; font-size:12px;">📥 Importer backup</button>
@@ -1996,13 +1984,15 @@ sidebarToggle.addEventListener('click', () => {
 
 // ===== Behandlede modal =====
 function openBehandledeModal(filter) {
-  behandledeFilter = filter; // 'kontaktet' | 'solgt' | 'ikkesvar' | null
+  behandledeFilter = filter; // 'kontaktet' | 'solgt' | 'ikkesvar' | 'oppfolging' | null
   if (filter === 'kontaktet') {
     behandledeModalTitle.innerHTML = '🟡 Kontaktede selskaper';
   } else if (filter === 'solgt') {
     behandledeModalTitle.innerHTML = '💰 Salg';
   } else if (filter === 'ikkesvar') {
     behandledeModalTitle.innerHTML = '📵 Ikke svar-selskaper';
+  } else if (filter === 'oppfolging') {
+    behandledeModalTitle.innerHTML = '📅 Oppfølginger';
   } else {
     behandledeModalTitle.innerHTML = '📋 Behandlede selskaper';
   }
@@ -2030,12 +2020,12 @@ function renderBehandledeModal() {
       if (behandledeFilter === 'kontaktet') return s.status === 'kontaktet';
       if (behandledeFilter === 'solgt') return s.status === 'solgt';
       if (behandledeFilter === 'ikkesvar') return s.status === 'ikkesvar';
-      return s.status === 'kontaktet' || s.status === 'solgt' || s.status === 'ikkesvar';
+      if (behandledeFilter === 'oppfolging') return s.status === 'oppfolging';
+      return s.status === 'kontaktet' || s.status === 'solgt' || s.status === 'ikkesvar' || s.status === 'oppfolging';
     })
     .filter(([orgnr, s]) => {
-      // Ikke svar-oppføringer respekterer IKKE periode - de vises alltid uansett dato
-      // (de skal aldri forsvinne før brukeren fjerner dem manuelt)
-      if (s.status === 'ikkesvar') return true;
+      // Ikke svar og oppfølging respekterer IKKE periode - vises alltid
+      if (s.status === 'ikkesvar' || s.status === 'oppfolging') return true;
       return isInPeriod(s.dato, behandledePeriodValue);
     })
     .map(([orgnr, s]) => orgnr);
@@ -2078,6 +2068,7 @@ function renderBehandledeModal() {
   let totalSolgt = 0;
   let totalIkkesvar = 0;
   let totalPoeng = 0;
+  let totalOppfolging = 0;
   for (const orgnr of orgnrs) {
     const s = statusMap.get(orgnr);
     if (s.status === 'kontaktet') totalKontaktet++;
@@ -2086,6 +2077,7 @@ function renderBehandledeModal() {
       totalPoeng += (s.poeng || 0);
     }
     else if (s.status === 'ikkesvar') totalIkkesvar++;
+    else if (s.status === 'oppfolging') totalOppfolging++;
   }
 
   // Oppdater summary-tekst
@@ -2095,8 +2087,10 @@ function renderBehandledeModal() {
     behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktede`;
   } else if (behandledeFilter === 'ikkesvar') {
     behandledeSummary.innerHTML = `<span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
+  } else if (behandledeFilter === 'oppfolging') {
+    behandledeSummary.innerHTML = `<span class="num" style="color:var(--green)">${totalOppfolging}</span> oppfølginger`;
   } else {
-    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> salg (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
+    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> salg (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar · <span class="num" style="color:var(--green)">${totalOppfolging}</span> oppfølging`;
   }
 
   const cards = document.getElementById('behandledeCards');
@@ -2106,17 +2100,24 @@ function renderBehandledeModal() {
     const msg = behandledeFilter === 'kontaktet' ? `Ingen kontaktede ${periodLabel}`
       : behandledeFilter === 'solgt' ? `Ingen salg ${periodLabel}`
       : behandledeFilter === 'ikkesvar' ? `Ingen Ikke svar-oppføringer`
+      : behandledeFilter === 'oppfolging' ? `Ingen oppfølginger planlagt`
       : `Ingen behandlede ${periodLabel}`;
     cards.innerHTML = `<div class="empty-state"><div class="icon">📭</div><div class="title">${msg}</div></div>`;
     return;
   }
 
-  // Sortér: Ikke svar - eldst først (mest presserende), andre - nyest først
+  // Sortér: Ikke svar - eldst først (mest presserende), Oppfolging - tidligst dato først, andre - nyest først
   if (behandledeFilter === 'ikkesvar') {
     list.sort((a, b) => {
       const da = statusMap.get(a.organisasjonsnummer)?.dato || '';
       const db = statusMap.get(b.organisasjonsnummer)?.dato || '';
       return da.localeCompare(db);
+    });
+  } else if (behandledeFilter === 'oppfolging') {
+    list.sort((a, b) => {
+      const da = statusMap.get(a.organisasjonsnummer)?.oppfolgingsDato || statusMap.get(a.organisasjonsnummer)?.dato || '';
+      const db = statusMap.get(b.organisasjonsnummer)?.oppfolgingsDato || statusMap.get(b.organisasjonsnummer)?.dato || '';
+      return da.localeCompare(db);  // Tidligst dato først
     });
   } else {
     list.sort((a, b) => {
@@ -2788,11 +2789,47 @@ function setStatus(state, text) {
   statusText.textContent = text;
 }
 
+// Eksklusjonslister for Ansatte-fanen (fjerner selskaper som hører hjemme i Bygg eller FSE)
+const BYGG_NACE_SET = new Set([
+  '41.200','41.109',
+  '42.110','42.130','42.210','42.220','42.910','42.990',
+  '43.110','43.120','43.130',
+  '43.220','43.290',
+  '43.310','43.320','43.330','43.341','43.342','43.390',
+  '43.910','43.991','43.999'
+]);
+const FSE_NACE_SET = new Set(['43.210']);
+const BYGG_FORMAL_KEYWORDS = [
+  'tømrer','tomrer','snekker','rørlegger','rorlegger','vvs','sanitær','sanitar',
+  'maler','betong','murer','muring','taktekker','grunnarbeid','graving',
+  'riving','rivning','isolering','isolasjon','blikkenslager','gulvleg','flisleg',
+  'tømrermester','tomrermester','byggmester','byggemester',
+  'bygg','anlegg','byggvirksomhet','byggearbeid','anleggsarbeid','anleggsvirksomhet',
+  'oppføring','rehabilitering','entreprenør','entreprenor',
+  'elektriker','elektromontør','elektrisk installasjon','elektroinstallasjon'
+];
+
+function tilhorerBygg(e) {
+  const nace1 = e.naeringskode1?.kode || '';
+  const nace2 = e.naeringskode2?.kode || '';
+  const nace3 = e.naeringskode3?.kode || '';
+  if (BYGG_NACE_SET.has(nace1) || BYGG_NACE_SET.has(nace2) || BYGG_NACE_SET.has(nace3)) return true;
+  if (FSE_NACE_SET.has(nace1) || FSE_NACE_SET.has(nace2) || FSE_NACE_SET.has(nace3)) return true;
+  const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ').toLowerCase();
+  for (const kw of BYGG_FORMAL_KEYWORDS) {
+    if (formal.includes(kw)) return true;
+  }
+  return false;
+}
+
 function applyFilters(list) {
   const search = searchBox.value.toLowerCase().trim();
+  const isAnsatte = activeTab === 'ansatte';
   return list.filter(e => {
     // Skjul "ingen nr"-markerte selskaper
     if (skjulteOrgnrs.has(e.organisasjonsnummer)) return false;
+    // Ansatte-fanen: ekskluder alt som tilhører Bygg eller FSE
+    if (isAnsatte && tilhorerBygg(e)) return false;
     if (!search) return true;
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
     const hay = [
@@ -2809,24 +2846,28 @@ function applyFilters(list) {
 function render() {
   const totalInView = applyFilters(currentData);
 
-  // Splitt i ubehandlede og behandlede
+  // Splitt i ubehandlede og behandlede (oppfølging = skjules fra hovedvisning)
   const ubehandlede = [];
   let contactedInView = 0;
   let solgtInView = 0;
   let ikkesvarInView = 0;
+  let oppfolgingInView = 0;
   for (const e of totalInView) {
     const s = statusMap.get(e.organisasjonsnummer);
     if (s?.status === 'kontaktet') contactedInView++;
     else if (s?.status === 'solgt') solgtInView++;
     else if (s?.status === 'ikkesvar') ikkesvarInView++;
+    else if (s?.status === 'oppfolging') oppfolgingInView++;
     else ubehandlede.push(e);
   }
   const pendingInView = ubehandlede.length;
 
   // Totale tellere fra hele statusMap (også utenfor currentData)
   let totalIkkesvar = 0;
+  let totalOppfolging = 0;
   for (const v of statusMap.values()) {
     if (v.status === 'ikkesvar') totalIkkesvar++;
+    if (v.status === 'oppfolging') totalOppfolging++;
   }
 
   document.getElementById('totalCount').textContent = totalInView.length;
@@ -2834,11 +2875,13 @@ function render() {
   document.getElementById('pendingCount').textContent = pendingInView;
   document.getElementById('solgtCount').textContent = solgtInView;
   document.getElementById('ikkesvarCount').textContent = totalIkkesvar;
+  const oppfolgingEl = document.getElementById('oppfolgingCount');
+  if (oppfolgingEl) oppfolgingEl.textContent = totalOppfolging;
   resultsHeader.textContent = `${pendingInView} ${pendingInView === 1 ? 'selskap' : 'selskaper'} å kontakte`;
 
   // Render hovedvisning (kun ubehandlede)
   if (ubehandlede.length === 0) {
-    const behandlet = contactedInView + solgtInView + ikkesvarInView;
+    const behandlet = contactedInView + solgtInView + ikkesvarInView + oppfolgingInView;
     if (behandlet > 0) {
       companiesContainer.innerHTML = `
         <div class="empty-state">
@@ -2885,7 +2928,7 @@ function renderRowsGrouped(list) {
     rowsHtml.push(`<div class="date-header">📅 Registrert ${formatDateHeader(d)}<span class="date-count">${group.length}</span></div>`);
     for (const item of group) rowsHtml.push(rowHtml(item));
   }
-  return `<div class="companies-cards">${rowsHtml.join('')}</div>`;
+  return `<div class="companies-cards${list.length > 30 ? ' heavy-list' : ''}">${rowsHtml.join('')}</div>`;
 }
 
 function formatDateHeader(d) {
@@ -3283,7 +3326,15 @@ autoBtn.addEventListener('click', () => {
     isPaused = false;
   }
 });
-searchBox.addEventListener('input', render);
+// Debounce hjelper for søk
+let searchDebounceTimer = null;
+searchBox.addEventListener('input', () => {
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    if (activeTab === 'sg' || activeTab === 'oppfolging') return;
+    render();
+  }, 180);
+});
 fromDateEl.addEventListener('change', () => {
   if (activeTab === 'sg') renderSGTab();
   else fetchCompanies();
@@ -3999,7 +4050,7 @@ async function renderSGTab() {
     const gul = ubehandlede.filter(x => x._daysToExpiry >= 30 && x._daysToExpiry < 90);
     const gronn = ubehandlede.filter(x => x._daysToExpiry >= 90);
 
-    let html = quickFilterHtml + '<div class="companies-cards">';
+    let html = quickFilterHtml + `<div class="companies-cards${ubehandlede.length > 30 ? ' heavy-list' : ''}">`;
     if (rod.length > 0) {
       html += `<div class="date-header" style="color:var(--red);">🔴 Utløper snart (mindre enn 30 dager)<span class="date-count">${rod.length}</span></div>`;
       html += rod.map(sgCardHtml).join('');
@@ -4081,6 +4132,18 @@ async function enrichSGKontaktpersoner(list) {
     } else {
       cardMain.appendChild(personDiv);
     }
+
+    // Oppdater søke-lenker (Google, 1881, Gule Sider) til å bruke kontaktperson-navnet
+    const searchName = cached.navn;
+    const linksDiv = stillCard.querySelector('.card-links');
+    if (linksDiv) {
+      const google = linksDiv.querySelector('a.google');
+      const p1881 = linksDiv.querySelector('a.person-search');
+      const gs = linksDiv.querySelector('a.gulesider');
+      if (google) google.href = `https://www.google.com/search?q=${encodeURIComponent(searchName + ' telefon')}`;
+      if (p1881) p1881.href = `https://www.1881.no/?query=${encodeURIComponent(searchName)}`;
+      if (gs) gs.href = `https://www.gulesider.no/finn/${encodeURIComponent(searchName)}`;
+    }
   }
 }
 
@@ -4129,6 +4192,10 @@ function sgCardHtml(item) {
   const sted = [address.postnr, address.city].filter(Boolean).join(' ').trim();
   const phone = extractPhone(item);
   const email = extractEmail(item);
+
+  // Bruk kontaktperson-navn for søk hvis vi har det, ellers selskapsnavn
+  const cachedPerson = personCache.get(orgnr);
+  const searchName = cachedPerson?.navn || navn;
 
   const dager = item._daysToExpiry;
   const expiryDate = item._expiryDate.toISOString().slice(0, 10);
@@ -4182,9 +4249,9 @@ function sgCardHtml(item) {
         ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${phone}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
         ${email ? `<div class="card-meta-row"><span>✉️ <a href="mailto:${email}" style="color:var(--blue);">${escapeHtml(email)}</a></span></div>` : ''}
         <div class="card-links">
-          <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(navn + ' telefon')}" target="_blank" rel="noopener">Google</a>
-          <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(navn)}" target="_blank" rel="noopener">1881</a>
-          <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(navn)}" target="_blank" rel="noopener">Gule Sider</a>
+          <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(searchName + ' telefon')}" target="_blank" rel="noopener">Google</a>
+          <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(searchName)}" target="_blank" rel="noopener">1881</a>
+          <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(searchName)}" target="_blank" rel="noopener">Gule Sider</a>
           <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
           <a class="dibk" href="https://sgregister.dibk.no/enterprises/${orgnr}" target="_blank" rel="noopener">DiBK</a>
         </div>
