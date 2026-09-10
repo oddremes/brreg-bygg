@@ -1081,16 +1081,34 @@
     cursor:pointer; transition:var(--transition);
     display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between;
     position:relative; min-height:70px;
+    user-select:none;
   }
-  .cal-day:hover { background:var(--panel-3); border-color:var(--muted-soft); transform:translateY(-1px); }
+  .cal-day:hover {
+    background:var(--panel-4);
+    border-color:var(--accent);
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(0,0,0,0.3), 0 0 0 1px var(--accent);
+    z-index:2;
+  }
+  .cal-day:hover .cal-day-num { color:var(--text); }
   .cal-day.empty { background:transparent; border:none; cursor:default; }
-  .cal-day.empty:hover { transform:none; background:transparent; }
+  .cal-day.empty:hover { transform:none; background:transparent; box-shadow:none; border:none; }
   .cal-day-num { font-size:14px; font-weight:600; color:var(--text-soft); }
   .cal-day.today { border-color:var(--accent); background:rgba(255,204,77,0.08); }
   .cal-day.today .cal-day-num { color:var(--accent); font-weight:700; }
   .cal-day.has-urgent { background:rgba(254,100,100,0.15); border-color:var(--red); }
   .cal-day.has-soon { background:rgba(255,204,77,0.15); border-color:var(--accent); }
   .cal-day.has-later { background:rgba(101,206,121,0.12); border-color:var(--green); }
+
+  /* Valgt dag - ring rundt */
+  .cal-day.selected {
+    box-shadow:0 0 0 3px var(--accent), 0 4px 14px rgba(255,204,77,0.4);
+    transform:translateY(-2px);
+    z-index:3;
+  }
+  .cal-day.selected .cal-day-num { color:var(--accent); font-weight:700; }
+  .cal-day.selected:hover { box-shadow:0 0 0 3px var(--accent), 0 6px 16px rgba(255,204,77,0.5); }
+
   .cal-badge {
     position:absolute; top:6px; right:6px;
     background:var(--text); color:#111;
@@ -4311,21 +4329,31 @@ window.oppfolgingShowDay = function(dateStr) {
   const listEl = document.getElementById('oppfolgingDayList');
   if (!listEl) return;
 
+  // Fjern .selected fra alle dager, legg til på klikket dag
+  document.querySelectorAll('.cal-day.selected').forEach(d => d.classList.remove('selected'));
+  const clickedDay = document.querySelector(`.cal-day[onclick*="${dateStr}"]`);
+  if (clickedDay) clickedDay.classList.add('selected');
+
   if (items.length === 0) {
     listEl.innerHTML = `
       <div class="empty-state" style="padding:40px 20px;">
         <div class="icon">✨</div>
-        <div class="title">Ingen oppfølginger ${dateStr}</div>
+        <div class="title">Ingen oppfølginger ${formatDateHeader(dateStr)}</div>
       </div>`;
+    // Scroll ned til listen selv om den er tom
+    setTimeout(() => listEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     return;
   }
 
   const dateDisplay = formatDateHeader(dateStr);
-  let html = `<div class="date-header">📅 Oppfølginger ${dateDisplay}<span class="date-count">${items.length}</span></div>`;
+  let html = `<div class="date-header" style="font-size:14px; padding:12px 0; color:var(--accent);">📅 Oppfølginger ${dateDisplay}<span class="date-count">${items.length}</span></div>`;
   html += '<div class="companies-cards">';
   html += items.map(o => oppfolgingCardHtml(o)).join('');
   html += '</div>';
   listEl.innerHTML = html;
+
+  // Auto-scroll ned til listen (jevn animasjon)
+  setTimeout(() => listEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
 };
 
 function oppfolgingCardHtml(o) {
