@@ -2,6 +2,8 @@
 <html lang="nb">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0d12">
 <title>Nyreg Bygg & Anlegg</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,9 +67,12 @@
     display:flex; align-items:center; justify-content:space-between;
     padding:0 36px; border-bottom:1px solid var(--border);
     background:linear-gradient(180deg, #0d1117 0%, #0a0d12 100%);
-    position:sticky; top:0; z-index:20;
+    position:fixed; top:0; left:0; right:0; z-index:20;
     backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    transform:translateY(0);
+    transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
   }
+  header.header-hidden { transform:translateY(-100%); }
   .brand { display:flex; align-items:center; gap:24px; }
   .brand .logo { height:68px; width:auto; display:block; flex-shrink:0; }
   .brand .title-block { display:flex; flex-direction:column; }
@@ -86,8 +91,13 @@
     display:flex; gap:2px; padding:0 36px; background:var(--bg);
     border-bottom:1px solid var(--border);
     align-items:stretch; height:var(--tab-bar-h);
-    position:sticky; top:var(--header-h); z-index:19;
+    position:fixed; top:var(--header-h); left:0; right:0; z-index:19;
+    transform:translateY(0);
+    transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
   }
+  .tab-bar.tab-bar-hidden { transform:translateY(calc(-1 * var(--header-h) - var(--tab-bar-h))); }
+  /* Pass på at innhold har plass når header + tab-bar er fixed */
+  body { padding-top:calc(var(--header-h) + var(--tab-bar-h)); }
   .tab-btn {
     display:inline-flex; align-items:center; gap:8px;
     padding:0 18px; background:transparent;
@@ -329,6 +339,25 @@
   .toggle input[type="checkbox"] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
 
   /* Statistikk i sidebar */
+  .stat-period-selector {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:4px;
+    margin-bottom:12px;
+    background:var(--panel-2); padding:4px; border-radius:8px;
+    border:1px solid var(--border-soft);
+  }
+  .stat-period-btn {
+    background:transparent; color:var(--muted);
+    border:none; padding:6px 4px;
+    font-size:11px; font-weight:600;
+    border-radius:5px; cursor:pointer;
+    transition:var(--transition);
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .stat-period-btn:hover { color:var(--text); background:var(--panel-3); }
+  .stat-period-btn.active {
+    background:var(--accent); color:#111;
+  }
+
   .stat-grid {
     display:grid; grid-template-columns:1fr 1fr; gap:8px;
   }
@@ -1212,6 +1241,241 @@
   ::-webkit-scrollbar-track { background:var(--bg); }
   ::-webkit-scrollbar-thumb { background:var(--border); border-radius:5px; }
   ::-webkit-scrollbar-thumb:hover { background:var(--muted-soft); }
+
+  /* ============================================================
+     MOBIL-TILPASNING (< 768px)
+     ============================================================ */
+  @media (max-width: 767px) {
+    :root {
+      --header-h: 60px;
+      --tab-bar-h: 44px;
+      --sidebar-w: 85vw;
+    }
+    body { font-size:13px; }
+
+    /* Header: mindre padding, mindre logo */
+    header {
+      padding:0 12px;
+      justify-content:space-between;
+    }
+    .brand .logo { height:38px !important; }
+    .brand { gap:8px; }
+    .brand h1 { font-size:15px; }
+    .brand .tagline { display:none; }
+
+    /* Poengboks: mindre tall, mindre padding */
+    .header-center { position:static; transform:none; }
+    .points-box { padding:6px 12px; gap:8px; }
+    .points-box .icon { font-size:16px; }
+    .points-box .label { font-size:9px; }
+    .points-box .points-value { font-size:16px; }
+
+    /* Header-right: kompakt */
+    .header-right { gap:6px; }
+    .header-right .status { display:none; } /* Skjul "Starter…" på mobil */
+    .header-right button {
+      font-size:11px; padding:6px 10px;
+    }
+
+    /* Fane-bar: horisontal scroll, mindre padding */
+    .tab-bar {
+      padding:0 8px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      white-space:nowrap;
+      -webkit-overflow-scrolling:touch;
+    }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn {
+      padding:0 12px;
+      font-size:12px;
+      flex-shrink:0;
+    }
+    .tab-btn .tab-icon { font-size:14px; }
+    .tab-btn .tab-count { font-size:10px; padding:1px 6px; min-width:20px; }
+
+    /* Layout: 1 kolonne (sidebar blir drawer) */
+    .layout { display:block !important; }
+    .sidebar {
+      position:fixed !important;
+      top:calc(var(--header-h) + var(--tab-bar-h));
+      left:0;
+      width:var(--sidebar-w);
+      max-width:340px;
+      height:calc(100vh - var(--header-h) - var(--tab-bar-h));
+      transform:translateX(-100%);
+      transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index:50;
+      box-shadow:4px 0 24px rgba(0,0,0,0.5);
+      overflow-y:auto;
+      padding:16px !important;
+    }
+    .layout.sidebar-open .sidebar {
+      transform:translateX(0);
+    }
+    /* Backdrop når drawer er åpen */
+    .layout.sidebar-open::before {
+      content:''; position:fixed;
+      top:calc(var(--header-h) + var(--tab-bar-h)); left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.6);
+      z-index:49;
+    }
+
+    /* Sidebar-toggle: hamburger som ligger fast */
+    .sidebar-toggle {
+      position:fixed !important;
+      top:calc(var(--header-h) + var(--tab-bar-h) + 10px) !important;
+      left:8px !important;
+      width:36px !important;
+      height:36px !important;
+      background:var(--panel-3) !important;
+      color:var(--text) !important;
+      opacity:1 !important;
+      z-index:60;
+      font-size:14px !important;
+    }
+    .layout.sidebar-open .sidebar-toggle {
+      left:calc(var(--sidebar-w) - 44px) !important;
+    }
+
+    /* Main område: mindre padding, mer plass */
+    main { padding:12px 12px 20px 12px !important; }
+    .main-header {
+      padding-left:52px !important; /* Plass til hamburger */
+      flex-direction:column;
+      align-items:flex-start;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .main-header h2 { font-size:13px; }
+    .main-header .countdown { font-size:11px; }
+
+    /* Kort: stackes vertikalt (avatar/tekst/knapper i egne linjer) */
+    .companies-cards {
+      padding:8px 4px 20px 4px !important;
+      gap:10px;
+    }
+    .company-card {
+      grid-template-columns:44px 1fr !important;
+      grid-template-rows:auto auto;
+      gap:12px !important;
+      padding:14px 14px !important;
+      margin-left:8px !important;
+    }
+    .company-avatar {
+      width:44px !important; height:44px !important;
+      font-size:18px !important;
+      border-radius:10px !important;
+    }
+    .card-main {
+      grid-column:2;
+      min-width:0;
+    }
+    .card-name { font-size:15px !important; }
+    .card-actions {
+      grid-column:1 / -1;
+      flex-direction:row !important;
+      flex-wrap:wrap;
+      min-width:0 !important;
+      gap:6px !important;
+      justify-content:flex-start;
+    }
+    .card-actions button {
+      flex:1 1 auto;
+      min-width:80px;
+      font-size:10px !important;
+      padding:8px 6px !important;
+    }
+    /* Ny-lampen: mindre og til venstre */
+    .company-card.is-new::before {
+      width:10px !important; height:10px !important;
+      left:-5px !important;
+    }
+    .card-meta-row { font-size:12px !important; }
+    .card-notat, .card-ikkesvar-detail { font-size:12px !important; padding:8px 10px !important; }
+    .card-links {
+      gap:5px;
+    }
+    .card-links a { font-size:10px !important; padding:4px 7px !important; }
+
+    /* Modaler: full skjerm på mobil */
+    .modal-backdrop { padding:0 !important; align-items:flex-end !important; }
+    .modal {
+      max-width:100% !important;
+      width:100% !important;
+      max-height:92vh !important;
+      border-radius:16px 16px 0 0 !important;
+      padding:20px !important;
+    }
+    .modal h3 { font-size:16px; }
+
+    /* Behandlede modal */
+    .behandlede-modal {
+      max-width:100% !important;
+      max-height:95vh !important;
+      border-radius:16px 16px 0 0 !important;
+    }
+    .behandlede-modal-header { padding:14px 16px !important; }
+    .behandlede-modal-body { padding:0 !important; }
+
+    /* Kalender: mindre celler */
+    .calendar-grid {
+      gap:3px !important;
+      padding:10px !important;
+    }
+    .cal-day {
+      min-height:52px !important;
+      padding:5px !important;
+    }
+    .cal-day-num { font-size:12px !important; }
+    .cal-badge {
+      font-size:10px !important;
+      padding:1px 5px !important;
+      min-width:18px !important;
+    }
+
+    /* Ikke svar-kort på mobil */
+    .ikkesvar-card {
+      grid-template-columns:1fr !important;
+      gap:10px !important;
+      padding:14px !important;
+    }
+    .ikkesvar-card-actions {
+      flex-direction:row !important;
+      flex-wrap:wrap;
+      align-items:stretch !important;
+    }
+    .ikkesvar-card-actions button {
+      flex:1 1 45%;
+      min-width:0 !important;
+    }
+
+    /* Points-box i header - mindre kompakt */
+    .points-box .info { min-width:0; }
+
+    /* Hurtigfilter i SG */
+    .sg-quick-btn {
+      font-size:10px !important;
+      padding:6px 8px !important;
+    }
+
+    /* Statistikk-perioder */
+    .stat-period-btn { font-size:10px; padding:6px 2px; }
+
+    /* Reserve list */
+    .reserve-list { max-height:180px; }
+  }
+
+  /* Mellomstore skjermer (768-1024) */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    :root { --sidebar-w: 260px; }
+    .brand .logo { height:52px !important; }
+    header { padding:0 20px; }
+    .tab-bar { padding:0 20px; }
+    main { padding:16px 20px !important; }
+    .card-actions { min-width:110px; }
+    .card-actions button { font-size:10px; padding:7px 10px; }
+  }
 </style>
 </head>
 <body>
@@ -1313,6 +1577,12 @@
 
     <div class="sidebar-section">
       <h3>📊 Statistikk</h3>
+      <div class="stat-period-selector">
+        <button class="stat-period-btn" data-stat-period="day">Dag</button>
+        <button class="stat-period-btn" data-stat-period="week">Uke</button>
+        <button class="stat-period-btn active" data-stat-period="month">Måned</button>
+        <button class="stat-period-btn" data-stat-period="year">År</button>
+      </div>
       <div class="stat-grid">
         <div class="stat"><div class="stat-value" id="totalCount">–</div><div class="stat-label">Totalt</div></div>
         <div class="stat gjenstaar"><div class="stat-value" id="pendingCount">–</div><div class="stat-label">Gjenstår</div></div>
@@ -1677,6 +1947,27 @@ const backupImportConfirmBtn = document.getElementById('backupImportConfirmBtn')
 let behandledeFilter = null; // 'kontaktet' | 'solgt' | null (alle)
 let behandledePeriodValue = loadBehandledePeriod();
 
+// Statistikk-periode-velger (uavhengig av Periode & søk)
+const STAT_PERIOD_KEY = 'brreg_stat_period_v1';
+function loadStatPeriod() {
+  try { return localStorage.getItem(STAT_PERIOD_KEY) || 'month'; }
+  catch (e) { return 'month'; }
+}
+function saveStatPeriod(period) {
+  try { localStorage.setItem(STAT_PERIOD_KEY, period); }
+  catch (e) {}
+}
+let statPeriodValue = loadStatPeriod();
+
+// Mapper stat-periode til isInPeriod-verdi
+function statPeriodToFilter(p) {
+  if (p === 'day') return 'today';
+  if (p === 'week') return 'week';
+  if (p === 'month') return 'month';
+  if (p === 'year') return 'year';
+  return 'all';
+}
+
 // Returnerer dagens dato som 'YYYY-MM-DD' - regnes alltid ut fersk så salg/kontakter får riktig dato selv om fanen er åpen over flere dager
 function getToday() {
   return new Date().toISOString().slice(0,10);
@@ -1773,6 +2064,19 @@ window.markerSomSett = function(orgnr) {
   });
 };
 
+// Umiddelbar visuell tilbakemelding på handling-knapper (for at det skal føles snappy)
+function flashActive(orgnr, buttonClass) {
+  const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"]`);
+  cards.forEach(card => {
+    const btn = card.querySelector('.' + buttonClass);
+    if (btn) {
+      btn.style.transform = 'scale(0.95)';
+      btn.style.transition = 'transform 0.1s';
+      setTimeout(() => { btn.style.transform = ''; }, 100);
+    }
+  });
+}
+
 // Helper: re-render riktig visning basert på aktiv fane
 function renderActive() {
   if (activeTab === 'sg') {
@@ -1791,8 +2095,15 @@ window.markerIngenNr = function(orgnr) {
   saveSkjulte();
   statusMap.delete(orgnr);
   saveStatus();
-  setTimeout(() => renderActive(), 850);
+  // Umiddelbar visuell feedback
+  const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"]`);
+  cards.forEach(card => {
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-20px)';
+  });
   showToast('Selskapet er slettet');
+  setTimeout(() => renderActive(), 400);
 };
 
 // Marker som Ikke svar - åpner modal for telefon + notat
@@ -1819,12 +2130,20 @@ ikkesvarConfirmBtn.addEventListener('click', () => {
   const notat = ikkesvarNotat.value.trim();
   if (!telefon) { showToast('Telefonnummer må fylles ut'); ikkesvarTelefon.focus(); return; }
   if (!pendingIkkesvarOrgnr) return;
-  statusMap.set(pendingIkkesvarOrgnr, { status: 'ikkesvar', telefon, notat, dato: getToday() });
+  const orgnrRef = pendingIkkesvarOrgnr;
+  statusMap.set(orgnrRef, { status: 'ikkesvar', telefon, notat, dato: getToday() });
   saveStatus();
   ikkesvarModal.classList.remove('show');
   pendingIkkesvarOrgnr = null;
-  setTimeout(() => renderActive(), 850);
   showToast('📵 Markert som Ikke svar');
+  // Umiddelbar visuell feedback
+  const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnrRef}"]`);
+  cards.forEach(card => {
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-20px)';
+  });
+  setTimeout(() => renderActive(), 400);
 });
 ikkesvarCancelBtn.addEventListener('click', () => {
   ikkesvarModal.classList.remove('show');
@@ -1893,16 +2212,26 @@ window.markerKontaktet = function(orgnr) {
     return;
   }
   if (current?.status === 'solgt') {
-    // Konvertering fra solgt til kontaktet - mister poeng
     if (!confirm(`⚠️ Endre fra SALG til Kontaktet?\n\nDu mister ${current.poeng}p og må registrere salget på nytt hvis du vil ha det tilbake.`)) {
       return;
     }
   }
+  // Lagre status umiddelbart (ikke etter fadingen)
   statusMap.set(orgnr, { status: 'kontaktet', dato: getToday() });
   saveStatus();
-  // Vent til fading er ferdig før re-render (så lampen fader elegant først)
-  setTimeout(() => { renderActive(); updatePointsBox(); }, 850);
+
+  // Umiddelbar visuell feedback: marker knappen som aktiv med en gang + fjern fra visning
+  flashActive(orgnr, 'btn-kontaktet');
+  const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"]`);
+  cards.forEach(card => {
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-20px)';
+  });
+  updatePointsBox();
   showToast('Markert som kontaktet');
+  // Full re-render etter animasjonen har hatt tid til å kjøre
+  setTimeout(() => renderActive(), 400);
 };
 
 // Marker som solgt (fra Ny eller fra Kontaktet) - åpner poeng-modal
@@ -1947,13 +2276,21 @@ solgtConfirmBtn.addEventListener('click', () => {
   const poeng = parseInt(solgtPoeng.value, 10);
   if (!poeng || poeng < 1) { showToast('Skriv inn et gyldig antall poeng'); return; }
   if (!pendingSolgtOrgnr) return;
-  statusMap.set(pendingSolgtOrgnr, { status: 'solgt', poeng, dato: getToday() });
+  const orgnrRef = pendingSolgtOrgnr;
+  statusMap.set(orgnrRef, { status: 'solgt', poeng, dato: getToday() });
   saveStatus();
   solgtModal.classList.remove('show');
-  const orgnrRef = pendingSolgtOrgnr;
   pendingSolgtOrgnr = null;
-  setTimeout(() => { renderActive(); updatePointsBox(); }, 850);
+  updatePointsBox();
   showToast(`💰 Salg registrert (${poeng}p)`);
+  // Umiddelbar visuell feedback: kortet forsvinner
+  const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnrRef}"]`);
+  cards.forEach(card => {
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-20px)';
+  });
+  setTimeout(() => renderActive(), 400);
 });
 solgtCancelBtn.addEventListener('click', () => {
   solgtModal.classList.remove('show');
@@ -1977,10 +2314,33 @@ if (loadSidebarState()) {
   sidebarToggle.textContent = '◀';
 }
 sidebarToggle.addEventListener('click', () => {
+  // Mobil: bruk drawer istedenfor collapse
+  if (window.innerWidth <= 767) {
+    const isOpen = layoutEl.classList.toggle('sidebar-open');
+    sidebarToggle.textContent = isOpen ? '✕' : '☰';
+    return;
+  }
   const isCollapsed = layoutEl.classList.toggle('sidebar-collapsed');
   saveSidebarState(isCollapsed);
   sidebarToggle.textContent = isCollapsed ? '☰' : '◀';
 });
+
+// Klikk utenfor drawer (på backdrop) lukker den
+document.addEventListener('click', (e) => {
+  if (window.innerWidth > 767) return;
+  if (!layoutEl.classList.contains('sidebar-open')) return;
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar && !sidebar.contains(e.target) && e.target !== sidebarToggle && !sidebarToggle.contains(e.target)) {
+    layoutEl.classList.remove('sidebar-open');
+    sidebarToggle.textContent = '☰';
+  }
+});
+
+// Sett initial toggle-tekst basert på skjermstørrelse
+if (window.innerWidth <= 767) {
+  sidebarToggle.textContent = '☰';
+  layoutEl.classList.remove('sidebar-collapsed');
+}
 
 // ===== Behandlede modal =====
 function openBehandledeModal(filter) {
@@ -2848,36 +3208,50 @@ function render() {
 
   // Splitt i ubehandlede og behandlede (oppfølging = skjules fra hovedvisning)
   const ubehandlede = [];
-  let contactedInView = 0;
-  let solgtInView = 0;
-  let ikkesvarInView = 0;
-  let oppfolgingInView = 0;
   for (const e of totalInView) {
     const s = statusMap.get(e.organisasjonsnummer);
-    if (s?.status === 'kontaktet') contactedInView++;
-    else if (s?.status === 'solgt') solgtInView++;
-    else if (s?.status === 'ikkesvar') ikkesvarInView++;
-    else if (s?.status === 'oppfolging') oppfolgingInView++;
-    else ubehandlede.push(e);
+    if (s?.status !== 'kontaktet' && s?.status !== 'solgt' && s?.status !== 'ikkesvar' && s?.status !== 'oppfolging') {
+      ubehandlede.push(e);
+    }
   }
   const pendingInView = ubehandlede.length;
 
-  // Totale tellere fra hele statusMap (også utenfor currentData)
-  let totalIkkesvar = 0;
-  let totalOppfolging = 0;
+  // Statistikk-tellere basert på statPeriodValue (periode-velger under Statistikk)
+  const statPeriodFilter = statPeriodToFilter(statPeriodValue);
+  let statKontaktet = 0;
+  let statSolgt = 0;
+  let statIkkesvar = 0;
+  let statOppfolging = 0;
   for (const v of statusMap.values()) {
-    if (v.status === 'ikkesvar') totalIkkesvar++;
-    if (v.status === 'oppfolging') totalOppfolging++;
+    if (!isInPeriod(v.dato, statPeriodFilter)) continue;
+    if (v.status === 'kontaktet') statKontaktet++;
+    else if (v.status === 'solgt') statSolgt++;
+    else if (v.status === 'ikkesvar') statIkkesvar++;
+    else if (v.status === 'oppfolging') statOppfolging++;
   }
 
   document.getElementById('totalCount').textContent = totalInView.length;
-  document.getElementById('contactedCount').textContent = contactedInView;
+  document.getElementById('contactedCount').textContent = statKontaktet;
   document.getElementById('pendingCount').textContent = pendingInView;
-  document.getElementById('solgtCount').textContent = solgtInView;
-  document.getElementById('ikkesvarCount').textContent = totalIkkesvar;
+  document.getElementById('solgtCount').textContent = statSolgt;
+  document.getElementById('ikkesvarCount').textContent = statIkkesvar;
   const oppfolgingEl = document.getElementById('oppfolgingCount');
-  if (oppfolgingEl) oppfolgingEl.textContent = totalOppfolging;
+  if (oppfolgingEl) oppfolgingEl.textContent = statOppfolging;
   resultsHeader.textContent = `${pendingInView} ${pendingInView === 1 ? 'selskap' : 'selskaper'} å kontakte`;
+
+  // For empty-state melding
+  let contactedInViewTotal = 0, solgtInViewTotal = 0, ikkesvarInViewTotal = 0, oppfolgingInViewTotal = 0;
+  for (const e of totalInView) {
+    const s = statusMap.get(e.organisasjonsnummer);
+    if (s?.status === 'kontaktet') contactedInViewTotal++;
+    else if (s?.status === 'solgt') solgtInViewTotal++;
+    else if (s?.status === 'ikkesvar') ikkesvarInViewTotal++;
+    else if (s?.status === 'oppfolging') oppfolgingInViewTotal++;
+  }
+  const contactedInView = contactedInViewTotal;
+  const solgtInView = solgtInViewTotal;
+  const ikkesvarInView = ikkesvarInViewTotal;
+  const oppfolgingInView = oppfolgingInViewTotal;
 
   // Render hovedvisning (kun ubehandlede)
   if (ubehandlede.length === 0) {
@@ -3662,6 +4036,79 @@ if (activeTab === 'sg') {
 
 // Sjekk oppfølginger i dag ved sidelasting
 setTimeout(sjekkOppfolgingIDag, 2000);
+
+// ===========================================================
+// STATISTIKK-PERIODE-VELGER (i sidebar)
+// ===========================================================
+function initStatPeriodSelector() {
+  document.querySelectorAll('.stat-period-btn').forEach(btn => {
+    // Sett initial aktiv
+    if (btn.dataset.statPeriod === statPeriodValue) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+    btn.addEventListener('click', () => {
+      statPeriodValue = btn.dataset.statPeriod;
+      saveStatPeriod(statPeriodValue);
+      document.querySelectorAll('.stat-period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Kobler statistikk-perioden til behandlede-modalen
+      const map = { day: 'today', week: 'week', month: 'month', year: 'year' };
+      behandledePeriodValue = map[statPeriodValue] || 'month';
+      saveBehandledePeriod(behandledePeriodValue);
+      renderActive();
+    });
+  });
+}
+initStatPeriodSelector();
+
+// ===========================================================
+// SMART HEADER + FANE-BAR (glir bort ved scroll ned, tilbake ved scroll opp)
+// ===========================================================
+(function() {
+  const headerEl = document.querySelector('header');
+  const tabBarEl = document.querySelector('.tab-bar');
+  if (!headerEl || !tabBarEl) return;
+
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+
+  function handleScroll() {
+    const currentY = window.scrollY;
+    const diff = currentY - lastScrollY;
+
+    // Ikke reager på små bevegelser
+    if (Math.abs(diff) < 5) {
+      ticking = false;
+      return;
+    }
+
+    if (currentY < 60) {
+      // Nær toppen - alltid vis
+      headerEl.classList.remove('header-hidden');
+      tabBarEl.classList.remove('tab-bar-hidden');
+    } else if (diff > 0) {
+      // Scroll ned - skjul
+      headerEl.classList.add('header-hidden');
+      tabBarEl.classList.add('tab-bar-hidden');
+    } else {
+      // Scroll opp - vis
+      headerEl.classList.remove('header-hidden');
+      tabBarEl.classList.remove('tab-bar-hidden');
+    }
+
+    lastScrollY = currentY;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(handleScroll);
+      ticking = true;
+    }
+  }, { passive: true });
+})();
 
 // ===========================================================
 // TOTAL SALGS-OVERSIKT PÅ TVERS AV FANER
