@@ -73,6 +73,31 @@
     transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
   }
   header.header-hidden { transform:translateY(-100%); }
+
+  /* Mobil hamburger-knapp - kun synlig på mobil */
+  .mobile-menu-btn {
+    display:none;
+    background:var(--panel-3);
+    color:var(--text);
+    border:1px solid var(--border-strong);
+    width:38px; height:38px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    align-items:center; justify-content:center;
+    flex-shrink:0;
+    transition:var(--transition);
+  }
+  .mobile-menu-btn:hover { background:var(--panel-4); border-color:var(--muted-soft); }
+
+  /* Mobil-actions i sidebar - kun synlig på mobil */
+  .mobile-only-actions { display:none; }
+  .mobile-status {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:var(--panel-2);
+    border:1px solid var(--border-soft); border-radius:8px;
+    font-size:12px;
+  }
   .brand { display:flex; align-items:center; gap:24px; }
   .brand .logo { height:68px; width:auto; display:block; flex-shrink:0; }
   .brand .title-block { display:flex; flex-direction:column; }
@@ -975,7 +1000,7 @@
     letter-spacing:0.2px;
   }
   .chip.chip-orgnr { font-family:var(--mono); font-size:11.5px; }
-  .chip.chip-nace { color:var(--accent); border-color:rgba(255,204,77,0.25); background:rgba(255,204,77,0.06); }
+  .chip.chip-nace { color:#7a92b5; border-color:rgba(122,146,181,0.35); background:rgba(122,146,181,0.08); }
   .chip.chip-nuf { color:var(--red); border-color:rgba(254,100,100,0.4); background:rgba(254,100,100,0.08); font-weight:700; }
   .chip.chip-foretak { color:var(--blue); border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.06); }
   .chip.chip-enhets { color:var(--cyan); border-color:rgba(34,211,238,0.3); background:rgba(34,211,238,0.06); }
@@ -1166,31 +1191,49 @@
     font-size:13px; color:var(--muted-soft); max-width:400px; margin:0 auto;
   }
 
-  /* ===== Klikkbar for å kopiere ===== */
+  /* ===== Klikkbar for å kopiere - kraftig gul ring ===== */
   .copyable {
     cursor:pointer !important;
     transition:var(--transition);
     position:relative;
+    border:1.5px solid rgba(255,204,77,0.55) !important;
+    padding:2px 8px !important;
+    border-radius:5px !important;
+    background:rgba(255,204,77,0.06) !important;
+    display:inline-block;
   }
   .copyable:hover {
-    background:rgba(255,255,255,0.08) !important;
+    background:rgba(255,204,77,0.18) !important;
+    border-color:var(--accent) !important;
     color:var(--text) !important;
+    box-shadow:0 0 0 2px rgba(255,204,77,0.25);
   }
   .copyable::after {
-    content:'📋'; opacity:0; margin-left:6px;
-    font-size:0.85em; transition:opacity 0.15s;
-    pointer-events:none;
+    content:''; /* ikon fjernet - brukeren ba om kun ring, ikke ikon */
   }
-  .copyable:hover::after { opacity:0.6; }
   .copyable.copied {
     background:var(--green) !important;
     color:#111 !important;
+    border-color:var(--green) !important;
     animation:copyFlash 0.6s ease-out;
   }
   @keyframes copyFlash {
     0% { transform:scale(1); }
     50% { transform:scale(1.05); }
     100% { transform:scale(1); }
+  }
+  /* Telefon: beholder eksisterende stil - IKKE gul ring */
+  .card-phone .copyable,
+  .copyable.phone-copyable {
+    border:none !important;
+    padding:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+  .card-phone .copyable:hover,
+  .copyable.phone-copyable:hover {
+    background:rgba(255,255,255,0.08) !important;
+    box-shadow:none !important;
   }
 
   /* Toast */
@@ -1270,12 +1313,22 @@
     .points-box .label { font-size:9px; }
     .points-box .points-value { font-size:16px; }
 
-    /* Header-right: kompakt */
-    .header-right { gap:6px; }
-    .header-right .status { display:none; } /* Skjul "Starter…" på mobil */
-    .header-right button {
-      font-size:11px; padding:6px 10px;
+    /* Header-right: skjul knappene på mobil (flyttes til sidebar) */
+    .header-right { display:none !important; }
+
+    /* Vis mobile-menu-btn på mobil */
+    .mobile-menu-btn { display:inline-flex !important; }
+    .mobile-only-actions { display:block !important; }
+
+    /* Skjul gammel sidebar-toggle på mobil (bruker mobile-menu-btn istedenfor) */
+    .sidebar-toggle { display:none !important; }
+
+    header {
+      justify-content:flex-start;
+      gap:10px;
     }
+    .brand { flex-shrink:1; min-width:0; }
+    .header-center { flex:1; display:flex; justify-content:flex-end; }
 
     /* Fane-bar: horisontal scroll, mindre padding */
     .tab-bar {
@@ -1319,23 +1372,6 @@
       top:calc(var(--header-h) + var(--tab-bar-h)); left:0; right:0; bottom:0;
       background:rgba(0,0,0,0.6);
       z-index:49;
-    }
-
-    /* Sidebar-toggle: hamburger som ligger fast */
-    .sidebar-toggle {
-      position:fixed !important;
-      top:calc(var(--header-h) + var(--tab-bar-h) + 10px) !important;
-      left:8px !important;
-      width:36px !important;
-      height:36px !important;
-      background:var(--panel-3) !important;
-      color:var(--text) !important;
-      opacity:1 !important;
-      z-index:60;
-      font-size:14px !important;
-    }
-    .layout.sidebar-open .sidebar-toggle {
-      left:calc(var(--sidebar-w) - 44px) !important;
     }
 
     /* Main område: mindre padding, mer plass */
@@ -1481,6 +1517,7 @@
 <body>
 
 <header>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" title="Meny" aria-label="Åpne meny">☰</button>
   <div class="brand">
     <svg id="Layer_1" class="logo" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 965 317.5">
   <defs>
@@ -1558,6 +1595,19 @@
   <button class="sidebar-toggle" id="sidebarToggle" title="Skjul/vis sidelinje">☰</button>
 
   <aside class="sidebar">
+
+    <!-- Mobil-handlinger: vises kun på mobil, øverst i drawer -->
+    <div class="sidebar-section mobile-only-actions" id="mobileActions">
+      <h3>⚙️ Handlinger</h3>
+      <div class="mobile-status">
+        <div class="dot" id="mobileStatusDot"></div>
+        <span id="mobileStatusText">Starter…</span>
+      </div>
+      <button class="secondary" id="mobileRefreshBtn" style="width:100%; margin-top:8px; font-size:12px;">🔄 Oppdater nå</button>
+      <button class="secondary" id="mobileAutoBtn" style="width:100%; margin-top:6px; font-size:12px;">⚡ Auto: PÅ</button>
+      <button class="secondary" id="mobileNotifBtn" style="width:100%; margin-top:6px; font-size:12px;">📢 Varsel: AV</button>
+      <button class="secondary" id="mobileSoundBtn" style="width:100%; margin-top:6px; font-size:12px;">🔔 Lyd: AV</button>
+    </div>
 
     <div class="sidebar-section">
       <h3>📅 Periode & søk</h3>
@@ -3190,6 +3240,8 @@ function applyFilters(list) {
     if (skjulteOrgnrs.has(e.organisasjonsnummer)) return false;
     // Ansatte-fanen: ekskluder alt som tilhører Bygg eller FSE
     if (isAnsatte && tilhorerBygg(e)) return false;
+    // Ansatte-fanen: KUN AS (ikke ENK, NUF, osv.)
+    if (isAnsatte && e.organisasjonsform?.kode !== 'AS') return false;
     if (!search) return true;
     const formal = [].concat(e.vedtektsfestetFormaal || []).concat(e.aktivitet || []).join(' ');
     const hay = [
@@ -3503,7 +3555,7 @@ function rowHtml(e) {
         ${nace ? `<div class="card-meta-row"><span class="chip chip-nace">${nace}</span></div>` : ''}
         ${cachedPerson ? `<div class="card-person"><span class="person-icon">👤</span><span class="copyable" data-copy="${escapeHtml(cachedPerson.navn)}" title="Klikk for å kopiere navn" style="padding:2px 6px; border-radius:4px;">${escapeHtml(cachedPerson.navn)}</span><span style="color:var(--muted-soft); font-weight:400; margin-left:6px;">(${escapeHtml(cachedPerson.rolle)})</span></div>` : '<div class="card-person"><span class="person-icon">👤</span><span style="color:var(--muted-soft); font-style:italic;">Henter kontaktperson…</span></div>'}
         ${fullAddr ? `<div class="card-meta-row"><span>📍 ${escapeHtml(fullAddr)}</span></div>` : ''}
-        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${phone}" title="Klikk for å kopiere telefon" style="padding:2px 6px; border-radius:4px;">${formatPhone(phone)}</span></span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${phone}" title="Klikk for å kopiere telefon" style="padding:2px 6px; border-radius:4px;">${formatPhone(phone)}</span></span></div>` : ''}
         ${web ? `<div class="card-meta-row"><span>🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted);">${escapeHtml(web)}</a></span></div>` : ''}
         ${showFormal ? `<div class="card-formal">📜 ${escapeHtml(formalText)}</div>` : ''}
         ${ikkesvarDetailCard}
@@ -3771,26 +3823,51 @@ const NACE_BY_TAB = {
     ['49.410','77.320','81.300']
   ],
   ansatte: [
-    ['47.111','47.112','47.190'],
-    ['47.410','47.421','47.430','47.510','47.520','47.530','47.540','47.591','47.592','47.593','47.594','47.599'],
+    // 🛒 VAREHANDEL (45-47)
+    ['45.111','45.112','45.191','45.192','45.201','45.202','45.203','45.204','45.205','45.310','45.320','45.401','45.402'],
+    ['46.110','46.120','46.130','46.140','46.150','46.160','46.170','46.180','46.190'],
+    ['46.210','46.220','46.230','46.240','46.310','46.320','46.330','46.340','46.350','46.360','46.370','46.380','46.390'],
+    ['46.410','46.420','46.431','46.432','46.433','46.434','46.435','46.441','46.442','46.451','46.452','46.460','46.470','46.480','46.491','46.492','46.493','46.494','46.495','46.499'],
+    ['46.510','46.520','46.610','46.620','46.630','46.640','46.650','46.660','46.690','46.711','46.712','46.719','46.721','46.722','46.731','46.732','46.733','46.734','46.735','46.739','46.741','46.742','46.750','46.760','46.770','46.900'],
+    ['47.111','47.112','47.190','47.210','47.220','47.230','47.240','47.250','47.260','47.291','47.292','47.299','47.300'],
+    ['47.410','47.420','47.421','47.430','47.510','47.520','47.530','47.540','47.591','47.592','47.593','47.594','47.599'],
     ['47.610','47.620','47.630','47.640','47.650','47.710','47.721','47.722','47.730','47.741','47.742','47.750','47.761','47.762','47.770','47.781','47.782','47.789','47.791','47.799'],
-    ['55.101','55.102','55.201','55.202'],
+    ['47.810','47.820','47.890','47.911','47.912','47.913','47.919','47.990'],
+    // 🍽️ HOTELL OG RESTAURANT (55-56)
+    ['55.101','55.102','55.201','55.202','55.300','55.900'],
     ['56.101','56.102','56.210','56.290','56.301','56.302'],
-    ['45.201','45.202','45.203','45.204','45.205'],
-    ['49.410','49.420'],
-    ['52.290'],
-    ['96.021','96.022','96.030','96.040','96.090'],
-    ['88.911','88.919'],
-    ['86.901','86.902','86.903','86.904','86.905','86.906','86.907','86.909'],
-    ['87.101','87.201','87.301','87.302','87.909'],
-    ['81.100','81.210','81.220','81.291','81.299'],
+    // 🏭 INDUSTRI OG PRODUKSJON (10-33)
+    ['10.110','10.120','10.130','10.200','10.310','10.320','10.390','10.410','10.420','10.510','10.520','10.610','10.620','10.710','10.720','10.730','10.810','10.820','10.831','10.832','10.841','10.842','10.850','10.860','10.890','10.910','10.920'],
+    ['11.010','11.020','11.030','11.040','11.050','11.060','11.070'],
+    ['13.100','13.200','13.300','13.910','13.920','13.930','13.940','13.950','13.960','13.990'],
+    ['14.110','14.120','14.130','14.140','14.190','14.200','14.310','14.390'],
+    ['15.110','15.120','15.200'],
+    ['16.100','16.210','16.220','16.230','16.240','16.290'],
+    ['17.110','17.120','17.210','17.220','17.230','17.240','17.290'],
+    ['18.110','18.120','18.130','18.140','18.200'],
+    ['20.110','20.120','20.130','20.140','20.150','20.160','20.170','20.200','20.301','20.302','20.410','20.420','20.510','20.520','20.530','20.590','20.600'],
+    ['21.100','21.200'],
+    ['22.110','22.190','22.210','22.220','22.230','22.290'],
+    ['23.110','23.120','23.130','23.140','23.190','23.200','23.310','23.320','23.410','23.420','23.430','23.440','23.490','23.510','23.520','23.610','23.620','23.630','23.640','23.650','23.690','23.700','23.910','23.990'],
+    ['24.100','24.200','24.310','24.320','24.330','24.340','24.410','24.420','24.430','24.440','24.450','24.460','24.510','24.520','24.530','24.540'],
+    ['25.110','25.120','25.210','25.290','25.300','25.400','25.500','25.610','25.620','25.710','25.720','25.730','25.910','25.920','25.930','25.940','25.990'],
+    ['26.110','26.120','26.200','26.300','26.400','26.510','26.520','26.600','26.700','26.800'],
+    ['28.110','28.120','28.130','28.140','28.150','28.210','28.220','28.230','28.240','28.250','28.290','28.300','28.410','28.490','28.910','28.920','28.930','28.940','28.950','28.960','28.990'],
+    ['29.100','29.200','29.310','29.320'],
+    ['30.110','30.120','30.200','30.300','30.400','30.910','30.920','30.990'],
+    ['31.010','31.020','31.030','31.090'],
+    ['32.110','32.120','32.130','32.200','32.300','32.400','32.500','32.910','32.990'],
+    ['33.110','33.120','33.130','33.140','33.150','33.160','33.170','33.190','33.200'],
+    // 🚚 TRANSPORT OG LOGISTIKK (49-53)
+    ['49.100','49.200','49.310','49.320','49.391','49.392','49.410','49.420','49.500'],
+    ['50.101','50.102','50.201','50.202','50.301','50.302','50.400'],
+    ['51.101','51.102','51.210','51.220'],
+    ['52.100','52.211','52.212','52.213','52.219','52.220','52.230','52.240','52.290'],
+    ['53.100','53.200'],
+    // 💻 IT OG TELEKOM (61-63)
+    ['61.100','61.200','61.300','61.900'],
     ['62.010','62.020','62.030','62.090'],
-    ['71.111','71.112','71.121','71.129','71.200'],
-    ['79.110','79.120','79.900'],
-    ['90.011','90.012','90.013','90.014','90.020','90.031','90.032','90.040'],
-    ['91.011','91.012','91.020','91.030','91.040'],
-    ['92.000'],
-    ['93.110','93.120','93.130','93.190','93.210','93.291','93.292','93.299']
+    ['63.110','63.120','63.910','63.990']
   ],
   fse: [
     ['43.210']  // Elektrisk installasjonsarbeid - eneste sikre elektro-NACE
@@ -4036,6 +4113,85 @@ if (activeTab === 'sg') {
 
 // Sjekk oppfølginger i dag ved sidelasting
 setTimeout(sjekkOppfolgingIDag, 2000);
+
+// ===========================================================
+// MOBIL: hamburger + speiling av handling-knapper
+// ===========================================================
+(function() {
+  const mobileBtn = document.getElementById('mobileMenuBtn');
+  const layoutRef = document.getElementById('layout');
+  if (mobileBtn && layoutRef) {
+    mobileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = layoutRef.classList.toggle('sidebar-open');
+      mobileBtn.textContent = isOpen ? '✕' : '☰';
+    });
+
+    // Klikk utenfor drawer lukker den
+    document.addEventListener('click', (evt) => {
+      if (window.innerWidth > 767) return;
+      if (!layoutRef.classList.contains('sidebar-open')) return;
+      const sidebarEl = document.querySelector('.sidebar');
+      if (sidebarEl && !sidebarEl.contains(evt.target) && evt.target !== mobileBtn && !mobileBtn.contains(evt.target)) {
+        layoutRef.classList.remove('sidebar-open');
+        mobileBtn.textContent = '☰';
+      }
+    });
+  }
+
+  // Speil mobil-handlingsknappene til desktop-knappene
+  const desktopRefreshBtn = document.getElementById('refreshBtn');
+  const desktopAutoBtn = document.getElementById('autoBtn');
+  const desktopNotifBtn = document.getElementById('notifBtn');
+  const desktopSoundBtn = document.getElementById('soundBtn');
+  const mobileRefreshBtn = document.getElementById('mobileRefreshBtn');
+  const mobileAutoBtn = document.getElementById('mobileAutoBtn');
+  const mobileNotifBtn = document.getElementById('mobileNotifBtn');
+  const mobileSoundBtn = document.getElementById('mobileSoundBtn');
+
+  if (mobileRefreshBtn && desktopRefreshBtn) {
+    mobileRefreshBtn.addEventListener('click', () => desktopRefreshBtn.click());
+  }
+  if (mobileAutoBtn && desktopAutoBtn) {
+    mobileAutoBtn.addEventListener('click', () => {
+      desktopAutoBtn.click();
+      // Kopier tekst fra desktop-knappen
+      setTimeout(() => { mobileAutoBtn.textContent = '⚡ ' + desktopAutoBtn.textContent; }, 50);
+    });
+    // Initial tekst
+    mobileAutoBtn.textContent = '⚡ ' + desktopAutoBtn.textContent;
+  }
+  if (mobileNotifBtn && desktopNotifBtn) {
+    mobileNotifBtn.addEventListener('click', () => {
+      desktopNotifBtn.click();
+      setTimeout(() => { mobileNotifBtn.textContent = desktopNotifBtn.textContent; }, 50);
+    });
+    mobileNotifBtn.textContent = desktopNotifBtn.textContent;
+  }
+  if (mobileSoundBtn && desktopSoundBtn) {
+    mobileSoundBtn.addEventListener('click', () => {
+      desktopSoundBtn.click();
+      setTimeout(() => { mobileSoundBtn.textContent = desktopSoundBtn.textContent; }, 50);
+    });
+    mobileSoundBtn.textContent = desktopSoundBtn.textContent;
+  }
+
+  // Speil status-dot og tekst
+  const observeStatus = () => {
+    const desktopDot = document.getElementById('statusDot');
+    const desktopText = document.getElementById('statusText');
+    const mobileDot = document.getElementById('mobileStatusDot');
+    const mobileText = document.getElementById('mobileStatusText');
+    if (desktopDot && mobileDot) {
+      mobileDot.className = desktopDot.className;
+    }
+    if (desktopText && mobileText) {
+      mobileText.textContent = desktopText.textContent;
+    }
+  };
+  observeStatus();
+  setInterval(observeStatus, 1000);
+})();
 
 // ===========================================================
 // STATISTIKK-PERIODE-VELGER (i sidebar)
@@ -4693,7 +4849,7 @@ function sgCardHtml(item) {
           <span style="color:${expiryColor}; font-weight:700;">⏰ Utløper ${expiryDate} - ${dagerTekst(dager)}</span>
         </div>
         ${areasText ? `<div class="card-meta-row"><span class="chip chip-nace">${escapeHtml(areasText)}</span></div>` : ''}
-        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${phone}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${phone}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
         ${email ? `<div class="card-meta-row"><span>✉️ <a href="mailto:${email}" style="color:var(--blue);">${escapeHtml(email)}</a></span></div>` : ''}
         <div class="card-links">
           <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(searchName + ' telefon')}" target="_blank" rel="noopener">Google</a>
