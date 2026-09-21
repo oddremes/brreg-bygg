@@ -30,6 +30,8 @@
     --red-soft: rgba(254, 100, 100, 0.14);
     --blue: #60a5fa;
     --blue-soft: rgba(96, 165, 250, 0.14);
+    --orange: #ff9c3d;
+    --orange-soft: rgba(255, 156, 61, 0.14);
     --cyan: #22d3ee;
     --proff: #8b3ca8;
     --reserved: #FFCC4D;
@@ -147,12 +149,12 @@
   .tab-btn.active[data-tab="ansatte"] { border-bottom-color:var(--blue); }
   .tab-btn.active[data-tab="fse"] { border-bottom-color:#ffb43c; }
   .tab-btn.active[data-tab="sg"] { border-bottom-color:#c580e0; }
-  .tab-btn.active[data-tab="oppfolging"] { border-bottom-color:var(--green); }
+  .tab-btn.active[data-tab="oppfolging"] { border-bottom-color:var(--blue); }
   .tab-btn.active[data-tab="bygg"] .tab-count { background:var(--accent); color:#111; }
   .tab-btn.active[data-tab="ansatte"] .tab-count { background:var(--blue); color:#111; }
   .tab-btn.active[data-tab="fse"] .tab-count { background:#ffb43c; color:#111; }
   .tab-btn.active[data-tab="sg"] .tab-count { background:#c580e0; color:#111; }
-  .tab-btn.active[data-tab="oppfolging"] .tab-count { background:var(--green); color:#111; }
+  .tab-btn.active[data-tab="oppfolging"] .tab-count { background:var(--blue); color:#111; }
 
   /* Varsel-prikk på fane-knapp - vises når det er nye selskaper */
   .tab-btn { position:relative; }
@@ -396,8 +398,8 @@
   .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.1px; font-weight:600; }
   .stat.contacted .stat-value { color:var(--accent); }
   .stat.solgt .stat-value { color:var(--green); }
-  .stat.ikkesvar .stat-value { color:var(--blue); }
-  .stat.oppfolging .stat-value { color:var(--green); }
+  .stat.ikkesvar .stat-value { color:var(--orange); }
+  .stat.oppfolging .stat-value { color:var(--blue); }
   .stat.gjenstaar .stat-value { color:var(--text); }
 
   /* Klikkbar stat med tooltip over */
@@ -506,7 +508,7 @@
 
   tr.row-ikkesvar td { background:rgba(96, 165, 250, 0.06) !important; opacity:1; }
   tr.row-ikkesvar:hover td { background:rgba(96, 165, 250, 0.11) !important; }
-  tr.row-ikkesvar td:first-child { border-left:4px solid var(--blue); padding-left:16px; }
+  tr.row-ikkesvar td:first-child { border-left:4px solid var(--orange); padding-left:16px; }
 
   /* Reservert rad: tydelig gul ramme */
   tr.row-reserved td {
@@ -630,13 +632,13 @@
     background:var(--red); color:#111; border-color:var(--red); box-shadow:var(--shadow-sm);
   }
   .status-btn-pair.ikkesvar-btn {
-    border-color:rgba(96,165,250,0.35); color:var(--blue);
+    border-color:rgba(255,156,61,0.35); color:var(--orange);
   }
   .status-btn-pair.ikkesvar-btn:hover {
-    background:var(--blue); color:#111; border-color:var(--blue); box-shadow:var(--shadow-sm);
+    background:var(--orange); color:#111; border-color:var(--orange); box-shadow:var(--shadow-sm);
   }
   .status-btn-pair.active-ikkesvar {
-    background:var(--blue); color:#111; border-color:var(--blue);
+    background:var(--orange); color:#111; border-color:var(--orange);
   }
   /* Aktive (allerede markerte) - vises i modalene */
   .status-btn-pair.active-kontaktet {
@@ -885,12 +887,53 @@
     border:1px solid var(--border);
     border-left:4px solid var(--border);
     border-radius:var(--radius-lg); padding:20px 24px;
-    display:grid; grid-template-columns:52px 1fr auto; gap:18px;
+    display:grid; grid-template-columns:56px 1fr; gap:22px;
     align-items:start;
     transition:var(--transition);
     box-shadow:var(--shadow-sm);
     position:relative;
     animation:slideInUp 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  /* Venstre kolonne: avatar øverst, ikon-knapper stablet under */
+  .card-left-column {
+    display:flex; flex-direction:column;
+    gap:8px; align-items:center;
+  }
+  .card-icon-actions {
+    display:flex; flex-direction:column;
+    gap:6px; width:100%;
+    margin-top:4px;
+  }
+  .card-icon-btn {
+    width:44px; height:38px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--panel-2); border:1.5px solid var(--border);
+    border-radius:8px; cursor:pointer;
+    font-size:18px; padding:0;
+    transition:var(--transition);
+    margin:0 auto;
+  }
+  .card-icon-btn:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,0.25); }
+  /* Farge per handling */
+  .card-icon-btn.icon-kontaktet { color:var(--accent); border-color:rgba(255,204,77,0.35); }
+  .card-icon-btn.icon-kontaktet:hover, .card-icon-btn.icon-kontaktet.active {
+    background:var(--accent); color:#111; border-color:var(--accent);
+  }
+  .card-icon-btn.icon-salg { color:var(--green); border-color:rgba(101,206,121,0.35); }
+  .card-icon-btn.icon-salg:hover, .card-icon-btn.icon-salg.active {
+    background:var(--green); color:#111; border-color:var(--green);
+  }
+  .card-icon-btn.icon-ikkesvar { color:var(--orange); border-color:rgba(255,156,61,0.35); }
+  .card-icon-btn.icon-ikkesvar:hover, .card-icon-btn.icon-ikkesvar.active {
+    background:var(--orange); color:#111; border-color:var(--orange);
+  }
+  .card-icon-btn.icon-oppfolging { color:var(--blue); border-color:rgba(96,165,250,0.35); }
+  .card-icon-btn.icon-oppfolging:hover, .card-icon-btn.icon-oppfolging.active {
+    background:var(--blue); color:#111; border-color:var(--blue);
+  }
+  .card-icon-btn.icon-slett { color:var(--red); border-color:rgba(254,100,100,0.35); }
+  .card-icon-btn.icon-slett:hover {
+    background:var(--red); color:#fff; border-color:var(--red);
   }
   /* Ved mange kort - dropp animasjoner for ytelse */
   .companies-cards.heavy-list .company-card { animation:none; }
@@ -945,7 +988,7 @@
   }
   .company-card.status-solgt:hover { background:var(--panel-2); }
   .company-card.status-ikkesvar {
-    border-left-color:var(--blue);
+    border-left-color:var(--orange);
     background:var(--panel);
   }
   .company-card.status-ikkesvar:hover { background:var(--panel-2); }
@@ -1053,11 +1096,8 @@
     display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;
   }
 
-  /* Kort høyre kolonne: status-knapper */
-  .card-actions {
-    display:flex; flex-direction:column; gap:6px; align-items:stretch;
-    min-width:130px;
-  }
+  /* Gamle .card-actions - erstattet av card-icon-actions i venstre kolonne */
+  .card-actions { display:none !important; }
   .card-actions button {
     font-size:11px; padding:8px 14px;
     text-transform:uppercase; letter-spacing:0.5px; font-weight:700;
@@ -1082,8 +1122,8 @@
     background:transparent; color:var(--blue);
     border-color:rgba(96,165,250,0.35);
   }
-  .card-actions .btn-ikkesvar:hover { background:var(--blue); color:#111; border-color:var(--blue); }
-  .card-actions .btn-ikkesvar.active { background:var(--blue); color:#111; border-color:var(--blue); }
+  .card-actions .btn-ikkesvar:hover { background:var(--orange); color:#111; border-color:var(--orange); }
+  .card-actions .btn-ikkesvar.active { background:var(--orange); color:#111; border-color:var(--orange); }
   .card-actions .btn-slett {
     background:transparent; color:var(--red);
     border-color:rgba(254,100,100,0.3);
@@ -1100,9 +1140,9 @@
     background:transparent; color:var(--green);
     border-color:rgba(101,206,121,0.35);
   }
-  .card-actions .btn-oppfolging:hover { background:var(--green); color:#111; border-color:var(--green); }
-  .card-actions .btn-oppfolging.active { background:var(--green); color:#111; border-color:var(--green); }
-  .company-card.status-oppfolging { border-left-color:var(--green); background:var(--panel); }
+  .card-actions .btn-oppfolging:hover { background:var(--blue); color:#111; border-color:var(--blue); }
+  .card-actions .btn-oppfolging.active { background:var(--blue); color:#111; border-color:var(--blue); }
+  .company-card.status-oppfolging { border-left-color:var(--blue); background:var(--panel); }
   .company-card.status-oppfolging:hover { background:var(--panel-2); }
 
   /* ===== KALENDER ===== */
@@ -1170,7 +1210,7 @@
     vertical-align:middle;
   }
   .badge-status.b-salg { background:var(--green); color:#111; }
-  .badge-status.b-ikkesvar { background:var(--blue); color:#111; }
+  .badge-status.b-ikkesvar { background:var(--orange); color:#111; }
   .badge-status.b-reservert { background:var(--reserved); color:#111; }
   .badge-status.b-new {
     background:rgba(255,255,255,0.08); color:var(--text-soft);
@@ -1386,15 +1426,14 @@
     .main-header h2 { font-size:13px; }
     .main-header .countdown { font-size:11px; }
 
-    /* Kort: stackes vertikalt (avatar/tekst/knapper i egne linjer) */
+    /* Kort: samme layout som desktop (avatar + ikon-knapper venstre, tekst høyre) */
     .companies-cards {
       padding:8px 4px 20px 4px !important;
       gap:10px;
     }
     .company-card {
-      grid-template-columns:44px 1fr !important;
-      grid-template-rows:auto auto;
-      gap:12px !important;
+      grid-template-columns:48px 1fr !important;
+      gap:14px !important;
       padding:14px 14px !important;
       margin-left:8px !important;
     }
@@ -1403,25 +1442,14 @@
       font-size:18px !important;
       border-radius:10px !important;
     }
+    .card-icon-btn {
+      width:36px !important; height:34px !important;
+      font-size:15px !important;
+    }
     .card-main {
-      grid-column:2;
       min-width:0;
     }
     .card-name { font-size:15px !important; }
-    .card-actions {
-      grid-column:1 / -1;
-      flex-direction:row !important;
-      flex-wrap:wrap;
-      min-width:0 !important;
-      gap:6px !important;
-      justify-content:flex-start;
-    }
-    .card-actions button {
-      flex:1 1 auto;
-      min-width:80px;
-      font-size:10px !important;
-      padding:8px 6px !important;
-    }
     /* Ny-lampen: mindre og til venstre */
     .company-card.is-new::before {
       width:10px !important; height:10px !important;
@@ -1735,7 +1763,7 @@
     </div>
     <div class="modal-actions">
       <button class="secondary" id="ikkesvarCancelBtn">Avbryt</button>
-      <button id="ikkesvarConfirmBtn" style="background:var(--blue);">Bekreft</button>
+      <button id="ikkesvarConfirmBtn" style="background:var(--orange);">Bekreft</button>
     </div>
   </div>
 </div>
@@ -2271,7 +2299,7 @@ window.markerKontaktet = function(orgnr) {
   saveStatus();
 
   // Umiddelbar visuell feedback: marker knappen som aktiv med en gang + fjern fra visning
-  flashActive(orgnr, 'btn-kontaktet');
+  flashActive(orgnr, 'icon-kontaktet');
   const cards = document.querySelectorAll(`.company-card[data-orgnr="${orgnr}"]`);
   cards.forEach(card => {
     card.style.transition = 'opacity 0.3s, transform 0.3s';
@@ -2496,11 +2524,11 @@ function renderBehandledeModal() {
   } else if (behandledeFilter === 'kontaktet') {
     behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktede`;
   } else if (behandledeFilter === 'ikkesvar') {
-    behandledeSummary.innerHTML = `<span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar`;
+    behandledeSummary.innerHTML = `<span class="num" style="color:var(--orange)">${totalIkkesvar}</span> ikke svar`;
   } else if (behandledeFilter === 'oppfolging') {
-    behandledeSummary.innerHTML = `<span class="num" style="color:var(--green)">${totalOppfolging}</span> oppfølginger`;
+    behandledeSummary.innerHTML = `<span class="num" style="color:var(--blue)">${totalOppfolging}</span> oppfølginger`;
   } else {
-    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> salg (${totalPoeng}p) · <span class="num" style="color:var(--blue)">${totalIkkesvar}</span> ikke svar · <span class="num" style="color:var(--green)">${totalOppfolging}</span> oppfølging`;
+    behandledeSummary.innerHTML = `<span class="num">${totalKontaktet}</span> kontaktet · <span class="num green">${totalSolgt}</span> salg (${totalPoeng}p) · <span class="num" style="color:var(--orange)">${totalIkkesvar}</span> ikke svar · <span class="num" style="color:var(--blue)">${totalOppfolging}</span> oppfølging`;
   }
 
   const cards = document.getElementById('behandledeCards');
@@ -2589,7 +2617,16 @@ function cardHtmlBackup(e) {
 
   return `
     <div data-orgnr="${orgnr}" class="company-card ${cardClass}">
-      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-left-column">
+        <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+        <div class="card-icon-actions">
+          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? '✓ Kontaktet' : 'Marker som kontaktet'}">📞</button>
+          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? '💰 ' + (status?.poeng || 0) + 'p' : 'Registrer salg'}">💰</button>
+          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? '📵 Ikke svar' : 'Marker som Ikke svar'}">📵</button>
+          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();${isIkkesvar ? `fjernIkkesvar('${orgnr}')` : `markerIngenNr('${orgnr}')`}" title="Slett">🗑️</button>
+          ${(isKontaktet || isSolgt) ? `<button class="card-icon-btn icon-kontaktet ${hasNotat ? 'active' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${hasNotat ? 'Rediger notat' : 'Legg til notat'}">📝</button>` : ''}
+        </div>
+      </div>
       <div class="card-main">
         <div class="card-header">
           <div class="card-name">${escapeHtml(e.navn || '—')}</div>
@@ -2607,13 +2644,6 @@ function cardHtmlBackup(e) {
         </div>
         ${ikkesvarDetailCard}
         ${notatDetailCard}
-      </div>
-      <div class="card-actions">
-        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
-        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
-        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-        <button class="btn-slett" onclick="event.stopPropagation();${isIkkesvar ? `fjernIkkesvar('${orgnr}')` : `markerIngenNr('${orgnr}')`}">Slett</button>
-        ${(isKontaktet || isSolgt) ? `<button class="btn-notat ${hasNotat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')">📝 Notat</button>` : ''}
       </div>
     </div>`;
 }
@@ -3534,7 +3564,17 @@ function rowHtml(e) {
 
   return `
     <div data-orgnr="${orgnr}" class="company-card ${cardClass}" onclick="markerSomSett('${orgnr}')">
-      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-left-column">
+        <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+        <div class="card-icon-actions">
+          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? '✓ Kontaktet - klikk for å fjerne' : 'Marker som kontaktet'}">📞</button>
+          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? '💰 ' + (status?.poeng || 0) + 'p - klikk for å endre' : 'Registrer salg'}">💰</button>
+          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? '📵 Ikke svar - klikk for å redigere' : 'Marker som Ikke svar'}">📵</button>
+          <button class="card-icon-btn icon-oppfolging ${status?.status === 'oppfolging' ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(e.navn || '').replace(/'/g, '&#39;')}', telefon: '${phone}'})" title="${status?.status === 'oppfolging' ? '📅 Oppfølging ' + (status.oppfolgingsDato || '') : 'Sett oppfølging'}">📅</button>
+          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">🗑️</button>
+          ${(isKontaktet || isSolgt) ? `<button class="card-icon-btn icon-kontaktet ${status?.notat ? 'active' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${status?.notat ? 'Rediger notat' : 'Legg til notat'}">📝</button>` : ''}
+        </div>
+      </div>
       <div class="card-main">
         <div class="card-header">
           <div class="card-name">${name}</div>
@@ -3555,20 +3595,12 @@ function rowHtml(e) {
         ${nace ? `<div class="card-meta-row"><span class="chip chip-nace">${nace}</span></div>` : ''}
         ${cachedPerson ? `<div class="card-person"><span class="person-icon">👤</span><span class="copyable" data-copy="${escapeHtml(cachedPerson.navn)}" title="Klikk for å kopiere navn" style="padding:2px 6px; border-radius:4px;">${escapeHtml(cachedPerson.navn)}</span><span style="color:var(--muted-soft); font-weight:400; margin-left:6px;">(${escapeHtml(cachedPerson.rolle)})</span></div>` : '<div class="card-person"><span class="person-icon">👤</span><span style="color:var(--muted-soft); font-style:italic;">Henter kontaktperson…</span></div>'}
         ${fullAddr ? `<div class="card-meta-row"><span>📍 ${escapeHtml(fullAddr)}</span></div>` : ''}
-        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${phone}" title="Klikk for å kopiere telefon" style="padding:2px 6px; border-radius:4px;">${formatPhone(phone)}</span></span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${cleanPhone(phone)}" title="Klikk for å kopiere telefon" style="padding:2px 6px; border-radius:4px;">${formatPhone(phone)}</span></span></div>` : ''}
         ${web ? `<div class="card-meta-row"><span>🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted);">${escapeHtml(web)}</a></span></div>` : ''}
         ${showFormal ? `<div class="card-formal">📜 ${escapeHtml(formalText)}</div>` : ''}
         ${ikkesvarDetailCard}
         ${notatDetailCard}
         <div class="card-links">${lookups}</div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
-        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
-        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-        <button class="btn-oppfolging ${status?.status === 'oppfolging' ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(e.navn || '').replace(/'/g, '&#39;')}', telefon: '${phone}'})" title="${status?.status === 'oppfolging' ? 'Endre oppfølging' : 'Sett oppfølging'}">${status?.status === 'oppfolging' ? '📅 ' + (status.oppfolgingsDato || '') : '📅 Oppfølging'}</button>
-        <button class="btn-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
-        ${(isKontaktet || isSolgt) ? `<button class="btn-notat ${status?.notat ? 'has-notat' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${status?.notat ? 'Rediger notat' : 'Legg til notat'}">📝 Notat</button>` : ''}
       </div>
     </div>`;
 }
@@ -3692,9 +3724,20 @@ function escapeHtml(s) {
 }
 function ensureHttp(u) { if (!u) return '#'; return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
 function formatPhone(p) {
-  const d = String(p).replace(/\D/g,'');
+  // Strip alle ikke-sifre og fjern eventuelt +47/47-prefix
+  let d = String(p).replace(/\D/g, '');
+  if (d.length === 10 && d.startsWith('47')) d = d.slice(2);
+  if (d.length === 11 && d.startsWith('47')) d = d.slice(2);
   if (d.length === 8) return `${d.slice(0,3)} ${d.slice(3,5)} ${d.slice(5)}`;
-  return p;
+  return d || p;
+}
+
+// Returnerer telefon som ren streng UTEN +47 og uten mellomrom (for kopiering)
+function cleanPhone(p) {
+  let d = String(p).replace(/\D/g, '');
+  if (d.length === 10 && d.startsWith('47')) d = d.slice(2);
+  if (d.length === 11 && d.startsWith('47')) d = d.slice(2);
+  return d;
 }
 
 function scheduleNext() {
@@ -4836,7 +4879,16 @@ function sgCardHtml(item) {
 
   return `
     <div data-orgnr="${orgnr}" class="company-card ${cardClass}" onclick="markerSomSett('${orgnr}')">
-      <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+      <div class="card-left-column">
+        <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+        <div class="card-icon-actions">
+          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? '✓ Kontaktet' : 'Marker som kontaktet'}">📞</button>
+          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? '💰 ' + (status?.poeng || 0) + 'p' : 'Registrer salg'}">💰</button>
+          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? '📵 Ikke svar' : 'Marker som Ikke svar'}">📵</button>
+          <button class="card-icon-btn icon-oppfolging ${isOppfolging ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(navn).replace(/'/g, '&#39;')}', telefon: '${phone}', fane: 'sg'})" title="${isOppfolging ? '📅 ' + (status.oppfolgingsDato || '') : 'Sett oppfølging'}">📅</button>
+          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">🗑️</button>
+        </div>
+      </div>
       <div class="card-main">
         <div class="card-header">
           <div class="card-name">${escapeHtml(navn)}</div>
@@ -4849,7 +4901,7 @@ function sgCardHtml(item) {
           <span style="color:${expiryColor}; font-weight:700;">⏰ Utløper ${expiryDate} - ${dagerTekst(dager)}</span>
         </div>
         ${areasText ? `<div class="card-meta-row"><span class="chip chip-nace">${escapeHtml(areasText)}</span></div>` : ''}
-        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${phone}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
+        ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${cleanPhone(phone)}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
         ${email ? `<div class="card-meta-row"><span>✉️ <a href="mailto:${email}" style="color:var(--blue);">${escapeHtml(email)}</a></span></div>` : ''}
         <div class="card-links">
           <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(searchName + ' telefon')}" target="_blank" rel="noopener">Google</a>
@@ -4858,13 +4910,6 @@ function sgCardHtml(item) {
           <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
           <a class="dibk" href="https://sgregister.dibk.no/enterprises/${orgnr}" target="_blank" rel="noopener">DiBK</a>
         </div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
-        <button class="btn-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
-        <button class="btn-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
-        <button class="btn-oppfolging ${isOppfolging ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(navn).replace(/'/g, '&#39;')}', telefon: '${phone}', fane: 'sg'})">${isOppfolging ? '📅 ' + (status.oppfolgingsDato || '') : '📅 Oppfølging'}</button>
-        <button class="btn-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')">Slett</button>
       </div>
     </div>`;
 }
@@ -5045,7 +5090,7 @@ function oppfolgingCardHtml(o) {
         </div>
         <div class="card-meta-row">
           <span class="chip chip-orgnr copyable" data-copy="${o.orgnr}" title="Klikk for å kopiere">${o.orgnr}</span>
-          ${o.telefon ? `<span class="separator">·</span><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${o.telefon}">${formatPhone(o.telefon)}</span></span>` : ''}
+          ${o.telefon ? `<span class="separator">·</span><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable" data-copy="${cleanPhone(o.telefon)}">${formatPhone(o.telefon)}</span></span>` : ''}
         </div>
         ${o.notat ? `<div class="card-notat"><span class="field-label">📝 Notat:</span>${escapeHtml(o.notat)}</div>` : ''}
         <div class="card-links">
