@@ -887,51 +887,58 @@
     border:1px solid var(--border);
     border-left:4px solid var(--border);
     border-radius:var(--radius-lg); padding:20px 24px;
-    display:grid; grid-template-columns:56px 1fr; gap:22px;
+    display:grid; grid-template-columns:104px 1fr; gap:22px;
     align-items:start;
     transition:var(--transition);
     box-shadow:var(--shadow-sm);
     position:relative;
     animation:slideInUp 0.25s cubic-bezier(0.4,0,0.2,1);
   }
-  /* Venstre kolonne: avatar øverst, ikon-knapper stablet under */
+  /* Venstre kolonne: avatar øverst, kompakte tekst-knapper stablet under */
   .card-left-column {
     display:flex; flex-direction:column;
-    gap:8px; align-items:center;
+    gap:10px; align-items:stretch;
+    width:100%;
+  }
+  .card-left-column .company-avatar {
+    align-self:center;
   }
   .card-icon-actions {
     display:flex; flex-direction:column;
-    gap:6px; width:100%;
-    margin-top:4px;
+    gap:5px; width:100%;
   }
   .card-icon-btn {
-    width:44px; height:38px;
+    width:100%; height:auto;
+    padding:6px 8px;
     display:flex; align-items:center; justify-content:center;
     background:var(--panel-2); border:1.5px solid var(--border);
-    border-radius:8px; cursor:pointer;
-    font-size:18px; padding:0;
+    border-radius:6px; cursor:pointer;
+    font-size:10.5px; font-weight:700;
+    font-family:var(--sans);
+    text-transform:uppercase; letter-spacing:0.4px;
     transition:var(--transition);
-    margin:0 auto;
+    line-height:1.2;
+    white-space:nowrap;
   }
   .card-icon-btn:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,0.25); }
   /* Farge per handling */
-  .card-icon-btn.icon-kontaktet { color:var(--accent); border-color:rgba(255,204,77,0.35); }
+  .card-icon-btn.icon-kontaktet { color:var(--accent); border-color:rgba(255,204,77,0.4); }
   .card-icon-btn.icon-kontaktet:hover, .card-icon-btn.icon-kontaktet.active {
     background:var(--accent); color:#111; border-color:var(--accent);
   }
-  .card-icon-btn.icon-salg { color:var(--green); border-color:rgba(101,206,121,0.35); }
+  .card-icon-btn.icon-salg { color:var(--green); border-color:rgba(101,206,121,0.4); }
   .card-icon-btn.icon-salg:hover, .card-icon-btn.icon-salg.active {
     background:var(--green); color:#111; border-color:var(--green);
   }
-  .card-icon-btn.icon-ikkesvar { color:var(--orange); border-color:rgba(255,156,61,0.35); }
+  .card-icon-btn.icon-ikkesvar { color:var(--orange); border-color:rgba(255,156,61,0.4); }
   .card-icon-btn.icon-ikkesvar:hover, .card-icon-btn.icon-ikkesvar.active {
     background:var(--orange); color:#111; border-color:var(--orange);
   }
-  .card-icon-btn.icon-oppfolging { color:var(--blue); border-color:rgba(96,165,250,0.35); }
+  .card-icon-btn.icon-oppfolging { color:var(--blue); border-color:rgba(96,165,250,0.4); }
   .card-icon-btn.icon-oppfolging:hover, .card-icon-btn.icon-oppfolging.active {
     background:var(--blue); color:#111; border-color:var(--blue);
   }
-  .card-icon-btn.icon-slett { color:var(--red); border-color:rgba(254,100,100,0.35); }
+  .card-icon-btn.icon-slett { color:var(--red); border-color:rgba(254,100,100,0.4); }
   .card-icon-btn.icon-slett:hover {
     background:var(--red); color:#fff; border-color:var(--red);
   }
@@ -1426,15 +1433,15 @@
     .main-header h2 { font-size:13px; }
     .main-header .countdown { font-size:11px; }
 
-    /* Kort: samme layout som desktop (avatar + ikon-knapper venstre, tekst høyre) */
+    /* Kort: samme layout som desktop (avatar + kompakte tekst-knapper venstre, tekst høyre) */
     .companies-cards {
       padding:8px 4px 20px 4px !important;
       gap:10px;
     }
     .company-card {
-      grid-template-columns:48px 1fr !important;
-      gap:14px !important;
-      padding:14px 14px !important;
+      grid-template-columns:90px 1fr !important;
+      gap:12px !important;
+      padding:12px 12px !important;
       margin-left:8px !important;
     }
     .company-avatar {
@@ -1443,8 +1450,9 @@
       border-radius:10px !important;
     }
     .card-icon-btn {
-      width:36px !important; height:34px !important;
-      font-size:15px !important;
+      padding:5px 4px !important;
+      font-size:9.5px !important;
+      letter-spacing:0.3px !important;
     }
     .card-main {
       min-width:0;
@@ -2620,11 +2628,11 @@ function cardHtmlBackup(e) {
       <div class="card-left-column">
         <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
         <div class="card-icon-actions">
-          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? '✓ Kontaktet' : 'Marker som kontaktet'}">📞</button>
-          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? '💰 ' + (status?.poeng || 0) + 'p' : 'Registrer salg'}">💰</button>
-          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? '📵 Ikke svar' : 'Marker som Ikke svar'}">📵</button>
-          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();${isIkkesvar ? `fjernIkkesvar('${orgnr}')` : `markerIngenNr('${orgnr}')`}" title="Slett">🗑️</button>
-          ${(isKontaktet || isSolgt) ? `<button class="card-icon-btn icon-kontaktet ${hasNotat ? 'active' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${hasNotat ? 'Rediger notat' : 'Legg til notat'}">📝</button>` : ''}
+          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();${isIkkesvar ? `fjernIkkesvar('${orgnr}')` : `markerIngenNr('${orgnr}')`}" title="Slett">Slett</button>
+          ${(isKontaktet || isSolgt) ? `<button class="card-icon-btn icon-kontaktet ${hasNotat ? 'active' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${hasNotat ? 'Rediger notat' : 'Legg til notat'}">📝 Notat</button>` : ''}
         </div>
       </div>
       <div class="card-main">
@@ -3567,12 +3575,12 @@ function rowHtml(e) {
       <div class="card-left-column">
         <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
         <div class="card-icon-actions">
-          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? '✓ Kontaktet - klikk for å fjerne' : 'Marker som kontaktet'}">📞</button>
-          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? '💰 ' + (status?.poeng || 0) + 'p - klikk for å endre' : 'Registrer salg'}">💰</button>
-          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? '📵 Ikke svar - klikk for å redigere' : 'Marker som Ikke svar'}">📵</button>
-          <button class="card-icon-btn icon-oppfolging ${status?.status === 'oppfolging' ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(e.navn || '').replace(/'/g, '&#39;')}', telefon: '${phone}'})" title="${status?.status === 'oppfolging' ? '📅 Oppfølging ' + (status.oppfolgingsDato || '') : 'Sett oppfølging'}">📅</button>
-          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">🗑️</button>
-          ${(isKontaktet || isSolgt) ? `<button class="card-icon-btn icon-kontaktet ${status?.notat ? 'active' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${status?.notat ? 'Rediger notat' : 'Legg til notat'}">📝</button>` : ''}
+          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+          <button class="card-icon-btn icon-oppfolging ${status?.status === 'oppfolging' ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(e.navn || '').replace(/'/g, '&#39;')}', telefon: '${phone}'})" title="${status?.status === 'oppfolging' ? 'Endre oppfølging' : 'Sett oppfølging'}">${status?.status === 'oppfolging' ? '📅 ' + (status.oppfolgingsDato || '') : 'Oppfølging'}</button>
+          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
+          ${(isKontaktet || isSolgt) ? `<button class="card-icon-btn icon-kontaktet ${status?.notat ? 'active' : ''}" onclick="event.stopPropagation();redigerNotat('${orgnr}')" title="${status?.notat ? 'Rediger notat' : 'Legg til notat'}">📝 Notat</button>` : ''}
         </div>
       </div>
       <div class="card-main">
@@ -4882,11 +4890,11 @@ function sgCardHtml(item) {
       <div class="card-left-column">
         <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
         <div class="card-icon-actions">
-          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? '✓ Kontaktet' : 'Marker som kontaktet'}">📞</button>
-          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? '💰 ' + (status?.poeng || 0) + 'p' : 'Registrer salg'}">💰</button>
-          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? '📵 Ikke svar' : 'Marker som Ikke svar'}">📵</button>
-          <button class="card-icon-btn icon-oppfolging ${isOppfolging ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(navn).replace(/'/g, '&#39;')}', telefon: '${phone}', fane: 'sg'})" title="${isOppfolging ? '📅 ' + (status.oppfolgingsDato || '') : 'Sett oppfølging'}">📅</button>
-          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">🗑️</button>
+          <button class="card-icon-btn icon-kontaktet ${isKontaktet ? 'active' : ''}" onclick="event.stopPropagation();markerKontaktet('${orgnr}')" title="${isKontaktet ? 'Klikk for å fjerne' : 'Marker som kontaktet'}">${isKontaktet ? '✓ Kontaktet' : 'Kontaktet'}</button>
+          <button class="card-icon-btn icon-salg ${isSolgt ? 'active' : ''}" onclick="event.stopPropagation();markerSolgt('${orgnr}')" title="${isSolgt ? 'Klikk for å endre' : 'Registrer salg'}">${isSolgt ? '💰 ' + status.poeng + 'p' : 'Salg'}</button>
+          <button class="card-icon-btn icon-ikkesvar ${isIkkesvar ? 'active' : ''}" onclick="event.stopPropagation();markerIkkesvar('${orgnr}')" title="${isIkkesvar ? 'Klikk for å redigere' : 'Marker som Ikke svar'}">${isIkkesvar ? '📵 Ikke svar' : 'Ikke svar'}</button>
+          <button class="card-icon-btn icon-oppfolging ${isOppfolging ? 'active' : ''}" onclick="event.stopPropagation();markerOppfolging('${orgnr}', {navn: '${escapeHtml(navn).replace(/'/g, '&#39;')}', telefon: '${phone}', fane: 'sg'})" title="${isOppfolging ? 'Endre oppfølging' : 'Sett oppfølging'}">${isOppfolging ? '📅 ' + (status.oppfolgingsDato || '') : 'Oppfølging'}</button>
+          <button class="card-icon-btn icon-slett" onclick="event.stopPropagation();markerIngenNr('${orgnr}')" title="Slett fra listen">Slett</button>
         </div>
       </div>
       <div class="card-main">
