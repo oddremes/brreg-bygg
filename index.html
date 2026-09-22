@@ -4830,6 +4830,10 @@ function extractEmail(item) {
          item.epostadresse || '';
 }
 
+function extractWeb(item) {
+  return item.www || item.website || item.homepage || item.web || item.hjemmeside || '';
+}
+
 function extractAddress(item) {
   // DiBK bruker businessaddress med line_1, postal_code, postal_town
   const a = item.businessaddress || item.postaladdress || item.address ||
@@ -4848,6 +4852,7 @@ function sgCardHtml(item) {
   const sted = [address.postnr, address.city].filter(Boolean).join(' ').trim();
   const phone = extractPhone(item);
   const email = extractEmail(item);
+  const web = extractWeb(item);
 
   // Bruk kontaktperson-navn for søk hvis vi har det, ellers selskapsnavn
   const cachedPerson = personCache.get(orgnr);
@@ -4913,6 +4918,7 @@ function sgCardHtml(item) {
         ${areasText ? `<div class="card-meta-row"><span class="chip chip-nace">${escapeHtml(areasText)}</span></div>` : ''}
         ${phone ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${cleanPhone(phone)}" title="Klikk for å kopiere">${formatPhone(phone)}</span></span></div>` : ''}
         ${email ? `<div class="card-meta-row"><span>✉️ <a href="mailto:${email}" style="color:var(--blue);">${escapeHtml(email)}</a></span></div>` : ''}
+        ${web ? `<div class="card-meta-row"><span>🌐 <a href="${ensureHttp(web)}" target="_blank" rel="noopener" style="color:var(--muted);">${escapeHtml(web)}</a></span></div>` : ''}
         <div class="card-links">
           <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(searchName + ' telefon')}" target="_blank" rel="noopener">Google</a>
           <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(searchName)}" target="_blank" rel="noopener">1881</a>
