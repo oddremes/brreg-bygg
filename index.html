@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #ffffff;
+    --bg: #000000;
     --panel: #0a0d12;
     --panel-2: #12161d;
     --panel-3: #1a1f28;
@@ -20,8 +20,8 @@
     --border-strong: #3a4150;
     --text: #f0f2f5;
     --text-soft: #c4cad2;
-    --muted: #5a6270;
-    --muted-soft: #3d434e;
+    --muted: #8b949e;
+    --muted-soft: #6e7681;
     --text-on-light: #1a1f28;
     --accent: #FFCC4D;
     --accent-soft: rgba(255, 204, 77, 0.14);
@@ -217,12 +217,11 @@
   button:hover { background:#ffd970; transform:translateY(-1px); box-shadow:var(--shadow-sm); }
   button:active { transform:translateY(0); }
   button.secondary {
-    background:var(--panel); color:var(--text);
-    border:1px solid var(--border-strong);
-    box-shadow:0 1px 3px rgba(0,0,0,0.15);
+    background:var(--panel-2); color:var(--text);
+    border:1px solid var(--border);
   }
   button.secondary:hover {
-    background:var(--panel-2); border-color:var(--accent);
+    background:var(--panel-3); border-color:var(--accent);
     color:var(--accent);
   }
   button.danger { background:transparent; color:var(--red); border:1px solid rgba(254,100,100,0.4); font-size:12px; padding:7px 14px; }
@@ -258,14 +257,13 @@
     left:calc(var(--sidebar-w) + 8px);
     z-index:15;
     width:28px; height:28px; padding:0;
-    background:var(--panel); color:var(--text);
-    border:1px solid var(--border-strong); border-radius:6px;
+    background:rgba(30, 36, 44, 0.6); color:var(--muted);
+    border:1px solid var(--border-soft); border-radius:6px;
     font-size:11px; cursor:pointer; display:flex;
     align-items:center; justify-content:center;
-    transition:var(--transition); opacity:0.85;
-    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    transition:var(--transition); opacity:0.5;
   }
-  .sidebar-toggle:hover { opacity:1; background:var(--panel-2); color:var(--text); border-color:var(--accent); }
+  .sidebar-toggle:hover { opacity:1; background:var(--panel-3); color:var(--accent); border-color:var(--accent); }
   .layout.sidebar-collapsed .sidebar-toggle {
     left:8px;
   }
@@ -486,7 +484,7 @@
     padding-left:44px;  /* Plass til sidebar-toggle-pilen */
   }
   .main-header h2 {
-    margin:0; font-size:14px; font-weight:600; color:var(--text-on-light);
+    margin:0; font-size:14px; font-weight:600; color:var(--muted);
     text-transform:uppercase; letter-spacing:1.2px;
   }
   .main-header .countdown {
@@ -699,7 +697,7 @@
   .empty { padding:80px; text-align:center; color:var(--muted); font-size:14px; }
   .error-msg { padding:16px 20px; margin:16px 0; background:rgba(254,100,100,0.08); color:#fca5a5; border:1px solid rgba(254,100,100,0.3); border-radius:8px; font-size:12px; white-space:pre-wrap; word-break:break-all; }
   .time-ago { font-size:11px; color:var(--muted); }
-  .main-footer { padding:30px 0 0 0; color:var(--muted); font-size:11px; text-align:center; border-top:1px solid var(--border-strong); margin-top:40px; }
+  .main-footer { padding:30px 0 0 0; color:var(--muted-soft); font-size:11px; text-align:center; border-top:1px solid var(--border-soft); margin-top:40px; }
 
   /* Dato-headers */
   .date-header {
@@ -882,29 +880,35 @@
   .date-header {
     display:flex; align-items:center; gap:12px;
     margin:20px 0 4px 0; padding:0 4px;
-    font-size:11px; font-weight:700; color:var(--text-on-light);
+    font-size:11px; font-weight:700; color:var(--muted);
     text-transform:uppercase; letter-spacing:1.6px;
   }
   .date-header:first-child { margin-top:0; }
   .date-header::after {
-    content:''; flex:1; height:1px; background:var(--border-strong);
+    content:''; flex:1; height:1px; background:var(--border-soft);
   }
   .date-header .date-count {
-    font-family:var(--mono); color:#fff; font-weight:600;
-    padding:2px 10px; background:var(--panel);
+    font-family:var(--mono); color:var(--muted-soft); font-weight:600;
+    padding:2px 10px; background:var(--panel-2);
     border-radius:20px; font-size:11px; letter-spacing:0.4px;
   }
   .company-card {
     background:var(--panel);
     border:1px solid var(--border);
-    border-left:4px solid var(--border);
+    border-left:4px solid var(--accent);
     border-radius:var(--radius-lg); padding:20px 24px;
     display:grid; grid-template-columns:104px 1fr; gap:22px;
     align-items:start;
     transition:var(--transition);
-    box-shadow:var(--shadow-sm);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(255,204,77,0.15);
     position:relative;
     animation:slideInUp 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .company-card:hover {
+    background:var(--panel-2);
+    border-color:var(--border-strong);
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,204,77,0.1), inset 1px 0 0 rgba(255,204,77,0.25);
+    transform:translateY(-1px);
   }
   /* Venstre kolonne: avatar øverst, kompakte tekst-knapper stablet under */
   .card-left-column {
@@ -1001,18 +1005,30 @@
   .company-card.status-kontaktet {
     border-left-color:var(--accent);
     background:var(--panel);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(255,204,77,0.25);
   }
-  .company-card.status-kontaktet:hover { background:var(--panel-2); }
+  .company-card.status-kontaktet:hover {
+    background:var(--panel-2);
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,204,77,0.2), inset 1px 0 0 rgba(255,204,77,0.4);
+  }
   .company-card.status-solgt {
     border-left-color:var(--green);
     background:var(--panel);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(101,206,121,0.25);
   }
-  .company-card.status-solgt:hover { background:var(--panel-2); }
+  .company-card.status-solgt:hover {
+    background:var(--panel-2);
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(101,206,121,0.2), inset 1px 0 0 rgba(101,206,121,0.4);
+  }
   .company-card.status-ikkesvar {
     border-left-color:var(--orange);
     background:var(--panel);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(255,156,61,0.25);
   }
-  .company-card.status-ikkesvar:hover { background:var(--panel-2); }
+  .company-card.status-ikkesvar:hover {
+    background:var(--panel-2);
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,156,61,0.2), inset 1px 0 0 rgba(255,156,61,0.4);
+  }
 
   /* Reservert - alltid tydelig */
   .company-card.reserved {
@@ -1163,7 +1179,14 @@
   }
   .card-actions .btn-oppfolging:hover { background:var(--blue); color:#111; border-color:var(--blue); }
   .card-actions .btn-oppfolging.active { background:var(--blue); color:#111; border-color:var(--blue); }
-  .company-card.status-oppfolging { border-left-color:var(--blue); background:var(--panel); }
+  .company-card.status-oppfolging {
+    border-left-color:var(--blue); background:var(--panel);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(96,165,250,0.25);
+  }
+  .company-card.status-oppfolging:hover {
+    background:var(--panel-2);
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(96,165,250,0.2), inset 1px 0 0 rgba(96,165,250,0.4);
+  }
   .company-card.status-oppfolging:hover { background:var(--panel-2); }
 
   /* ===== KALENDER ===== */
@@ -1240,16 +1263,16 @@
 
   /* Empty states */
   .empty-state {
-    text-align:center; padding:80px 20px; color:var(--text-on-light);
+    text-align:center; padding:80px 20px; color:var(--muted);
   }
   .empty-state .icon {
     font-size:56px; margin-bottom:16px; opacity:0.5;
   }
   .empty-state .title {
-    font-size:16px; font-weight:600; color:var(--text-on-light); margin-bottom:8px;
+    font-size:16px; font-weight:600; color:var(--text-soft); margin-bottom:8px;
   }
   .empty-state .subtitle {
-    font-size:13px; color:var(--muted); max-width:400px; margin:0 auto;
+    font-size:13px; color:var(--muted-soft); max-width:400px; margin:0 auto;
   }
 
   /* ===== Klikkbar for å kopiere - kraftig gul ring ===== */
@@ -5104,7 +5127,7 @@ function renderOppfolgingTab() {
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <div style="display:flex; align-items:center; gap:16px;">
           <button class="secondary" onclick="oppfolgingChangeMonth(-1)">‹ Forrige</button>
-          <h2 style="margin:0; font-size:20px; letter-spacing:-0.3px; color:var(--text-on-light);">${monthNames[month]} ${year}</h2>
+          <h2 style="margin:0; font-size:20px; letter-spacing:-0.3px; color:var(--text);">${monthNames[month]} ${year}</h2>
           <button class="secondary" onclick="oppfolgingChangeMonth(1)">Neste ›</button>
         </div>
         <button class="secondary" onclick="oppfolgingGoToday()">📍 I dag</button>
