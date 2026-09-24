@@ -910,6 +910,30 @@
     box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,204,77,0.1), inset 1px 0 0 rgba(255,204,77,0.25);
     transform:translateY(-1px);
   }
+
+  /* Fane-spesifikke farger på venstre-kant og glow (kun for UBEHANDLEDE kort) */
+  /* Bygg = gul (default) */
+  body[data-active-tab="ansatte"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging) {
+    border-left-color:var(--blue);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(96,165,250,0.2);
+  }
+  body[data-active-tab="ansatte"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging):hover {
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(96,165,250,0.15), inset 1px 0 0 rgba(96,165,250,0.35);
+  }
+  body[data-active-tab="fse"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging) {
+    border-left-color:#ffb43c;
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(255,180,60,0.2);
+  }
+  body[data-active-tab="fse"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging):hover {
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,180,60,0.15), inset 1px 0 0 rgba(255,180,60,0.35);
+  }
+  body[data-active-tab="sg"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging) {
+    border-left-color:#c580e0;
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(197,128,224,0.2);
+  }
+  body[data-active-tab="sg"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging):hover {
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(197,128,224,0.15), inset 1px 0 0 rgba(197,128,224,0.35);
+  }
   /* Venstre kolonne: avatar øverst, kompakte tekst-knapper stablet under */
   .card-left-column {
     display:flex; flex-direction:column;
@@ -4119,6 +4143,9 @@ function applyActiveTab(tab) {
   SEEN_KEY = tabKey('brreg_seen_orgnr_v1', tab);
   RESERVE_KEY = tabKey('brreg_reservations_v1', tab);
   SKJULTE_KEY = tabKey('brreg_skjulte_orgnr_v1', tab);
+
+  // Sett data-attribut for fane-farge (påvirker venstre-kant på kort)
+  document.body.setAttribute('data-active-tab', tab);
 
   // Bytt NACE og formåls-ord (kun for BRREG-baserte faner)
   if (NACE_BY_TAB[tab]) {
