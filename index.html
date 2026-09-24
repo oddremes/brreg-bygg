@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #000000;
+    --bg: #333842;
     --panel: #0a0d12;
     --panel-2: #12161d;
     --panel-3: #1a1f28;
@@ -20,8 +20,8 @@
     --border-strong: #3a4150;
     --text: #f0f2f5;
     --text-soft: #c4cad2;
-    --muted: #8b949e;
-    --muted-soft: #6e7681;
+    --muted: #a8b0bb;
+    --muted-soft: #8b93a0;
     --accent: #FFCC4D;
     --accent-soft: rgba(255, 204, 77, 0.14);
     --green: #65CE79;
@@ -115,7 +115,7 @@
 
   /* Fane-veksler */
   .tab-bar {
-    display:flex; gap:2px; padding:0 36px; background:var(--bg);
+    display:flex; gap:2px; padding:0 36px; background:var(--panel);
     border-bottom:1px solid var(--border);
     align-items:stretch; height:var(--tab-bar-h);
     position:fixed; top:var(--header-h); left:0; right:0; z-index:19;
@@ -681,6 +681,9 @@
   /* DiBK = lilla */
   .lookup-links a.dibk, .card-links a.dibk { border-color:rgba(197,128,224,0.5); color:#c580e0; }
   .lookup-links a.dibk:hover, .card-links a.dibk:hover { background:#c580e0; color:#111; border-color:#c580e0; }
+  /* Finn nettside = cyan (kun når www mangler) */
+  .lookup-links a.finn-nettside, .card-links a.finn-nettside { border-color:rgba(34,211,238,0.5); color:var(--cyan); }
+  .lookup-links a.finn-nettside:hover, .card-links a.finn-nettside:hover { background:var(--cyan); color:#111; border-color:var(--cyan); }
   .lookup-links a.pending, .card-links a.pending { opacity:0.5; cursor:wait; }
 
   /* Empty/error/footer */
@@ -1320,7 +1323,7 @@
   .modal p { color:var(--muted); font-size:13px; margin:0 0 16px 0; }
   .modal textarea {
     width:100%; min-height:200px;
-    background:var(--bg); border:1px solid var(--border); color:var(--text);
+    background:var(--panel); border:1px solid var(--border); color:var(--text);
     padding:12px; border-radius:var(--radius-sm); font-family:var(--mono); font-size:12px;
     resize:vertical;
   }
@@ -2176,6 +2179,77 @@ function renderActive() {
   }
 }
 
+// Finn navn/orgform/postnr/sted fra currentData basert på orgnr
+// Returnerer null hvis selskapet ikke er i nåværende utvalg
+function findEntityMeta(orgnr) {
+  const e = currentData.find(x => x.organisasjonsnummer === orgnr);
+  if (!e) return null;
+  return {
+    navn: e.navn || '',
+    orgform: e.organisasjonsform?.kode || '',
+    poststed: e.forretningsadresse?.poststed || e.beliggenhetsadresse?.poststed || '',
+    postnr: e.forretningsadresse?.postnummer || e.beliggenhetsadresse?.postnummer || '',
+    nace: e.naeringskode1?.beskrivelse || ''
+  };
+}
+
+// Beriker en status-oppføring med selskaps-metadata (navn/orgform/sted)
+// slik at behandlede-modalen kan vise dem selv når selskapet ikke er i nåværende BRREG-utvalg
+function enrichStatusWithMeta(status, orgnr) {
+  const meta = findEntityMeta(orgnr);
+  if (meta) {
+    if (meta.navn) status.navn = meta.navn;
+    if (meta.orgform) status.orgform = meta.orgform;
+    if (meta.poststed) status.poststed = meta.poststed;
+    if (meta.postnr) status.postnr = meta.postnr;
+    if (meta.nace) status.nace = meta.nace;
+  }
+  return status;
+}
+
+// Slår opp navn+meta fra BRREG for orgnr som mangler i statusMap
+// Kalles asynkront fra behandlede-modal for å berike historikk-oppføringer
+async function enrichMissingNames(orgnrs) {
+  const uniqueOrgnrs = [...new Set(orgnrs)].filter(orgnr => {
+    const s = statusMap.get(orgnr);
+    return s && !s.navn;  // Kun de som mangler navn
+  });
+  if (uniqueOrgnrs.length === 0) return;
+
+  let updated = false;
+  for (const orgnr of uniqueOrgnrs) {
+    try {
+      const resp = await fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${orgnr}`);
+      if (!resp.ok) continue;
+      const e = await resp.json();
+      const s = statusMap.get(orgnr);
+      if (!s) continue;
+
+      if (e.navn) s.navn = e.navn;
+      if (e.organisasjonsform?.kode) s.orgform = e.organisasjonsform.kode;
+      const addr = e.forretningsadresse || e.beliggenhetsadresse || {};
+      if (addr.poststed) s.poststed = addr.poststed;
+      if (addr.postnummer) s.postnr = addr.postnummer;
+      if (e.naeringskode1?.beskrivelse) s.nace = e.naeringskode1.beskrivelse;
+
+      statusMap.set(orgnr, s);
+      updated = true;
+    } catch (err) {
+      console.warn('[BRREG-lookup] Feilet for', orgnr, err);
+    }
+    // Vent 100ms mellom kall så vi ikke rate-limitter BRREG
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  if (updated) {
+    saveStatus();
+    // Re-render behandlede-modalen hvis den er åpen
+    if (behandledeModal.classList.contains('show')) {
+      renderBehandledeModal();
+    }
+  }
+}
+
 // Marker som "ingen nr" - skjuler permanent fra dashbordet
 window.markerIngenNr = function(orgnr) {
   window.markerSomSett(orgnr);
@@ -2219,7 +2293,7 @@ ikkesvarConfirmBtn.addEventListener('click', () => {
   if (!telefon) { showToast('Telefonnummer må fylles ut'); ikkesvarTelefon.focus(); return; }
   if (!pendingIkkesvarOrgnr) return;
   const orgnrRef = pendingIkkesvarOrgnr;
-  statusMap.set(orgnrRef, { status: 'ikkesvar', telefon, notat, dato: getToday() });
+  statusMap.set(orgnrRef, enrichStatusWithMeta({ status: 'ikkesvar', telefon, notat, dato: getToday() }, orgnrRef));
   saveStatus();
   ikkesvarModal.classList.remove('show');
   pendingIkkesvarOrgnr = null;
@@ -2305,7 +2379,7 @@ window.markerKontaktet = function(orgnr) {
     }
   }
   // Lagre status umiddelbart (ikke etter fadingen)
-  statusMap.set(orgnr, { status: 'kontaktet', dato: getToday() });
+  statusMap.set(orgnr, enrichStatusWithMeta({ status: 'kontaktet', dato: getToday() }, orgnr));
   saveStatus();
 
   // Umiddelbar visuell feedback: marker knappen som aktiv med en gang + fjern fra visning
@@ -2365,7 +2439,7 @@ solgtConfirmBtn.addEventListener('click', () => {
   if (!poeng || poeng < 1) { showToast('Skriv inn et gyldig antall poeng'); return; }
   if (!pendingSolgtOrgnr) return;
   const orgnrRef = pendingSolgtOrgnr;
-  statusMap.set(orgnrRef, { status: 'solgt', poeng, dato: getToday() });
+  statusMap.set(orgnrRef, enrichStatusWithMeta({ status: 'solgt', poeng, dato: getToday() }, orgnrRef));
   saveStatus();
   solgtModal.classList.remove('show');
   pendingSolgtOrgnr = null;
@@ -2482,20 +2556,33 @@ function renderBehandledeModal() {
   const orgnrSet = new Set(orgnrs);
   let list = currentData.filter(e => orgnrSet.has(e.organisasjonsnummer));
 
-  // Hvis et orgnr fra status ikke finnes i currentData (gammelt salg utenfor dagens periode),
-  // vis det med begrenset info
+  // Orgnr som ikke er i currentData (gammel status utenfor dagens periode)
+  const missingOrgnrs = [];
   for (const orgnr of orgnrs) {
     if (!list.some(e => e.organisasjonsnummer === orgnr)) {
-      // Lager dummy-objekt med minimal info
+      const s = statusMap.get(orgnr) || {};
+      // Bruk lagret navn (fra da vi markerte selskapet) hvis vi har det
       list.push({
         organisasjonsnummer: orgnr,
-        navn: '(Selskap ikke i nåværende henting)',
-        organisasjonsform: { kode: '' },
-        registreringsdatoEnhetsregisteret: statusMap.get(orgnr).dato || '',
+        navn: s.navn || '',
+        organisasjonsform: { kode: s.orgform || '' },
+        forretningsadresse: {
+          poststed: s.poststed || '',
+          postnummer: s.postnr || ''
+        },
+        naeringskode1: { beskrivelse: s.nace || '' },
+        registreringsdatoEnhetsregisteret: s.dato || '',
         _source: 'backup',
-        _isBackup: true
+        _isBackup: true,
+        _needsBrregLookup: !s.navn  // Trigger BRREG-oppslag hvis navn mangler
       });
+      if (!s.navn) missingOrgnrs.push(orgnr);
     }
+  }
+
+  // Trigger asynkront BRREG-oppslag for de som mangler navn
+  if (missingOrgnrs.length > 0) {
+    setTimeout(() => enrichMissingNames(missingOrgnrs), 100);
   }
 
   // Sortering: solgte først, så kontaktede, så på dato (nyeste salg først)
@@ -2596,10 +2683,20 @@ function cardHtmlBackup(e) {
   const isIkkesvar = status.status === 'ikkesvar';
   const isKontaktet = status.status === 'kontaktet';
   const isSolgt = status.status === 'solgt';
+  const isOppfolging = status.status === 'oppfolging';
   const hasNotat = status.notat ? true : false;
+  const isBackup = e._isBackup === true;
+
+  // Bruk navn fra selskaps-objekt (currentData eller berikelse), ellers fra statusMap
+  const navn = e.navn || status.navn || '';
+  const displayNavn = navn || (isBackup ? '⏳ Henter selskapsinfo…' : '(ukjent selskap)');
+  const orgform = e.organisasjonsform?.kode || status.orgform || '';
+  const poststed = e.forretningsadresse?.poststed || status.poststed || '';
+  const postnr = e.forretningsadresse?.postnummer || status.postnr || '';
+  const sted = [postnr, poststed].filter(Boolean).join(' ').trim();
 
   // Avatar
-  const cleanName = (e.navn || '?').replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '');
+  const cleanName = (navn || '?').replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '');
   const avatarLetter = (cleanName[0] || '?').toUpperCase();
   let hash = 0;
   for (let i = 0; i < orgnr.length; i++) hash = ((hash << 5) - hash + orgnr.charCodeAt(i)) | 0;
@@ -2609,6 +2706,7 @@ function cardHtmlBackup(e) {
     isKontaktet ? 'status-kontaktet' : '',
     isSolgt ? 'status-solgt' : '',
     isIkkesvar ? 'status-ikkesvar' : '',
+    isOppfolging ? 'status-oppfolging' : '',
   ].filter(Boolean).join(' ');
 
   const solgtBadge = isSolgt ? `<span class="badge-status b-salg">💰 SALG (${status.poeng}p)</span>` : '';
@@ -2616,7 +2714,7 @@ function cardHtmlBackup(e) {
 
   const ikkesvarDetailCard = isIkkesvar ? `
     <div class="card-ikkesvar-detail">
-      <div><span class="field-label">Telefon:</span><span class="phone-value copyable" data-copy="${escapeHtml(status.telefon || '')}" title="Klikk for å kopiere">${escapeHtml(status.telefon || '')}</span></div>
+      <div><span class="field-label">Telefon:</span><span class="phone-value copyable phone-copyable" data-copy="${cleanPhone(status.telefon || '')}" title="Klikk for å kopiere">${formatPhone(status.telefon || '')}</span></div>
       ${status.notat ? `<div style="margin-top:4px;"><span class="field-label">Notat:</span>${escapeHtml(status.notat)}</div>` : ''}
     </div>` : '';
 
@@ -2639,13 +2737,13 @@ function cardHtmlBackup(e) {
       </div>
       <div class="card-main">
         <div class="card-header">
-          <div class="card-name">${escapeHtml(e.navn || '—')}</div>
+          <div class="card-name">${escapeHtml(displayNavn)}</div>
           <div class="card-badges">${solgtBadge}${ikkesvarBadge}</div>
         </div>
         <div class="card-meta-row">
+          ${orgform ? `<span class="chip chip-form">${escapeHtml(orgform)}</span><span class="separator">·</span>` : ''}
           <span class="chip chip-orgnr copyable" data-copy="${orgnr}" title="Klikk for å kopiere">${orgnr}</span>
-          <span class="separator">·</span>
-          <span style="font-style:italic; color:var(--muted-soft);">Registrert utenfor nåværende periode</span>
+          ${sted ? `<span class="separator">·</span><span>${escapeHtml(sted)}</span>` : ''}
         </div>
         <div class="card-meta-row">
           <span>📅 Behandlet: ${status.dato || '–'}</span>
@@ -4925,6 +5023,7 @@ function sgCardHtml(item) {
           <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(searchName)}" target="_blank" rel="noopener">Gule Sider</a>
           <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${orgnr}" target="_blank" rel="noopener">BRREG</a>
           <a class="dibk" href="https://sgregister.dibk.no/enterprises/${orgnr}" target="_blank" rel="noopener">DiBK</a>
+          ${!web ? `<a class="finn-nettside" href="https://www.google.com/search?q=${encodeURIComponent(navn + ' hjemmeside')}" target="_blank" rel="noopener">🔍 Finn nettside</a>` : ''}
         </div>
       </div>
     </div>`;
