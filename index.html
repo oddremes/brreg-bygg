@@ -934,6 +934,35 @@
   body[data-active-tab="sg"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging):hover {
     box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(197,128,224,0.15), inset 1px 0 0 rgba(197,128,224,0.35);
   }
+  body[data-active-tab="kunder"] .company-card:not(.ik-status-pitchet):not(.ik-status-interessert):not(.ik-status-avtale):not(.ik-status-signert):not(.ik-status-nei) {
+    border-left-color:var(--cyan);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(34,211,238,0.2);
+  }
+  body[data-active-tab="kunder"] .company-card:not(.ik-status-pitchet):not(.ik-status-interessert):not(.ik-status-avtale):not(.ik-status-signert):not(.ik-status-nei):hover {
+    box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,211,238,0.15), inset 1px 0 0 rgba(34,211,238,0.35);
+  }
+  /* Kunder: IK-status fargekoder */
+  .company-card.ik-status-pitchet { border-left-color:var(--accent); background:var(--panel); }
+  .company-card.ik-status-interessert { border-left-color:var(--green); background:var(--panel); }
+  .company-card.ik-status-avtale { border-left-color:var(--orange); background:var(--panel); }
+  .company-card.ik-status-signert { border-left-color:var(--green); background:rgba(101,206,121,0.08); }
+  .company-card.ik-status-nei { border-left-color:var(--red); background:var(--panel); opacity:0.75; }
+  /* Tab-underline/count for kunder */
+  .tab-btn.active[data-tab="kunder"] { border-bottom-color:var(--cyan); }
+  .tab-btn.active[data-tab="kunder"] .tab-count { background:var(--cyan); color:#111; }
+  /* IK-status badges */
+  .ik-badge {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 8px; border-radius:4px;
+    font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .ik-badge.b-pitchet { background:var(--accent); color:#111; }
+  .ik-badge.b-interessert { background:var(--green); color:#111; }
+  .ik-badge.b-avtale { background:var(--orange); color:#111; }
+  .ik-badge.b-signert { background:var(--green); color:#111; }
+  .ik-badge.b-nei { background:var(--red); color:#fff; }
+  .ik-badge.b-ikke-pitchet { background:var(--panel-3); color:var(--muted); border:1px solid var(--border); }
   /* Venstre kolonne: avatar øverst, kompakte tekst-knapper stablet under */
   .card-left-column {
     display:flex; flex-direction:column;
@@ -1387,6 +1416,104 @@
     display:flex; gap:10px; justify-content:flex-end; margin-top:20px;
   }
 
+  /* ===== KUNDER-FANE ===== */
+  .kunder-toolbar {
+    display:flex; flex-direction:column; gap:12px;
+    margin-bottom:16px;
+  }
+  .kunder-filter-row {
+    display:flex; gap:8px; flex-wrap:wrap;
+    padding:12px; background:var(--panel); border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+  }
+  .kunder-filter-pill {
+    padding:7px 14px; border-radius:20px;
+    background:transparent; border:1.5px solid var(--border);
+    color:var(--text); font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.5px;
+    cursor:pointer; transition:var(--transition);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .kunder-filter-pill:hover { transform:translateY(-1px); }
+  .kunder-filter-pill .kfp-count {
+    background:rgba(0,0,0,0.3); padding:1px 7px; border-radius:10px;
+    font-size:10px; font-family:var(--mono);
+  }
+  .kunder-filter-pill.active .kfp-count {
+    background:rgba(0,0,0,0.2); color:#111;
+  }
+  .kunder-actions-row {
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+  .kunder-sok {
+    flex:1; min-width:260px; padding:10px 14px;
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:var(--radius-sm); color:var(--text);
+    font-family:var(--sans); font-size:13px;
+  }
+  .kunder-sok:focus { outline:none; border-color:var(--cyan); }
+  .kunder-add-btn {
+    padding:10px 18px; background:var(--cyan); color:#111;
+    border:none; border-radius:var(--radius-sm);
+    font-weight:700; font-size:12px; cursor:pointer;
+    text-transform:uppercase; letter-spacing:0.5px;
+    transition:var(--transition);
+  }
+  .kunder-add-btn:hover { opacity:0.9; transform:translateY(-1px); }
+  .kunde-status-select {
+    padding:5px 10px; background:var(--panel-2);
+    color:var(--text); border:1px solid var(--border);
+    border-radius:4px; font-size:11px; cursor:pointer;
+    font-family:var(--sans);
+  }
+  .kunde-status-select:focus { outline:none; border-color:var(--cyan); }
+  /* Kunde-modal form */
+  #kundeModal .kunde-form-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  }
+  #kundeModal .kunde-form-grid .full-row { grid-column:1 / -1; }
+  #kundeModal label {
+    display:block; font-size:11px; font-weight:700;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.6px;
+    margin-bottom:5px;
+  }
+  #kundeModal input[type="text"],
+  #kundeModal input[type="email"],
+  #kundeModal input[type="tel"],
+  #kundeModal select,
+  #kundeModal textarea {
+    width:100%; padding:9px 12px;
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:var(--radius-sm); color:var(--text);
+    font-family:var(--sans); font-size:13px;
+  }
+  #kundeModal input:focus, #kundeModal select:focus, #kundeModal textarea:focus {
+    outline:none; border-color:var(--cyan);
+  }
+  #kundeModal input:disabled {
+    opacity:0.6; cursor:not-allowed;
+  }
+  #kundeModal textarea { min-height:70px; resize:vertical; }
+  .orgnr-with-btn {
+    display:flex; gap:6px;
+  }
+  .orgnr-with-btn input { flex:1; }
+  #kundeHentBtn {
+    padding:9px 14px; background:var(--panel-3);
+    color:var(--cyan); border:1px solid var(--cyan);
+    border-radius:var(--radius-sm); cursor:pointer;
+    font-size:11px; font-weight:700; white-space:nowrap;
+    text-transform:uppercase; letter-spacing:0.4px;
+    transition:var(--transition);
+  }
+  #kundeHentBtn:hover:not(:disabled) { background:var(--cyan); color:#111; }
+  #kundeHentBtn:disabled { opacity:0.5; cursor:not-allowed; }
+  @media (max-width: 767px) {
+    #kundeModal .kunde-form-grid { grid-template-columns:1fr; }
+    .kunder-actions-row { flex-direction:column; }
+    .kunder-sok, .kunder-add-btn, .kunder-actions-row .secondary { width:100%; }
+  }
+
   /* Scrollbars (Chrome/Edge) */
   ::-webkit-scrollbar { width:10px; height:10px; }
   ::-webkit-scrollbar-track { background:var(--bg); }
@@ -1781,6 +1908,85 @@
 </div>
 
 <div class="toast" id="toast">Kopiert!</div>
+
+<div class="modal-backdrop" id="kundeModal" data-editing-id="">
+  <div class="modal" style="max-width:720px;">
+    <h3 id="kundeModalTitle">+ Legg til ny kunde</h3>
+    <p style="color:var(--muted-soft); margin:-8px 0 16px 0; font-size:12px;">Fyll ut org.nr og klikk "Hent fra BRREG" for å autoutfylle navn/adresse/bransje.</p>
+
+    <div class="kunde-form-grid">
+      <div class="full-row">
+        <label>Org.nr <span style="color:var(--red);">*</span></label>
+        <div class="orgnr-with-btn">
+          <input type="text" id="kundeFormOrgnr" placeholder="9 siffer" maxlength="12">
+          <button id="kundeHentBtn" onclick="hentFraBrreg()">⬇️ Hent fra BRREG</button>
+        </div>
+      </div>
+
+      <div class="full-row">
+        <label>Selskapsnavn <span style="color:var(--red);">*</span></label>
+        <input type="text" id="kundeFormNavn" placeholder="F.eks. Bygg Hansen AS">
+      </div>
+
+      <div>
+        <label>Org.form</label>
+        <input type="text" id="kundeFormOrgform" placeholder="AS, ENK, osv.">
+      </div>
+
+      <div>
+        <label>Sted</label>
+        <input type="text" id="kundeFormSted" placeholder="0150 Oslo">
+      </div>
+
+      <div class="full-row">
+        <label>NACE / bransje</label>
+        <input type="text" id="kundeFormNace" placeholder="F.eks. Oppføring av bygninger">
+      </div>
+
+      <div>
+        <label>Kontaktperson</label>
+        <input type="text" id="kundeFormKontakt" placeholder="Daglig leder / kontaktperson">
+      </div>
+
+      <div>
+        <label>Telefon</label>
+        <input type="tel" id="kundeFormTelefon" placeholder="123 45 678">
+      </div>
+
+      <div class="full-row">
+        <label>E-post</label>
+        <input type="email" id="kundeFormEpost" placeholder="post@eksempel.no">
+      </div>
+
+      <div class="full-row">
+        <label>Hva har de kjøpt tidligere?</label>
+        <input type="text" id="kundeFormKjopt" placeholder="F.eks. HMS-kurs 2024, 15 ansatte">
+      </div>
+
+      <div class="full-row">
+        <label>IK-interesse-status</label>
+        <select id="kundeFormStatus">
+          <option value="ikke-pitchet">Ikke pitchet</option>
+          <option value="pitchet">Pitchet</option>
+          <option value="interessert">Interessert</option>
+          <option value="avtale">Avtale sendt</option>
+          <option value="signert">Signert</option>
+          <option value="nei">Takket nei</option>
+        </select>
+      </div>
+
+      <div class="full-row">
+        <label>Notat</label>
+        <textarea id="kundeFormNotat" placeholder="F.eks. ringt 2025-01-15, ikke tid akkurat nå, prøv i mars..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="secondary" onclick="lukkKundeModal()">Avbryt</button>
+      <button onclick="lagreKunde()" style="background:var(--cyan); color:#111;">💾 Lagre kunde</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
@@ -2230,6 +2436,8 @@ function renderActive() {
     renderSGTab();
   } else if (activeTab === 'oppfolging') {
     renderOppfolgingTab();
+  } else if (activeTab === 'kunder') {
+    renderKunderTab();
   } else {
     render();
   }
@@ -3913,7 +4121,7 @@ function scheduleNext() {
     return;
   }
   // Auto-refresh kjører kun på BRREG-baserte faner (ikke SG/Oppfølging)
-  if (activeTab === 'sg' || activeTab === 'oppfolging') {
+  if (activeTab === 'sg' || activeTab === 'oppfolging' || activeTab === 'kunder') {
     document.getElementById('nextUpdate').textContent = '–';
     return;
   }
@@ -3964,7 +4172,7 @@ let searchDebounceTimer = null;
 searchBox.addEventListener('input', () => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = setTimeout(() => {
-    if (activeTab === 'sg' || activeTab === 'oppfolging') return;
+    if (activeTab === 'sg' || activeTab === 'oppfolging' || activeTab === 'kunder') return;
     render();
   }, 180);
 });
@@ -4015,6 +4223,7 @@ const TABS = [
   { id: 'ansatte', label: 'Ansatte', icon: '👥', title: 'Nyreg selskaper med ansatte' },
   { id: 'fse', label: 'FSE', icon: '⚡', title: 'Nyreg FSE (elektro)' },
   { id: 'sg', label: 'SG', icon: '🏆', title: 'Sentral godkjenning - fornyelser' },
+  { id: 'kunder', label: 'Kunder', icon: '💼', title: 'Eksisterende kunder - IK-pitching' },
   { id: 'oppfolging', label: 'Oppfølging', icon: '📅', title: 'Planlagte oppfølginger' }
 ];
 
@@ -4253,6 +4462,8 @@ function switchTab(tabId) {
     renderSGTab();
   } else if (tabId === 'oppfolging') {
     renderOppfolgingTab();
+  } else if (tabId === 'kunder') {
+    renderKunderTab();
   } else {
     render();
     fetchCompanies();
@@ -4605,7 +4816,7 @@ function renderSalgsOversikt() {
     <div style="display:flex; flex-direction:column; gap:8px;">
   `;
 
-  const faneFarger = { bygg:'var(--accent)', ansatte:'var(--blue)', fse:'#ffb43c', sg:'#c580e0' };
+  const faneFarger = { bygg:'var(--accent)', ansatte:'var(--blue)', fse:'#ffb43c', sg:'#c580e0', kunder:'var(--cyan)' };
 
   if (totalPoeng === 0) {
     html += `<div class="empty-state" style="padding:40px 20px;">
@@ -5120,6 +5331,366 @@ function getAllOppfolginger() {
     } catch (e) { /* skip */ }
   }
   return allOppf;
+}
+
+// ========== KUNDER-FANE (Eksisterende kunder - IK-pitching) ==========
+const KUNDER_STORAGE_KEY = 'brreg_kunder_v1';
+const IK_STATUSER = [
+  { id: 'ikke-pitchet', label: 'Ikke pitchet', color: 'var(--muted)', badgeClass: 'b-ikke-pitchet' },
+  { id: 'pitchet', label: 'Pitchet', color: 'var(--accent)', badgeClass: 'b-pitchet' },
+  { id: 'interessert', label: 'Interessert', color: 'var(--green)', badgeClass: 'b-interessert' },
+  { id: 'avtale', label: 'Avtale sendt', color: 'var(--orange)', badgeClass: 'b-avtale' },
+  { id: 'signert', label: 'Signert', color: 'var(--green)', badgeClass: 'b-signert' },
+  { id: 'nei', label: 'Takket nei', color: 'var(--red)', badgeClass: 'b-nei' }
+];
+
+function loadKunder() {
+  try {
+    const raw = localStorage.getItem(KUNDER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function saveKunder(kunder) {
+  localStorage.setItem(KUNDER_STORAGE_KEY, JSON.stringify(kunder));
+}
+
+let kunderFilter = 'alle'; // 'alle' eller en status-id
+let kunderSok = '';
+
+window.setKunderFilter = function(filter) {
+  kunderFilter = filter;
+  renderKunderTab();
+};
+
+window.setKunderSok = function(sok) {
+  kunderSok = sok.toLowerCase().trim();
+  renderKunderTabList();
+};
+
+// Åpner modal for å legge til ny kunde
+window.openLeggTilKundeModal = function() {
+  document.getElementById('kundeModalTitle').textContent = '+ Legg til ny kunde';
+  document.getElementById('kundeFormOrgnr').value = '';
+  document.getElementById('kundeFormOrgnr').disabled = false;
+  document.getElementById('kundeFormNavn').value = '';
+  document.getElementById('kundeFormKontakt').value = '';
+  document.getElementById('kundeFormTelefon').value = '';
+  document.getElementById('kundeFormEpost').value = '';
+  document.getElementById('kundeFormKjopt').value = '';
+  document.getElementById('kundeFormNotat').value = '';
+  document.getElementById('kundeFormStatus').value = 'ikke-pitchet';
+  document.getElementById('kundeFormSted').value = '';
+  document.getElementById('kundeFormNace').value = '';
+  document.getElementById('kundeFormOrgform').value = '';
+  document.getElementById('kundeModal').dataset.editingId = '';
+  document.getElementById('kundeModal').classList.add('show');
+  setTimeout(() => document.getElementById('kundeFormOrgnr').focus(), 50);
+};
+
+// Åpner modal for redigering
+window.openRedigerKundeModal = function(id) {
+  const kunder = loadKunder();
+  const k = kunder.find(x => x.id === id);
+  if (!k) return;
+  document.getElementById('kundeModalTitle').textContent = '✏️ Rediger kunde';
+  document.getElementById('kundeFormOrgnr').value = k.orgnr || '';
+  document.getElementById('kundeFormOrgnr').disabled = true;
+  document.getElementById('kundeFormNavn').value = k.navn || '';
+  document.getElementById('kundeFormKontakt').value = k.kontaktperson || '';
+  document.getElementById('kundeFormTelefon').value = k.telefon || '';
+  document.getElementById('kundeFormEpost').value = k.epost || '';
+  document.getElementById('kundeFormKjopt').value = k.kjopt || '';
+  document.getElementById('kundeFormNotat').value = k.notat || '';
+  document.getElementById('kundeFormStatus').value = k.status || 'ikke-pitchet';
+  document.getElementById('kundeFormSted').value = k.sted || '';
+  document.getElementById('kundeFormNace').value = k.nace || '';
+  document.getElementById('kundeFormOrgform').value = k.orgform || '';
+  document.getElementById('kundeModal').dataset.editingId = id;
+  document.getElementById('kundeModal').classList.add('show');
+};
+
+window.lukkKundeModal = function() {
+  document.getElementById('kundeModal').classList.remove('show');
+};
+
+// Hent navn/adresse fra BRREG basert på org.nr
+window.hentFraBrreg = async function() {
+  const orgnrRaw = document.getElementById('kundeFormOrgnr').value.replace(/\s/g, '');
+  if (!/^\d{9}$/.test(orgnrRaw)) {
+    showToast('Ugyldig org.nr (må være 9 siffer)');
+    return;
+  }
+  const btn = document.getElementById('kundeHentBtn');
+  const originalText = btn.textContent;
+  btn.textContent = '⏳ Henter...';
+  btn.disabled = true;
+  try {
+    const resp = await fetch(`https://data.brreg.no/enhetsregisteret/api/enheter/${orgnrRaw}`);
+    if (!resp.ok) {
+      showToast('Fant ikke selskapet i BRREG');
+      return;
+    }
+    const e = await resp.json();
+    document.getElementById('kundeFormNavn').value = e.navn || '';
+    document.getElementById('kundeFormOrgform').value = e.organisasjonsform?.kode || '';
+    const addr = e.forretningsadresse || e.beliggenhetsadresse || {};
+    const sted = [addr.postnummer, addr.poststed].filter(Boolean).join(' ');
+    document.getElementById('kundeFormSted').value = sted;
+    document.getElementById('kundeFormNace').value = e.naeringskode1?.beskrivelse || '';
+    showToast('Hentet fra BRREG ✓');
+  } catch (err) {
+    showToast('Feil ved henting: ' + err.message);
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+};
+
+window.lagreKunde = function() {
+  const orgnrRaw = document.getElementById('kundeFormOrgnr').value.replace(/\s/g, '');
+  const navn = document.getElementById('kundeFormNavn').value.trim();
+  if (!orgnrRaw || !navn) {
+    showToast('Org.nr og navn er påkrevd');
+    return;
+  }
+  const editingId = document.getElementById('kundeModal').dataset.editingId;
+  const kunder = loadKunder();
+
+  const data = {
+    orgnr: orgnrRaw,
+    navn: navn,
+    kontaktperson: document.getElementById('kundeFormKontakt').value.trim(),
+    telefon: cleanPhone(document.getElementById('kundeFormTelefon').value),
+    epost: document.getElementById('kundeFormEpost').value.trim(),
+    kjopt: document.getElementById('kundeFormKjopt').value.trim(),
+    notat: document.getElementById('kundeFormNotat').value.trim(),
+    status: document.getElementById('kundeFormStatus').value,
+    sted: document.getElementById('kundeFormSted').value.trim(),
+    nace: document.getElementById('kundeFormNace').value.trim(),
+    orgform: document.getElementById('kundeFormOrgform').value.trim(),
+    sisteKontakt: new Date().toISOString().slice(0, 10)
+  };
+
+  if (editingId) {
+    const idx = kunder.findIndex(x => x.id === editingId);
+    if (idx >= 0) {
+      kunder[idx] = { ...kunder[idx], ...data };
+    }
+  } else {
+    // Sjekk duplikat
+    if (kunder.some(x => x.orgnr === orgnrRaw)) {
+      showToast('Denne kunden finnes allerede');
+      return;
+    }
+    data.id = 'k_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    data.opprettet = new Date().toISOString().slice(0, 10);
+    kunder.push(data);
+  }
+  saveKunder(kunder);
+  lukkKundeModal();
+  renderKunderTab();
+  showToast(editingId ? 'Kunde oppdatert' : 'Kunde lagt til');
+};
+
+window.slettKunde = function(id) {
+  if (!confirm('Slette denne kunden?')) return;
+  const kunder = loadKunder().filter(k => k.id !== id);
+  saveKunder(kunder);
+  renderKunderTab();
+  showToast('Kunde slettet');
+};
+
+window.endreKundeStatus = function(id, nyStatus) {
+  const kunder = loadKunder();
+  const k = kunder.find(x => x.id === id);
+  if (!k) return;
+  k.status = nyStatus;
+  k.sisteKontakt = new Date().toISOString().slice(0, 10);
+  saveKunder(kunder);
+  renderKunderTab();
+  showToast('Status endret til ' + (IK_STATUSER.find(s => s.id === nyStatus)?.label || nyStatus));
+};
+
+// Export til CSV
+window.exportKunderCSV = function() {
+  const kunder = loadKunder();
+  if (kunder.length === 0) {
+    showToast('Ingen kunder å eksportere');
+    return;
+  }
+  const headers = ['Org.nr', 'Navn', 'Kontaktperson', 'Telefon', 'E-post', 'Status', 'Sted', 'NACE', 'Kjøpt tidligere', 'Notat', 'Siste kontakt', 'Opprettet'];
+  const rows = kunder.map(k => [
+    k.orgnr, k.navn, k.kontaktperson || '', k.telefon || '', k.epost || '',
+    IK_STATUSER.find(s => s.id === k.status)?.label || k.status,
+    k.sted || '', k.nace || '', k.kjopt || '', (k.notat || '').replace(/[\r\n]+/g, ' '),
+    k.sisteKontakt || '', k.opprettet || ''
+  ]);
+  const csv = [headers, ...rows].map(row =>
+    row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+  ).join('\n');
+  const bom = '﻿'; // UTF-8 BOM for Excel
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `kunder_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Eksportert ' + kunder.length + ' kunder');
+};
+
+function renderKunderTab() {
+  const kunder = loadKunder();
+
+  // Statistikk
+  const totalt = kunder.length;
+  const perStatus = {};
+  IK_STATUSER.forEach(s => perStatus[s.id] = 0);
+  kunder.forEach(k => {
+    perStatus[k.status || 'ikke-pitchet'] = (perStatus[k.status || 'ikke-pitchet'] || 0) + 1;
+  });
+
+  // Oppdater tab-count
+  const tabCount = document.querySelector('.tab-btn[data-tab="kunder"] .tab-count');
+  if (tabCount) tabCount.textContent = totalt;
+
+  // Oppdater main-header
+  const resultsHdr = document.getElementById('resultsHeader');
+  if (resultsHdr) resultsHdr.textContent = `${totalt} ${totalt === 1 ? 'kunde' : 'kunder'}`;
+
+  // Filter-pills + knapper
+  const filterPills = IK_STATUSER.map(s => {
+    const count = perStatus[s.id] || 0;
+    const active = kunderFilter === s.id ? ' active' : '';
+    return `<button class="kunder-filter-pill${active}" data-status="${s.id}" onclick="setKunderFilter('${s.id}')" style="border-color:${s.color}; color:${kunderFilter === s.id ? '#111' : s.color}; ${kunderFilter === s.id ? 'background:' + s.color + ';' : ''}">${s.label} <span class="kfp-count">${count}</span></button>`;
+  }).join('');
+
+  const alleActive = kunderFilter === 'alle' ? ' active' : '';
+
+  const headerHtml = `
+    <div class="kunder-toolbar">
+      <div class="kunder-filter-row">
+        <button class="kunder-filter-pill${alleActive}" onclick="setKunderFilter('alle')" style="${kunderFilter === 'alle' ? 'background:var(--cyan); color:#111; border-color:var(--cyan);' : 'border-color:var(--cyan); color:var(--cyan);'}">Alle <span class="kfp-count">${totalt}</span></button>
+        ${filterPills}
+      </div>
+      <div class="kunder-actions-row">
+        <input type="text" id="kunderSokInput" placeholder="🔍 Søk i navn, org.nr, kontaktperson, notat..." oninput="setKunderSok(this.value)" value="${kunderSok}" class="kunder-sok">
+        <button onclick="openLeggTilKundeModal()" class="kunder-add-btn">+ Legg til kunde</button>
+        <button onclick="exportKunderCSV()" class="secondary">📤 Export CSV</button>
+      </div>
+    </div>
+    <div id="kunderList"></div>
+  `;
+
+  if (companiesContainer) companiesContainer.innerHTML = headerHtml;
+  renderKunderTabList();
+}
+
+function renderKunderTabList() {
+  const container = document.getElementById('kunderList');
+  if (!container) return;
+
+  let kunder = loadKunder();
+
+  // Filtrer på status
+  if (kunderFilter !== 'alle') {
+    kunder = kunder.filter(k => (k.status || 'ikke-pitchet') === kunderFilter);
+  }
+
+  // Filtrer på søk
+  if (kunderSok) {
+    kunder = kunder.filter(k => {
+      const haystack = [k.navn, k.orgnr, k.kontaktperson, k.notat, k.sted, k.nace, k.kjopt, k.epost]
+        .filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(kunderSok);
+    });
+  }
+
+  if (kunder.length === 0) {
+    const noneState = loadKunder().length === 0
+      ? `<div class="empty-state">
+          <div class="icon">💼</div>
+          <div class="title">Ingen kunder registrert ennå</div>
+          <div class="subtitle">Klikk <strong>+ Legg til kunde</strong> for å legge til din første eksisterende kunde. Du kan hente navn, adresse og bransje automatisk fra BRREG ved å skrive inn org.nr.</div>
+        </div>`
+      : `<div class="empty-state">
+          <div class="icon">🔍</div>
+          <div class="title">Ingen treff</div>
+          <div class="subtitle">Prøv et annet søk eller filter.</div>
+        </div>`;
+    container.innerHTML = noneState;
+    return;
+  }
+
+  // Sorter: nyeste siste kontakt først
+  kunder.sort((a, b) => (b.sisteKontakt || '').localeCompare(a.sisteKontakt || ''));
+
+  const html = kunder.map(k => kundeCardHtml(k)).join('');
+  container.innerHTML = `<div class="companies-cards${kunder.length > 30 ? ' heavy-list' : ''}">${html}</div>`;
+}
+
+function kundeCardHtml(k) {
+  const avatarLetter = (k.navn || '?').replace(/^[^a-zA-ZæøåÆØÅ0-9]+/, '')[0]?.toUpperCase() || '?';
+  let hash = 0;
+  for (let i = 0; i < k.orgnr.length; i++) hash = ((hash << 5) - hash + k.orgnr.charCodeAt(i)) | 0;
+  const avatarBg = 'bg-' + (Math.abs(hash) % 8 + 1);
+
+  const statusObj = IK_STATUSER.find(s => s.id === k.status) || IK_STATUSER[0];
+  const cardClass = `ik-status-${statusObj.id}`;
+
+  const statusBadge = `<span class="ik-badge ${statusObj.badgeClass}">${statusObj.label}</span>`;
+
+  // Statusvelger (dropdown)
+  const statusOptions = IK_STATUSER.map(s =>
+    `<option value="${s.id}"${s.id === statusObj.id ? ' selected' : ''}>${s.label}</option>`
+  ).join('');
+
+  const searchName = (k.kontaktperson || k.navn || '').trim();
+
+  return `
+    <div data-orgnr="${k.orgnr}" class="company-card ${cardClass}">
+      <div class="card-left-column">
+        <div class="company-avatar ${avatarBg}">${avatarLetter}</div>
+        <div class="card-icon-actions">
+          <button class="card-icon-btn icon-kontaktet" onclick="openRedigerKundeModal('${k.id}')" title="Rediger kunde">✏️ Rediger</button>
+          <button class="card-icon-btn icon-slett" onclick="slettKunde('${k.id}')" title="Slett kunde">Slett</button>
+        </div>
+      </div>
+      <div class="card-main">
+        <div class="card-header">
+          <div class="card-name">${escapeHtml(k.navn)}</div>
+          <div class="card-badges">${statusBadge}</div>
+        </div>
+        <div class="card-meta-row">
+          ${k.orgform ? `<span class="chip chip-form">${escapeHtml(k.orgform)}</span><span class="separator">·</span>` : ''}
+          <span class="chip chip-orgnr copyable" data-copy="${k.orgnr}" title="Klikk for å kopiere">${k.orgnr}</span>
+          ${k.sted ? `<span class="separator">·</span><span>${escapeHtml(k.sted)}</span>` : ''}
+        </div>
+        ${k.nace ? `<div class="card-meta-row"><span class="chip chip-nace">${escapeHtml(k.nace)}</span></div>` : ''}
+        ${k.kontaktperson ? `<div class="card-person"><span class="person-icon">👤</span><span class="copyable" data-copy="${escapeHtml(k.kontaktperson)}" title="Klikk for å kopiere" style="padding:2px 6px; border-radius:4px;">${escapeHtml(k.kontaktperson)}</span></div>` : ''}
+        ${k.telefon ? `<div class="card-meta-row"><span style="color:var(--green); font-family:var(--mono); font-weight:700;">📞 <span class="copyable phone-copyable" data-copy="${cleanPhone(k.telefon)}" title="Klikk for å kopiere">${formatPhone(k.telefon)}</span></span></div>` : ''}
+        ${k.epost ? `<div class="card-meta-row"><span>✉️ <a href="mailto:${k.epost}" style="color:var(--blue);">${escapeHtml(k.epost)}</a></span></div>` : ''}
+        ${k.kjopt ? `<div class="card-meta-row" style="margin-top:6px;"><span style="color:var(--muted-soft);">🛒 <strong>Tidligere kjøpt:</strong> ${escapeHtml(k.kjopt)}</span></div>` : ''}
+        ${k.notat ? `<div class="card-notat"><span class="field-label">📝 Notat:</span>${escapeHtml(k.notat)}</div>` : ''}
+        <div class="card-meta-row" style="margin-top:8px; color:var(--muted-soft); font-size:11px;">
+          <span>📅 Siste kontakt: ${k.sisteKontakt || '–'}</span>
+          ${k.opprettet ? `<span class="separator">·</span><span>Opprettet: ${k.opprettet}</span>` : ''}
+        </div>
+        <div class="card-meta-row" style="margin-top:10px;">
+          <label style="color:var(--muted-soft); font-size:11px; margin-right:6px;">Endre status:</label>
+          <select onchange="endreKundeStatus('${k.id}', this.value)" class="kunde-status-select">
+            ${statusOptions}
+          </select>
+        </div>
+        <div class="card-links" style="margin-top:10px;">
+          <a class="google" href="https://www.google.com/search?q=${encodeURIComponent(searchName + ' telefon')}" target="_blank" rel="noopener">Google</a>
+          <a class="person-search" href="https://www.1881.no/?query=${encodeURIComponent(searchName)}" target="_blank" rel="noopener">1881</a>
+          <a class="gulesider" href="https://www.gulesider.no/finn/${encodeURIComponent(searchName)}" target="_blank" rel="noopener">Gule Sider</a>
+          <a class="brreg" href="https://virksomhet.brreg.no/nb/oppslag/enheter/${k.orgnr}" target="_blank" rel="noopener">BRREG</a>
+          <a class="finn-nettside" href="https://www.google.com/search?q=${encodeURIComponent(k.navn + ' hjemmeside')}" target="_blank" rel="noopener">🔍 Finn nettside</a>
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderOppfolgingTab() {
