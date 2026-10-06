@@ -934,11 +934,11 @@
   body[data-active-tab="sg"] .company-card:not(.status-kontaktet):not(.status-solgt):not(.status-ikkesvar):not(.status-oppfolging):hover {
     box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(197,128,224,0.15), inset 1px 0 0 rgba(197,128,224,0.35);
   }
-  body[data-active-tab="kunder"] .company-card:not(.ik-status-pitchet):not(.ik-status-interessert):not(.ik-status-avtale):not(.ik-status-signert):not(.ik-status-nei) {
+  body[data-active-tab="kunder"] .company-card:not(.ik-status-pitchet):not(.ik-status-interessert):not(.ik-status-avtale):not(.ik-status-salg):not(.ik-status-nei) {
     border-left-color:var(--cyan);
     box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(34,211,238,0.2);
   }
-  body[data-active-tab="kunder"] .company-card:not(.ik-status-pitchet):not(.ik-status-interessert):not(.ik-status-avtale):not(.ik-status-signert):not(.ik-status-nei):hover {
+  body[data-active-tab="kunder"] .company-card:not(.ik-status-pitchet):not(.ik-status-interessert):not(.ik-status-avtale):not(.ik-status-salg):not(.ik-status-nei):hover {
     box-shadow:0 4px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,211,238,0.15), inset 1px 0 0 rgba(34,211,238,0.35);
   }
   /* Kunder: IK-status fargekoder */
@@ -960,7 +960,7 @@
   .ik-badge.b-pitchet { background:var(--accent); color:#111; }
   .ik-badge.b-interessert { background:var(--green); color:#111; }
   .ik-badge.b-avtale { background:var(--orange); color:#111; }
-  .ik-badge.b-signert { background:var(--green); color:#111; }
+  .ik-badge.b-salg { background:var(--green); color:#111; }
   .ik-badge.b-nei { background:var(--red); color:#fff; }
   .ik-badge.b-ikke-pitchet { background:var(--panel-3); color:var(--muted); border:1px solid var(--border); }
   /* Venstre kolonne: avatar øverst, kompakte tekst-knapper stablet under */
@@ -1420,6 +1420,29 @@
   .kunder-toolbar {
     display:flex; flex-direction:column; gap:12px;
     margin-bottom:16px;
+  }
+  .kunder-salg-summary {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
+    padding:18px 20px; background:var(--panel);
+    border:1px solid var(--border); border-left:4px solid var(--green);
+    border-radius:var(--radius-lg);
+    box-shadow:0 1px 3px rgba(0,0,0,0.4), inset 1px 0 0 rgba(101,206,121,0.2);
+  }
+  .kss-item {
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .kss-label {
+    font-size:10.5px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:0.8px; font-weight:700;
+  }
+  .kss-value {
+    font-size:20px; font-weight:800; color:var(--text);
+    font-family:var(--mono); letter-spacing:-0.3px;
+  }
+  .kss-value.green { color:var(--green); }
+  @media (max-width: 767px) {
+    .kunder-salg-summary { grid-template-columns:repeat(2, 1fr); gap:10px; padding:14px; }
+    .kss-value { font-size:16px; }
   }
   .kunder-filter-row {
     display:flex; gap:8px; flex-wrap:wrap;
@@ -1963,16 +1986,21 @@
         <input type="text" id="kundeFormKjopt" placeholder="F.eks. HMS-kurs 2024, 15 ansatte">
       </div>
 
-      <div class="full-row">
+      <div>
         <label>IK-interesse-status</label>
-        <select id="kundeFormStatus">
+        <select id="kundeFormStatus" onchange="toggleSalgsbelopFelt()">
           <option value="ikke-pitchet">Ikke pitchet</option>
           <option value="pitchet">Pitchet</option>
           <option value="interessert">Interessert</option>
           <option value="avtale">Avtale sendt</option>
-          <option value="signert">Signert</option>
+          <option value="salg">Salg 💰</option>
           <option value="nei">Takket nei</option>
         </select>
+      </div>
+
+      <div id="salgsbelopWrapper" style="display:none;">
+        <label>Salgsbeløp (NOK)</label>
+        <input type="text" id="kundeFormSalgsbelop" placeholder="F.eks. 25000" inputmode="numeric">
       </div>
 
       <div class="full-row">
@@ -5350,6 +5378,12 @@ function loadKunder() {
     return raw ? JSON.parse(raw) : [];
   } catch (e) { return []; }
 }
+
+// Formatter beløp som "25 000"
+function formatNOK(n) {
+  if (!n && n !== 0) return '0';
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
 function saveKunder(kunder) {
   localStorage.setItem(KUNDER_STORAGE_KEY, JSON.stringify(kunder));
 }
@@ -5382,9 +5416,18 @@ window.openLeggTilKundeModal = function() {
   document.getElementById('kundeFormSted').value = '';
   document.getElementById('kundeFormNace').value = '';
   document.getElementById('kundeFormOrgform').value = '';
+  document.getElementById('kundeFormSalgsbelop').value = '';
+  toggleSalgsbelopFelt();
   document.getElementById('kundeModal').dataset.editingId = '';
   document.getElementById('kundeModal').classList.add('show');
   setTimeout(() => document.getElementById('kundeFormOrgnr').focus(), 50);
+};
+
+// Vis/skjul salgsbeløp-felt basert på status
+window.toggleSalgsbelopFelt = function() {
+  const status = document.getElementById('kundeFormStatus').value;
+  const wrapper = document.getElementById('salgsbelopWrapper');
+  if (wrapper) wrapper.style.display = (status === 'salg') ? 'block' : 'none';
 };
 
 // Åpner modal for redigering
@@ -5405,6 +5448,8 @@ window.openRedigerKundeModal = function(id) {
   document.getElementById('kundeFormSted').value = k.sted || '';
   document.getElementById('kundeFormNace').value = k.nace || '';
   document.getElementById('kundeFormOrgform').value = k.orgform || '';
+  document.getElementById('kundeFormSalgsbelop').value = k.salgsbelop || '';
+  toggleSalgsbelopFelt();
   document.getElementById('kundeModal').dataset.editingId = id;
   document.getElementById('kundeModal').classList.add('show');
 };
@@ -5456,6 +5501,10 @@ window.lagreKunde = function() {
   const editingId = document.getElementById('kundeModal').dataset.editingId;
   const kunder = loadKunder();
 
+  const statusValg = document.getElementById('kundeFormStatus').value;
+  const salgsbelopRaw = document.getElementById('kundeFormSalgsbelop').value.replace(/[^\d]/g, '');
+  const salgsbelop = statusValg === 'salg' && salgsbelopRaw ? parseInt(salgsbelopRaw, 10) : null;
+
   const data = {
     orgnr: orgnrRaw,
     navn: navn,
@@ -5464,7 +5513,8 @@ window.lagreKunde = function() {
     epost: document.getElementById('kundeFormEpost').value.trim(),
     kjopt: document.getElementById('kundeFormKjopt').value.trim(),
     notat: document.getElementById('kundeFormNotat').value.trim(),
-    status: document.getElementById('kundeFormStatus').value,
+    status: statusValg,
+    salgsbelop: salgsbelop,
     sted: document.getElementById('kundeFormSted').value.trim(),
     nace: document.getElementById('kundeFormNace').value.trim(),
     orgform: document.getElementById('kundeFormOrgform').value.trim(),
@@ -5504,6 +5554,24 @@ window.endreKundeStatus = function(id, nyStatus) {
   const kunder = loadKunder();
   const k = kunder.find(x => x.id === id);
   if (!k) return;
+
+  // Hvis bruker setter status til "salg", spør etter salgsbeløp
+  if (nyStatus === 'salg') {
+    const forrigeBeløp = k.salgsbelop ? String(k.salgsbelop) : '';
+    const input = prompt('Hvor mye solgte du for? (NOK)', forrigeBeløp);
+    if (input === null) {
+      // Avbryt - reset dropdown til original
+      renderKunderTab();
+      return;
+    }
+    const belop = parseInt(input.replace(/[^\d]/g, ''), 10);
+    if (!isNaN(belop) && belop > 0) {
+      k.salgsbelop = belop;
+    }
+  } else {
+    // Hvis status endres FRA salg, behold beløpet (bruker kan fjerne manuelt via rediger)
+  }
+
   k.status = nyStatus;
   k.sisteKontakt = new Date().toISOString().slice(0, 10);
   saveKunder(kunder);
@@ -5518,10 +5586,11 @@ window.exportKunderCSV = function() {
     showToast('Ingen kunder å eksportere');
     return;
   }
-  const headers = ['Org.nr', 'Navn', 'Kontaktperson', 'Telefon', 'E-post', 'Status', 'Sted', 'NACE', 'Kjøpt tidligere', 'Notat', 'Siste kontakt', 'Opprettet'];
+  const headers = ['Org.nr', 'Navn', 'Kontaktperson', 'Telefon', 'E-post', 'Status', 'Salgsbeløp (NOK)', 'Sted', 'NACE', 'Kjøpt tidligere', 'Notat', 'Siste kontakt', 'Opprettet'];
   const rows = kunder.map(k => [
     k.orgnr, k.navn, k.kontaktperson || '', k.telefon || '', k.epost || '',
     IK_STATUSER.find(s => s.id === k.status)?.label || k.status,
+    k.salgsbelop || '',
     k.sted || '', k.nace || '', k.kjopt || '', (k.notat || '').replace(/[\r\n]+/g, ' '),
     k.sisteKontakt || '', k.opprettet || ''
   ]);
@@ -5546,8 +5615,14 @@ function renderKunderTab() {
   const totalt = kunder.length;
   const perStatus = {};
   IK_STATUSER.forEach(s => perStatus[s.id] = 0);
+  let totalSalgsbelop = 0;
+  let antallSalg = 0;
   kunder.forEach(k => {
     perStatus[k.status || 'ikke-pitchet'] = (perStatus[k.status || 'ikke-pitchet'] || 0) + 1;
+    if (k.status === 'salg' && k.salgsbelop) {
+      totalSalgsbelop += k.salgsbelop;
+      antallSalg++;
+    }
   });
 
   // Oppdater tab-count
@@ -5567,8 +5642,30 @@ function renderKunderTab() {
 
   const alleActive = kunderFilter === 'alle' ? ' active' : '';
 
+  const salgsSummary = antallSalg > 0 ? `
+    <div class="kunder-salg-summary">
+      <div class="kss-item">
+        <div class="kss-label">💰 Totalt solgt for</div>
+        <div class="kss-value green">kr ${formatNOK(totalSalgsbelop)}</div>
+      </div>
+      <div class="kss-item">
+        <div class="kss-label">🎯 Antall salg</div>
+        <div class="kss-value">${antallSalg} av ${totalt}</div>
+      </div>
+      <div class="kss-item">
+        <div class="kss-label">📊 Snitt per salg</div>
+        <div class="kss-value">kr ${formatNOK(Math.round(totalSalgsbelop / antallSalg))}</div>
+      </div>
+      <div class="kss-item">
+        <div class="kss-label">📈 Hit-rate</div>
+        <div class="kss-value">${Math.round((antallSalg / totalt) * 100)}%</div>
+      </div>
+    </div>
+  ` : '';
+
   const headerHtml = `
     <div class="kunder-toolbar">
+      ${salgsSummary}
       <div class="kunder-filter-row">
         <button class="kunder-filter-pill${alleActive}" onclick="setKunderFilter('alle')" style="${kunderFilter === 'alle' ? 'background:var(--cyan); color:#111; border-color:var(--cyan);' : 'border-color:var(--cyan); color:var(--cyan);'}">Alle <span class="kfp-count">${totalt}</span></button>
         ${filterPills}
@@ -5639,6 +5736,8 @@ function kundeCardHtml(k) {
   const cardClass = `ik-status-${statusObj.id}`;
 
   const statusBadge = `<span class="ik-badge ${statusObj.badgeClass}">${statusObj.label}</span>`;
+  const salgsbelopBadge = (k.status === 'salg' && k.salgsbelop)
+    ? `<span class="ik-badge b-salg" style="margin-left:4px;">💰 kr ${formatNOK(k.salgsbelop)}</span>` : '';
 
   // Statusvelger (dropdown)
   const statusOptions = IK_STATUSER.map(s =>
@@ -5659,7 +5758,7 @@ function kundeCardHtml(k) {
       <div class="card-main">
         <div class="card-header">
           <div class="card-name">${escapeHtml(k.navn)}</div>
-          <div class="card-badges">${statusBadge}</div>
+          <div class="card-badges">${statusBadge}${salgsbelopBadge}</div>
         </div>
         <div class="card-meta-row">
           ${k.orgform ? `<span class="chip chip-form">${escapeHtml(k.orgform)}</span><span class="separator">·</span>` : ''}
